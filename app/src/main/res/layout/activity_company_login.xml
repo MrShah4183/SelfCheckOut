@@ -1,0 +1,165 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+        <import type="android.view.View" />
+
+        <variable
+            name="isScandit"
+            type="boolean" />
+
+        <variable
+            name="isZxing"
+            type="boolean" />
+
+        <variable
+            name="isMLkit"
+            type="boolean" />
+    </data>
+
+    <RelativeLayout
+        android:id="@+id/main_relativeCom"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        tools:context=".ui.company.CompanyLoginActivity">
+
+        <com.google.android.material.appbar.AppBarLayout
+            android:id="@+id/appbarCompanyCom"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:elevation="0dp">
+
+            <com.google.android.material.appbar.MaterialToolbar
+                android:id="@+id/toolbarCompanyLogin"
+                android:layout_width="match_parent"
+                android:layout_height="?attr/actionBarSize"
+                android:background="@color/white"
+                android:elevation="5dp"
+                app:contentInsetStartWithNavigation="0dp"
+                app:popupTheme="@style/ThemeOverlay.AppCompat.DayNight">
+
+                <RelativeLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent">
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btnComOnOff"
+                        android:layout_width="50dp"
+                        android:layout_height="match_parent"
+                        android:layout_alignParentEnd="true"
+                        android:layout_marginHorizontal="10dp"
+                        android:layout_marginVertical="2dp"
+                        android:backgroundTint="@color/dark_slate_blue"
+                        android:shadowColor="@color/black"
+                        android:shadowDx="@integer/material_motion_duration_short_1"
+                        android:shadowDy="@integer/material_motion_duration_medium_1"
+                        android:shadowRadius="@integer/material_motion_duration_short_1"
+                        android:textColor="@android:color/white"
+                        app:cornerRadius="5dp"
+                        app:icon="@drawable/ic_outline_photo_camera"
+                        app:iconGravity="textStart"
+                        app:iconPadding="0dp"
+                        app:iconSize="25dp"
+                        app:iconTint="@color/white"
+                        app:rippleColor="@color/blue" />
+
+                </RelativeLayout>
+
+                <!--<TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:fontFamily="@font/abeezee"
+                    android:gravity="center"
+                    android:text="Select Shop or Scan BarCode"
+                    android:textColor="@color/black"
+                    android:textSize="20sp" />-->
+
+                <!--<ImageView
+                    android:layout_width="150dp"
+                    android:layout_height="match_parent"
+                    android:contentDescription="@string/app_name"
+                    android:padding="10dp"
+                    android:scaleType="centerCrop"
+                    android:src="@color/red"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />-->
+
+            </com.google.android.material.appbar.MaterialToolbar>
+
+        </com.google.android.material.appbar.AppBarLayout>
+
+        <View
+            android:id="@+id/viewCompany"
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_below="@+id/appbarCompanyCom"
+            android:background="@color/grey_10" />
+
+        <LinearLayout
+            android:id="@+id/main_llCom"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_below="@+id/viewCompany"
+            android:orientation="vertical"
+            android:weightSum="2">
+
+            <com.journeyapps.barcodescanner.DecoratedBarcodeView
+                android:id="@+id/zxQrDecoratedBarcodeViewCom"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="0.5"
+                android:visibility="@{ isZxing ? View.VISIBLE : View.GONE}"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                tools:visibility="visible" />
+
+            <androidx.camera.view.PreviewView
+                android:id="@+id/viewFinderCom"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="0.5"
+                android:visibility="@{ isMLkit ? View.VISIBLE : View.GONE}"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintDimensionRatio="4:2"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:scaleType="fillCenter"
+                tools:visibility="gone" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_marginTop="5dp"
+                android:layout_weight="1.5"
+                android:orientation="vertical">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_horizontal"
+                    android:fontFamily="@font/mulish_bold"
+                    android:text="@string/recently_visited_shop"
+                    android:textColor="@color/black"
+                    android:textSize="18sp"
+                    android:textStyle="bold" />
+
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/rvShopList"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_marginHorizontal="5dp"
+                    android:layout_marginTop="5dp"
+                    android:orientation="vertical"
+                    app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager" />
+
+            </LinearLayout>
+        </LinearLayout>
+    </RelativeLayout>
+</layout>

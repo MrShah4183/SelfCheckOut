@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+    </data>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/sliver"
+        android:orientation="vertical"
+        android:weightSum="1">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="0.99"
+            android:orientation="horizontal"
+            android:weightSum="5">
+
+            <TextView
+                android:id="@+id/tv_raw_sr_no"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="0.5"
+                android:fontFamily="@font/mulish_regular"
+                android:gravity="center_vertical|center_horizontal"
+                android:maxLines="1"
+                android:paddingHorizontal="5dp"
+                android:text="@string/_0"
+                android:textColor="@color/black"
+                android:textSize="14sp" />
+
+            <TextView
+                android:id="@+id/tv_raw_pro_name"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="2.6"
+                android:fontFamily="@font/mulish_regular"
+                android:gravity="center_vertical|center_horizontal"
+                android:maxLines="2"
+                android:paddingHorizontal="5dp"
+                android:text="@string/product"
+                android:textColor="@color/black"
+                android:textSize="14sp" />
+            <!--android:text="@{model.productName}"-->
+            <!--android:text="@string/product"-->
+
+            <EditText
+                android:id="@+id/tv_raw_pro_qty"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_margin="5dp"
+                android:layout_weight="0.8"
+                android:background="@drawable/et_bg2"
+                android:fontFamily="@font/mulish_regular"
+                android:gravity="center"
+                android:inputType="numberDecimal"
+                android:textSize="14sp"
+                android:padding="5dp"
+                android:textStyle="bold"
+                android:selectAllOnFocus="true"
+                tools:text="10"/>
+
+            <TextView
+                android:id="@+id/tv_raw_pro_mrp"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_marginEnd="10dp"
+                android:layout_weight="1.2"
+                android:fontFamily="@font/mulish_regular"
+                android:gravity="center"
+                android:textColor="@color/black"
+                android:textSize="14sp"
+                android:padding="5dp"
+                android:lines="2"
+                tools:text="10000.00"/>
+
+            <!--<ImageView
+                android:id="@+id/iv_raw_pro_cancle"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_gravity="end"
+                android:layout_weight="0.2"
+                android:contentDescription="@string/app_name"
+                android:paddingHorizontal="2dp"
+                android:src="@drawable/ic_close" />-->
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="0.01"
+            android:background="@color/pale_gray"
+            android:orientation="horizontal" />
+
+    </LinearLayout>
+</layout>

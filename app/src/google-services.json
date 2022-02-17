@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "239779492361",
+    "project_id": "self-checkout-a00fd",
+    "storage_bucket": "self-checkout-a00fd.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:239779492361:android:512c886440c7f9d4bdfed8",
+        "android_client_info": {
+          "package_name": "com.vasyerp.selfcheckout"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "239779492361-4dtijj8jh4ruk16d0qkvtp0vbm5eusd3.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC8N89O1QIMoUsjcCiPNl4Z-Vg9GiTVJI4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "239779492361-4dtijj8jh4ruk16d0qkvtp0vbm5eusd3.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".ui.test.TestingActivity">
+    <!--<LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="10dp"
+                android:orientation="horizontal"
+                android:weightSum="3">
+
+                <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/tilSearchShop"
+                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_marginEnd="5dp"
+                    android:layout_weight="2.5"
+                    android:hint="@string/store_name"
+                    app:boxBackgroundColor="@color/white"
+                    app:boxCornerRadiusBottomEnd="5dp"
+                    app:boxCornerRadiusBottomStart="5dp"
+                    app:boxCornerRadiusTopEnd="5dp"
+                    app:boxCornerRadiusTopStart="5dp"
+                    app:boxStrokeColor="@color/dark_slate_blue"
+                    app:endIconDrawable="@drawable/ic_outline_store"
+                    app:endIconMode="custom"
+                    app:endIconTint="@color/dark_slate_blue">
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/etShopName"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:focusableInTouchMode="true"
+                        android:fontFamily="sans-serif"
+                        android:inputType="textPersonName"
+                        android:padding="15dp"
+                        android:textColor="@color/black"
+                        android:textSize="16sp" />
+
+                </com.google.android.material.textfield.TextInputLayout>
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/tvBtnScanOnOff"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="0.5"
+                    android:backgroundTint="@color/dark_slate_blue"
+                    android:shadowColor="@color/black"
+                    android:shadowDx="@integer/material_motion_duration_short_1"
+                    android:shadowDy="@integer/material_motion_duration_medium_1"
+                    android:shadowRadius="@integer/material_motion_duration_short_1"
+                    android:textColor="@android:color/white"
+                    app:cornerRadius="5dp"
+                    app:icon="@drawable/ic_outline_photo_camera"
+                    app:iconGravity="textStart"
+                    app:iconPadding="0dp"
+                    app:iconSize="25dp"
+                    app:iconTint="@color/white"
+                    app:rippleColor="@color/blue" />
+
+                &lt;!&ndash;<com.google.android.material.button.MaterialButton
+                    android:id="@+id/tv_btn_scan_on_off"
+                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                    android:layout_width="0dp"
+                    android:layout_height="50dp"
+                    android:layout_gravity="end"
+                    android:layout_marginStart="5dp"
+                    android:layout_weight="0.5"
+                    android:background="@color/blue"
+                    app:cornerRadius="10dp" />&ndash;&gt;
+            </LinearLayout>-->
+
+</androidx.constraintlayout.widget.ConstraintLayout>

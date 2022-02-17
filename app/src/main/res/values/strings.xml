@@ -1,0 +1,23 @@
+<resources>
+    <string name="app_name">Self Check Out</string>
+    <string name="submit">Submit</string>
+    <string name="name">Full Name</string>
+    <string name="mobile_no">Mobile No.</string>
+    <string name="login">Login</string>
+    <string name="toast_no_internet">No Internet</string>
+    <string name="recently_visited_shop">Recently Visited Shop</string>
+    <string name="find_shop">Find Shop</string>
+    <string name="sign_in_to_continue">Sign in to continue</string>
+    <string name="store_name">Store Name</string>
+    <string name="walk_in_customer">Walk in Customer</string>
+    <string name="product">Product</string>
+    <string name="qty">Qty</string>
+    <string name="net_amt">Net\nAmt</string>
+    <string name="_0">0</string>
+    <string name="round_off">Round Off</string>
+    <string name="payable_amount">Payable Amount</string>
+    <string name="upi">UPI</string>
+    <string name="card">CARD</string>
+    <string name="cash">CASH</string>
+    <string name="no_data">No Data</string>
+</resources>
