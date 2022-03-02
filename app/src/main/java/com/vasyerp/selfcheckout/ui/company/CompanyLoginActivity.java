@@ -457,6 +457,8 @@ public class CompanyLoginActivity extends CameraPermissionActivity {
                 barcodeId = barcode.getDisplayValue();
                 //todo call api after scanning at mlkit
                 new Handler().postDelayed(() -> {
+                    Intent intent = new Intent(CompanyLoginActivity.this, MainActivity.class);
+                    startActivity(intent);
                     resumeScannerCases();
                     kProgressHUD.dismiss();
                 }, 1000);

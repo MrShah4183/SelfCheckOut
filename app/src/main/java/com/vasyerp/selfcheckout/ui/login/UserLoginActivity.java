@@ -67,13 +67,13 @@ public class UserLoginActivity extends AppCompatActivity {
 
         userLoginBinding.btnLoginUser.setOnClickListener(v -> {
             if (isInternetAvailable) {
-                if (checkLoginValidation()) {
-                    //todo post data into api
-                    //checkLoginValue(userLoginBinding.etUserName.getText().toString(), userLoginBinding.etUserMobile.getText().toString());
-                    Intent intent = new Intent(UserLoginActivity.this, CompanyLoginActivity.class);
-                    startActivity(intent);
-                    UserLoginActivity.this.finish();
-                }
+                //if (checkLoginValidation()) {
+                //todo check login value
+                //checkLoginValue(userLoginBinding.etUserName.getText().toString(), userLoginBinding.etUserMobile.getText().toString());
+                Intent intent = new Intent(UserLoginActivity.this, CompanyLoginActivity.class);
+                startActivity(intent);
+                UserLoginActivity.this.finish();
+                //}
             } else {
                 CommonUtil.showSnackBar(userLoginBinding.getRoot(), userLoginBinding.getRoot(), "No, Internet available!!!");
             }

@@ -2,7 +2,6 @@ package com.vasyerp.selfcheckout.ui.main;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.OptIn;
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.camera.core.AspectRatio;
 import androidx.camera.core.CameraSelector;
 import androidx.camera.core.ImageAnalysis;
@@ -15,6 +14,7 @@ import androidx.camera.view.PreviewView;
 import androidx.core.content.ContextCompat;
 
 import android.annotation.SuppressLint;
+import android.content.Intent;
 import android.graphics.Rect;
 import android.media.AudioManager;
 import android.media.Image;
@@ -22,6 +22,9 @@ import android.media.ToneGenerator;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Toast;
 
@@ -29,9 +32,8 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
+import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.google.common.util.concurrent.ListenableFuture;
-import com.google.firebase.remoteconfig.FirebaseRemoteConfig;
-import com.google.firebase.remoteconfig.FirebaseRemoteConfigSettings;
 import com.google.mlkit.vision.barcode.BarcodeScanner;
 import com.google.mlkit.vision.barcode.BarcodeScannerOptions;
 import com.google.mlkit.vision.barcode.BarcodeScanning;
@@ -42,14 +44,16 @@ import com.journeyapps.barcodescanner.BarcodeCallback;
 import com.journeyapps.barcodescanner.BarcodeResult;
 import com.journeyapps.barcodescanner.camera.CameraSettings;
 import com.kaopiz.kprogresshud.KProgressHUD;
-import com.vasyerp.selfcheckout.BuildConfig;
 import com.vasyerp.selfcheckout.R;
 import com.vasyerp.selfcheckout.api.Api;
 import com.vasyerp.selfcheckout.databinding.ActivityMainBinding;
+import com.vasyerp.selfcheckout.databinding.BottomSheetOrderSummaryBinding;
 import com.vasyerp.selfcheckout.ui.CameraPermissionActivity;
+import com.vasyerp.selfcheckout.ui.order_list.OrdersListActivity;
 import com.vasyerp.selfcheckout.utils.CommonUtil;
 import com.vasyerp.selfcheckout.utils.ConnectivityStatus;
 import com.vasyerp.selfcheckout.utils.PreferenceManager;
+import com.vasyerp.selfcheckout.utils.ScreenUtils;
 
 import java.util.Arrays;
 import java.util.List;
@@ -74,6 +78,8 @@ public class MainActivity extends CameraPermissionActivity {
     private ListenableFuture<ProcessCameraProvider> cameraProviderFuture;
     private AtomicBoolean atomicBoolean;
     private UseCaseGroup.Builder useCaseGroup;
+    private BottomSheetOrderSummaryBinding bottomSheetOrderSummaryBinding;
+    private BottomSheetDialog bottomSheetBillDetails;
 
     String subData = "symbology : ";
     Api apiInterface;
@@ -101,6 +107,9 @@ public class MainActivity extends CameraPermissionActivity {
         setContentView(activityMainBinding.getRoot());
         setSupportActionBar(activityMainBinding.toolbarMain);
         kProgressHUD = CommonUtil.getProgressView(this);
+
+        initBillDetailsBinding();
+        initBottomSheetBillDetails();
 
         //setSelectedScannerId(Long.parseLong(PreferenceManager.getScanditApiKey(MainActivity.this)));
         //PreferenceManager.setBarcodeSelectionId(MainActivity.this, CommonUtil.SCANNER_SELECTION_ID, remoteConfig.getLong(CommonUtil.REMOTE_CONFIG_SCANNER_KEY));
@@ -172,6 +181,86 @@ public class MainActivity extends CameraPermissionActivity {
 
             }
         });
+
+        activityMainBinding.btnMainCheckOut.setOnClickListener(v -> {
+            Toast.makeText(MainActivity.this, "Show bottom sheet", Toast.LENGTH_SHORT).show();
+            this.bottomSheetBillDetails.show();
+            /*Toast.makeText(MainActivity.this, "Order Post", Toast.LENGTH_SHORT).show();
+            Intent intent = new Intent(MainActivity.this, TestActivity.class);
+            startActivity(intent);*/
+        });
+
+        //activityMainBinding.btnOrderCancle.setOnClickListener(v -> Toast.makeText(MainActivity.this, "Remove All items", Toast.LENGTH_SHORT).show());
+
+    }
+
+    @SuppressLint("NonConstantResourceId")
+    private void initBillDetailsBinding() {
+        this.bottomSheetOrderSummaryBinding = BottomSheetOrderSummaryBinding.inflate(getLayoutInflater());
+
+        this.bottomSheetOrderSummaryBinding.btnCheckOut.setOnClickListener(view -> {
+            Toast.makeText(MainActivity.this, "Order Placed with unpaid.", Toast.LENGTH_SHORT).show();
+            bottomSheetOrderSummaryBinding.rGrpPayType.setOnCheckedChangeListener((group, checkedId) -> {
+                switch (checkedId) {
+                    case R.id.radioOnline:
+                        /*bottomSheetOrderSummaryBinding.llPaymentOptions.setVisibility(View.VISIBLE);*/
+                        Toast.makeText(MainActivity.this, "Make Payment Online,\n Now, select Payment Options", Toast.LENGTH_SHORT).show();
+                        break;
+                    case R.id.radioCounter:
+                        Toast.makeText(MainActivity.this, "Make Payment At Counter", Toast.LENGTH_SHORT).show();
+                        /*bottomSheetOrderSummaryBinding.llPaymentOptions.setVisibility(View.INVISIBLE);
+                        bottomSheetOrderSummaryBinding.radioDebitCard.setChecked(false);
+                        bottomSheetOrderSummaryBinding.radioUPI.setChecked(false);
+                        bottomSheetOrderSummaryBinding.radioNetBanking.setChecked(false);*/
+                        break;
+                }
+            });
+            /*if (finalBillList.size() > 0) {
+                homeViewModel.saveSales(finalBillList, Double.parseDouble(binding.grandTotalTV.getText().toString()), userFrontId);
+            } else {
+                CommonUtil.showSnackBar(binding.bottomRel, binding.bottomRel, "Please add items.");
+            }*/
+        });
+    }
+
+    private void initBottomSheetBillDetails() {
+        this.bottomSheetBillDetails = new BottomSheetDialog(MainActivity.this);
+        this.bottomSheetBillDetails.setContentView(this.bottomSheetOrderSummaryBinding.getRoot());
+        this.bottomSheetBillDetails.setCancelable(true);
+        ScreenUtils screenUtils = new ScreenUtils(this);
+        this.bottomSheetBillDetails.getBehavior().setPeekHeight(screenUtils.getHeight());
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.main_option_menu, menu);
+        return true;
+        //return super.onCreateOptionsMenu(menu);
+    }
+
+    @SuppressLint("NonConstantResourceId")
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.deleteCardMenu:
+                Toast.makeText(MainActivity.this, "Clear all cart item", Toast.LENGTH_SHORT).show();
+                return true;
+            case R.id.updateProfileMenu:
+                Toast.makeText(MainActivity.this, "My Profile", Toast.LENGTH_SHORT).show();
+                return true;
+            case R.id.myOrdersMenu:
+                Toast.makeText(MainActivity.this, "My Orders", Toast.LENGTH_SHORT).show();
+                Intent intentOrderList = new Intent(MainActivity.this, OrdersListActivity.class);
+                startActivity(intentOrderList);
+                return true;
+            case R.id.logOutMenu:
+                Toast.makeText(MainActivity.this, "LogOut", Toast.LENGTH_SHORT).show();
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+            //return true;
+        }
     }
 
     private void hideScannerCases() {

@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <item
+        android:id="@+id/deleteCardMenu"
+        android:icon="@drawable/ic_delete"
+        android:title="@string/discard_cart"
+        app:showAsAction="ifRoom" />
+    <item
+        android:id="@+id/updateProfileMenu"
+        android:title="@string/my_profile"
+        app:showAsAction="never" />
+    <item
+        android:id="@+id/myOrdersMenu"
+        android:title="@string/my_orders"
+        app:showAsAction="never" />
+    <item
+        android:id="@+id/logOutMenu"
+        android:title="@string/logout"
+        app:showAsAction="never" />
+</menu>

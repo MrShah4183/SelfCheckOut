@@ -20,4 +20,16 @@
     <string name="card">CARD</string>
     <string name="cash">CASH</string>
     <string name="no_data">No Data</string>
+    <string name="cancle">Cancle</string>
+    <string name="continues">Continue</string>
+    <string name="my_orders">My Orders</string>
+    <string name="logout">Logout</string>
+    <string name="my_profile">My Profile</string>
+    <string name="discard_cart">Discard cart</string>
+    <string name="order_summary">Order Summary</string>
+    <string name="sales_date">2021-12-12</string>
+    <string name="sr">Sr.\nNo.</string>
+    <string name="order_ndate">Order\nDate</string>
+    <string name="invoice_nno">Invoice\nNo</string>
+    <string name="total">Total</string>
 </resources>

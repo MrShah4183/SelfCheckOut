@@ -20,7 +20,8 @@ public class SplashActivity extends AppCompatActivity {
         setContentView(splashBinding.getRoot());
 
         new Handler().postDelayed(() -> {
-            Intent intent = new Intent(SplashActivity.this, CompanyLoginActivity.class);
+            //todo check user login or not according pass intent to activity
+            Intent intent = new Intent(SplashActivity.this, UserLoginActivity.class);
             startActivity(intent);
             SplashActivity.this.finish();
         }, 2000);

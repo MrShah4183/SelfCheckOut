@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+    </data>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:background="@color/sliver"
+        android:orientation="vertical"
+        android:weightSum="1">
+
+        <LinearLayout
+            android:id="@+id/llItemOrder"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="0.99"
+            android:orientation="horizontal"
+            android:weightSum="5">
+
+            <TextView
+                android:id="@+id/tvItemOrderSrNo"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="0.5"
+                android:fontFamily="sans-serif-medium"
+                android:gravity="center_vertical|center_horizontal"
+                android:maxLines="1"
+                android:text="@string/_0"
+                android:textColor="@color/black"
+                android:textSize="14sp" />
+
+            <TextView
+                android:id="@+id/tvItemOrderInv"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1.5"
+                android:fontFamily="sans-serif-medium"
+                android:gravity="center_vertical|center_horizontal"
+                android:maxLines="1"
+                android:text="invoice123"
+                android:textColor="@color/black"
+                android:textSize="14sp" />
+
+            <TextView
+                android:id="@+id/tvItemOrderDate"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1.5"
+                android:ellipsize="end"
+                android:fontFamily="sans-serif-medium"
+                android:gravity="center_vertical|center_horizontal"
+                android:maxLines="2"
+                android:textColor="@color/black"
+                android:textSize="12sp"
+                tools:text="@string/sales_date" />
+
+            <!--<TextView
+                android:id="@+id/tv_raw_order_cust_name"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1.5"
+                android:fontFamily="sans-serif-medium"
+                android:gravity="center_vertical|center_horizontal"
+                android:text="@string/customer_name"
+                android:textColor="@color/black"
+                android:textSize="14sp"
+                android:ellipsize="end"
+                android:maxLines="2" />-->
+
+            <TextView
+                android:id="@+id/tvItemOrderTotal"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1.5"
+                android:fontFamily="sans-serif-medium"
+                android:gravity="center_vertical|center_horizontal"
+                android:maxLines="1"
+                android:text="@string/_0"
+                android:textColor="@color/black"
+                android:textSize="14sp" />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="0.01"
+            android:background="@color/offwhite"
+            android:orientation="horizontal" />
+
+    </LinearLayout>
+</layout>

@@ -20,6 +20,7 @@ public class CompanyListAdapter extends RecyclerView.Adapter<CompanyListAdapter.
     Context context;
     ArrayList<CompanyDetailsModel> companyDetailsModelArrayList;
 
+
     public CompanyListAdapter(Context context, ArrayList<CompanyDetailsModel> companyDetailsModelArrayList) {
         this.context = context;
         this.companyDetailsModelArrayList = companyDetailsModelArrayList;
@@ -38,7 +39,11 @@ public class CompanyListAdapter extends RecyclerView.Adapter<CompanyListAdapter.
         holder.itemComListBinding.tvComNameItem.setText(companyDetailsModelArrayList.get(holder.getAbsoluteAdapterPosition()).getCompanyName());
         holder.itemComListBinding.tvComAddressItem.setText(companyDetailsModelArrayList.get(holder.getAbsoluteAdapterPosition()).getCompanyAddress());
         //Picasso.get().load(R.drawable.m1).into(holder.itemComListBinding.ivComLogoItem);
-        Picasso.get().load(companyDetailsModelArrayList.get(holder.getAbsoluteAdapterPosition()).getCompanyIV()).into(holder.itemComListBinding.ivComLogoItem);
+        Picasso.get()
+                .load(companyDetailsModelArrayList.get(holder.getAbsoluteAdapterPosition()).getCompanyIV())
+                .resize(2048, 2048)
+                .onlyScaleDown()
+                .into(holder.itemComListBinding.ivComLogoItem);
         //holder.itemComListBinding.tvComNameItem.setText(companyDetailsModelArrayList.get(holder.getAbsoluteAdapterPosition()).getCompanyName());
     }
 
