@@ -1,6 +1,7 @@
 package com.vasyerp.selfcheckout.adapters;
 
 import android.content.Context;
+import android.content.Intent;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
@@ -13,6 +14,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.vasyerp.selfcheckout.R;
 import com.vasyerp.selfcheckout.databinding.ItemOrderListBinding;
 import com.vasyerp.selfcheckout.models.OrderListModel;
+import com.vasyerp.selfcheckout.ui.orders_ui.OrderDetailsActivity;
 
 import java.util.ArrayList;
 
@@ -42,6 +44,9 @@ public class OrderListAdapter extends RecyclerView.Adapter<OrderListAdapter.MyVi
 
         holder.itemOrderListBinding.llItemOrder.setOnClickListener(v -> {
             Toast.makeText(context, "Click on " + holder.itemOrderListBinding.tvItemOrderInv.getText().toString(), Toast.LENGTH_SHORT).show();
+            Intent intentOrderDetails = new Intent(context, OrderDetailsActivity.class);
+            intentOrderDetails.putExtra("checkStatus", 0);
+            context.startActivity(intentOrderDetails);
             Log.e("TAG", "onBindViewHolder: ");
         });
     }

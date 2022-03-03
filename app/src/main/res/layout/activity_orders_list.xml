@@ -10,7 +10,7 @@
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        tools:context=".ui.order_list.OrdersListActivity">
+        tools:context=".ui.orders_ui.OrdersListActivity">
 
         <com.google.android.material.appbar.AppBarLayout
             android:id="@+id/appbarOrderList"

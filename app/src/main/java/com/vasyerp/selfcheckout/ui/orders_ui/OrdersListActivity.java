@@ -1,4 +1,4 @@
-package com.vasyerp.selfcheckout.ui.order_list;
+package com.vasyerp.selfcheckout.ui.orders_ui;
 
 import androidx.appcompat.app.AppCompatActivity;
 

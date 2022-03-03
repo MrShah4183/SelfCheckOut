@@ -15,6 +15,7 @@ import androidx.core.content.ContextCompat;
 
 import android.annotation.SuppressLint;
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.graphics.Rect;
 import android.media.AudioManager;
 import android.media.Image;
@@ -39,17 +40,22 @@ import com.google.mlkit.vision.barcode.BarcodeScannerOptions;
 import com.google.mlkit.vision.barcode.BarcodeScanning;
 import com.google.mlkit.vision.barcode.common.Barcode;
 import com.google.mlkit.vision.common.InputImage;
+import com.google.zxing.BarcodeFormat;
 import com.google.zxing.ResultPoint;
+import com.google.zxing.WriterException;
 import com.journeyapps.barcodescanner.BarcodeCallback;
+import com.journeyapps.barcodescanner.BarcodeEncoder;
 import com.journeyapps.barcodescanner.BarcodeResult;
 import com.journeyapps.barcodescanner.camera.CameraSettings;
 import com.kaopiz.kprogresshud.KProgressHUD;
 import com.vasyerp.selfcheckout.R;
 import com.vasyerp.selfcheckout.api.Api;
 import com.vasyerp.selfcheckout.databinding.ActivityMainBinding;
+import com.vasyerp.selfcheckout.databinding.BottomSheetBarcodeBinding;
 import com.vasyerp.selfcheckout.databinding.BottomSheetOrderSummaryBinding;
 import com.vasyerp.selfcheckout.ui.CameraPermissionActivity;
-import com.vasyerp.selfcheckout.ui.order_list.OrdersListActivity;
+import com.vasyerp.selfcheckout.ui.orders_ui.OrderDetailsActivity;
+import com.vasyerp.selfcheckout.ui.orders_ui.OrdersListActivity;
 import com.vasyerp.selfcheckout.utils.CommonUtil;
 import com.vasyerp.selfcheckout.utils.ConnectivityStatus;
 import com.vasyerp.selfcheckout.utils.PreferenceManager;
@@ -79,7 +85,8 @@ public class MainActivity extends CameraPermissionActivity {
     private AtomicBoolean atomicBoolean;
     private UseCaseGroup.Builder useCaseGroup;
     private BottomSheetOrderSummaryBinding bottomSheetOrderSummaryBinding;
-    private BottomSheetDialog bottomSheetBillDetails;
+    private BottomSheetBarcodeBinding bottomSheetBarcodeBinding;
+    private BottomSheetDialog bottomSheetBillDetails, bottomSheetBarcode;
 
     String subData = "symbology : ";
     Api apiInterface;
@@ -110,6 +117,8 @@ public class MainActivity extends CameraPermissionActivity {
 
         initBillDetailsBinding();
         initBottomSheetBillDetails();
+        initBarcodeBinding();
+        initBottomSheetBarcodeDetails();
 
         //setSelectedScannerId(Long.parseLong(PreferenceManager.getScanditApiKey(MainActivity.this)));
         //PreferenceManager.setBarcodeSelectionId(MainActivity.this, CommonUtil.SCANNER_SELECTION_ID, remoteConfig.getLong(CommonUtil.REMOTE_CONFIG_SCANNER_KEY));
@@ -198,23 +207,28 @@ public class MainActivity extends CameraPermissionActivity {
     private void initBillDetailsBinding() {
         this.bottomSheetOrderSummaryBinding = BottomSheetOrderSummaryBinding.inflate(getLayoutInflater());
 
-        this.bottomSheetOrderSummaryBinding.btnCheckOut.setOnClickListener(view -> {
-            Toast.makeText(MainActivity.this, "Order Placed with unpaid.", Toast.LENGTH_SHORT).show();
-            bottomSheetOrderSummaryBinding.rGrpPayType.setOnCheckedChangeListener((group, checkedId) -> {
-                switch (checkedId) {
-                    case R.id.radioOnline:
-                        /*bottomSheetOrderSummaryBinding.llPaymentOptions.setVisibility(View.VISIBLE);*/
-                        Toast.makeText(MainActivity.this, "Make Payment Online,\n Now, select Payment Options", Toast.LENGTH_SHORT).show();
-                        break;
-                    case R.id.radioCounter:
-                        Toast.makeText(MainActivity.this, "Make Payment At Counter", Toast.LENGTH_SHORT).show();
+        bottomSheetOrderSummaryBinding.rGrpPayType.setOnCheckedChangeListener((group, checkedId) -> {
+            switch (checkedId) {
+                case R.id.radioOnline:
+                    /*bottomSheetOrderSummaryBinding.llPaymentOptions.setVisibility(View.VISIBLE);*/
+                    Toast.makeText(MainActivity.this, "Make Payment Online,\n Now, select Payment Options", Toast.LENGTH_SHORT).show();
+                    break;
+                case R.id.radioCounter:
+                    Toast.makeText(MainActivity.this, "Make Payment At Counter", Toast.LENGTH_SHORT).show();
                         /*bottomSheetOrderSummaryBinding.llPaymentOptions.setVisibility(View.INVISIBLE);
                         bottomSheetOrderSummaryBinding.radioDebitCard.setChecked(false);
                         bottomSheetOrderSummaryBinding.radioUPI.setChecked(false);
                         bottomSheetOrderSummaryBinding.radioNetBanking.setChecked(false);*/
-                        break;
-                }
-            });
+                    break;
+            }
+        });
+
+        this.bottomSheetOrderSummaryBinding.btnCheckOut.setOnClickListener(view -> {
+            Toast.makeText(MainActivity.this, "Order Placed with unpaid.", Toast.LENGTH_SHORT).show();
+            //bottomSheetBarcode.show();
+            Intent intent = new Intent(MainActivity.this, OrderDetailsActivity.class);
+            intent.putExtra("checkStatus", 1);
+            startActivity(intent);
             /*if (finalBillList.size() > 0) {
                 homeViewModel.saveSales(finalBillList, Double.parseDouble(binding.grandTotalTV.getText().toString()), userFrontId);
             } else {
@@ -223,12 +237,33 @@ public class MainActivity extends CameraPermissionActivity {
         });
     }
 
+    private void initBarcodeBinding() {
+        this.bottomSheetBarcodeBinding = BottomSheetBarcodeBinding.inflate(getLayoutInflater());
+        BarcodeEncoder barcodeEncoder = new BarcodeEncoder();
+        try {
+            Bitmap bitmap = barcodeEncoder.encodeBitmap("INV4183", BarcodeFormat.CODE_128, 700, 150);
+            bottomSheetBarcodeBinding.ivBarcode.setImageBitmap(bitmap);
+            bottomSheetBarcodeBinding.tvOrderNo.setText("INV4183");
+        } catch (WriterException e) {
+            e.printStackTrace();
+            Log.e(TAG, "onCreate: some interrupt ");
+        }
+    }
+
     private void initBottomSheetBillDetails() {
         this.bottomSheetBillDetails = new BottomSheetDialog(MainActivity.this);
         this.bottomSheetBillDetails.setContentView(this.bottomSheetOrderSummaryBinding.getRoot());
         this.bottomSheetBillDetails.setCancelable(true);
         ScreenUtils screenUtils = new ScreenUtils(this);
         this.bottomSheetBillDetails.getBehavior().setPeekHeight(screenUtils.getHeight());
+    }
+
+    private void initBottomSheetBarcodeDetails() {
+        this.bottomSheetBarcode = new BottomSheetDialog(MainActivity.this);
+        this.bottomSheetBarcode.setContentView(this.bottomSheetBarcodeBinding.getRoot());
+        this.bottomSheetBarcode.setCancelable(true);
+        ScreenUtils screenUtils = new ScreenUtils(this);
+        this.bottomSheetBarcode.getBehavior().setPeekHeight(screenUtils.getHeight());
     }
 
     @Override

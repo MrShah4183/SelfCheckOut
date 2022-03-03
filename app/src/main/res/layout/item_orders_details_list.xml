@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/white"
+        android:minHeight="55dp">
+
+        <TextView
+            android:id="@+id/productName"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:ellipsize="end"
+            android:fontFamily="sans-serif-medium"
+            android:gravity="center_vertical"
+            android:maxLines="2"
+            android:paddingHorizontal="10dp"
+            android:paddingVertical="5dp"
+            android:textColor="@color/black"
+            android:textSize="14sp"
+            app:layout_constraintBottom_toBottomOf="@id/bottomBoundry"
+            app:layout_constraintEnd_toStartOf="@+id/productQty"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:text="oneplus 12gb 256gb / blue" />
+
+        <TextView
+            android:id="@+id/productQty"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:fontFamily="sans-serif-medium"
+            android:gravity="center"
+            android:minWidth="50dp"
+            android:padding="5dp"
+            android:textColor="@color/black"
+            app:layout_constraintBottom_toBottomOf="@id/bottomBoundry"
+            app:layout_constraintEnd_toStartOf="@+id/productDiscount"
+            app:layout_constraintStart_toEndOf="@+id/productName"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:text="10" />
+
+        <TextView
+            android:id="@+id/productDiscount"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:fontFamily="sans-serif-medium"
+            android:gravity="center"
+            android:minWidth="50dp"
+            android:padding="5dp"
+            android:textColor="@color/black"
+            android:visibility="gone"
+            app:layout_constraintBottom_toBottomOf="@id/bottomBoundry"
+            app:layout_constraintEnd_toStartOf="@+id/productNetAmount"
+            app:layout_constraintStart_toEndOf="@+id/productQty"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:text="10" />
+
+        <TextView
+            android:id="@+id/productNetAmount"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:fontFamily="sans-serif-medium"
+            android:gravity="center"
+            android:minWidth="100dp"
+            android:padding="5dp"
+            android:textColor="@color/black"
+            app:layout_constraintBottom_toBottomOf="@id/bottomBoundry"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/productDiscount"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:text="89000.00" />
+
+        <TextView
+            android:id="@+id/bottomBoundry"
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@color/offwhite"
+            android:padding="10dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>
