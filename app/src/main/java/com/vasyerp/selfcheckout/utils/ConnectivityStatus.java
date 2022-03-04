@@ -4,6 +4,7 @@ import android.content.Context;
 import android.net.ConnectivityManager;
 import android.net.Network;
 import android.net.NetworkCapabilities;
+import android.net.NetworkInfo;
 import android.net.NetworkRequest;
 import android.os.Build;
 
@@ -56,11 +57,47 @@ public class ConnectivityStatus extends LiveData<Boolean> {
             request.addCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
                     .addCapability(NetworkCapabilities.NET_CAPABILITY_VALIDATED)
                     .addTransportType(NetworkCapabilities.TRANSPORT_CELLULAR)
-                    .addTransportType(NetworkCapabilities.TRANSPORT_ETHERNET)
-                    .addTransportType(NetworkCapabilities.TRANSPORT_BLUETOOTH)
-                    .addTransportType(NetworkCapabilities.TRANSPORT_WIFI);
+                    .addTransportType(NetworkCapabilities.TRANSPORT_WIFI)
+                    .addTransportType(NetworkCapabilities.TRANSPORT_ETHERNET);
 
             manager.registerNetworkCallback(request.build(), getCallback());
+        } else {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                NetworkRequest networkRequest = new NetworkRequest.Builder()
+                        .addCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
+                        .addTransportType(NetworkCapabilities.TRANSPORT_WIFI)
+                        .addTransportType(NetworkCapabilities.TRANSPORT_CELLULAR)
+                        .addTransportType(NetworkCapabilities.TRANSPORT_ETHERNET)
+                        .build();
+
+                manager.registerNetworkCallback(networkRequest, getCallback());
+
+            } else {
+                postValue(true);
+            }
+        }
+    }
+
+    public boolean hostAvailable(ConnectivityManager connectivity) {
+        if (connectivity != null) {
+            NetworkInfo[] info = connectivity.getAllNetworkInfo();
+            if (info != null) {
+                for (int i = 0; i < info.length; i++) {
+                    if (info[i].getState() == NetworkInfo.State.CONNECTED) {
+                        return true;
+                    }
+                }
+            }
+        }
+        return false;
+    }
+
+    public boolean internetIsConnected() {
+        try {
+            String command = "ping -c 1 google.com";
+            return (Runtime.getRuntime().exec(command).waitFor() == 0);
+        } catch (Exception e) {
+            return false;
         }
     }
 

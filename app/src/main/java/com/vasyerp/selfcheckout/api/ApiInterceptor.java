@@ -2,7 +2,7 @@ package com.vasyerp.selfcheckout.api;
 
 import androidx.annotation.NonNull;
 
-//import com.scan.myscanner.BuildConfig;
+import com.vasyerp.selfcheckout.BuildConfig;
 
 import java.io.IOException;
 
@@ -17,8 +17,8 @@ public class ApiInterceptor implements Interceptor {
         Request.Builder requestBuilder = chain.request().newBuilder();
         requestBuilder.addHeader("Content-Type", "application/json;charset=UTF-8");
         requestBuilder.addHeader("Transfer-Encoding", "chunked");
-        /*requestBuilder.addHeader("X-APIKEY", BuildConfig.X_API_KEY);
-        requestBuilder.addHeader("AgentName", BuildConfig.AGENT_NAME);*/
+        requestBuilder.addHeader("X-APIKEY", BuildConfig.X_API_KEY);
+        requestBuilder.addHeader("AgentName", BuildConfig.AGENT_NAME);
         return chain.proceed(requestBuilder.build());
     }
 }

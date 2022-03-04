@@ -66,8 +66,60 @@ public class CommonUtil {
     public static final String COMPANY_LOGO_SELECTION = "companyLogoSelection";
     public static final String QRCODE_SELECTION = "qrCodeSelection";*/
 
+    private static Pattern numberLengthPattern, numberFormatPattern;
+    private static String numberFormatStr = "^\\d+$";
+    private static String numberLengthStr = "^.{10}$";
 
-    public static KProgressHUD getProgressView(Context context) {
+    public static KProgressHUD getKProgressHud(Context context) {
+        return KProgressHUD.create(context);
+    }
+
+    public static void showSnackBar(View parentView, View anchorView, String message) {
+        Snackbar snackbar = Snackbar.make(parentView, message, Snackbar.LENGTH_LONG);
+        snackbar.setAnchorView(anchorView);
+        snackbar.show();
+    }
+
+    public static double getDoubleDecimalValue(double value) {
+        return Double.parseDouble(String.format(Locale.getDefault(), "%.2f", value));
+    }
+
+    private static Pattern getNumberFormatPatternInstance() {
+        if (numberFormatPattern == null) {
+            numberFormatPattern = Pattern.compile(numberFormatStr, Pattern.DOTALL);
+            return numberFormatPattern;
+        }
+        return numberFormatPattern;
+    }
+
+    private static Pattern getNumberLengthPatternInstance() {
+        if (numberLengthPattern == null) {
+            numberLengthPattern = Pattern.compile(numberLengthStr, Pattern.DOTALL);
+            return numberLengthPattern;
+        }
+        return numberLengthPattern;
+    }
+
+    public static boolean checkNumberLength(String number) {
+        Pattern pattern = CommonUtil.getNumberLengthPatternInstance();
+        if (pattern.matcher(String.valueOf(number)).matches()) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    public static boolean checkNumberFormat(String number) {
+        Pattern pattern = CommonUtil.getNumberFormatPatternInstance();
+        if (pattern.matcher(String.valueOf(number)).matches()) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+
+    /*public static KProgressHUD getProgressView(Context context) {
         return KProgressHUD.create(context)
                 .setStyle(KProgressHUD.Style.SPIN_INDETERMINATE)
                 .setLabel("Please wait...")
@@ -94,8 +146,8 @@ public class CommonUtil {
     public final static Pattern PASSWORD_VALIDATION2 =
             Pattern.compile("^" +
                     "(?=.*[0-9])" +     //at least 1 digit
-                    /*"(?=.*[a-z])" +     //at least 1 lower case
-                    "(?=.*[A-Z])" +     //at least 1 upper case*/
+                    *//*"(?=.*[a-z])" +     //at least 1 lower case
+                    "(?=.*[A-Z])" +     //at least 1 upper case*//*
                     "(?=.*[a-zA-Z])" +     //any letter
                     "(?=\\S+$)" +       //no white space
                     ".{6,}" +           //at least 6 characters
@@ -138,155 +190,5 @@ public class CommonUtil {
         } catch (Exception e) {
             return true;
         }
-    }
-
-
-    public static boolean isInternetAvailable(Context context) {
-        ConnectionDetector cd = new ConnectionDetector(context);
-        Boolean isInternetPresent = cd.isConnectingToInternet();
-
-        if (!isInternetPresent) {
-            Toast.makeText(context, context.getResources().getString(R.string.toast_no_internet), Toast.LENGTH_SHORT).show();
-            return false;
-        } else {
-            return isInternetPresent;
-        }
-    }
-
-
-    public static File get_Picture_bitmap(String imagePath) {
-
-        File imageFile = new File(imagePath);
-
-        long size_file = getFileSize(imageFile);
-
-        Log.i("CommonUtil", "Initial image size : " + size_file);
-
-        size_file = (size_file) / 1000;// in Kb now
-        int ample_size = 1;
-
-        if (size_file <= 250) {
-
-            Log.i("CommonUtil", "SSSSS1111= " + size_file);
-            ample_size = 2;
-
-        } else if (size_file > 251 && size_file < 1500) {
-
-            Log.i("CommonUtil", "SSSSS2222= " + size_file);
-            ample_size = 4;
-
-        } else if (size_file >= 1500 && size_file < 3000) {
-
-            Log.i("CommonUtil", "SSSSS3333= " + size_file);
-            ample_size = 8;
-
-        } else if (size_file >= 3000 && size_file <= 4500) {
-
-            Log.i("CommonUtil", "SSSSS4444= " + size_file);
-            ample_size = 12;
-
-        } else if (size_file >= 4500) {
-
-            Log.i("CommonUtil", "SSSSS5555= " + size_file);
-            ample_size = 16;
-        } else {
-            Log.i("CommonUtil", "SSSSS6666= " + size_file);
-        }
-
-        Bitmap bitmap = null;
-
-        BitmapFactory.Options bitoption = new BitmapFactory.Options();
-        bitoption.inSampleSize = ample_size;
-
-        Bitmap bitmapPhoto = BitmapFactory.decodeFile(imagePath, bitoption);
-
-        ExifInterface exif = null;
-        try {
-            exif = new ExifInterface(imagePath);
-        } catch (IOException e) {
-            // Auto-generated catch block
-            e.printStackTrace();
-        }
-        int orientation = exif
-                .getAttributeInt(ExifInterface.TAG_ORIENTATION, 1);
-        Matrix matrix = new Matrix();
-
-        if ((orientation == 3)) {
-            matrix.postRotate(180);
-            bitmap = Bitmap.createBitmap(bitmapPhoto, 0, 0,
-                    bitmapPhoto.getWidth(), bitmapPhoto.getHeight(), matrix,
-                    true);
-
-        } else if (orientation == 6) {
-            matrix.postRotate(90);
-            bitmap = Bitmap.createBitmap(bitmapPhoto, 0, 0,
-                    bitmapPhoto.getWidth(), bitmapPhoto.getHeight(), matrix,
-                    true);
-
-        } else if (orientation == 8) {
-            matrix.postRotate(270);
-            bitmap = Bitmap.createBitmap(bitmapPhoto, 0, 0,
-                    bitmapPhoto.getWidth(), bitmapPhoto.getHeight(), matrix,
-                    true);
-
-        } else {
-            matrix.postRotate(0);
-            bitmap = Bitmap.createBitmap(bitmapPhoto, 0, 0,
-                    bitmapPhoto.getWidth(), bitmapPhoto.getHeight(), matrix,
-                    true);
-
-        }
-
-        try {
-            imageFile.createNewFile();
-
-            FileOutputStream outputStream = new FileOutputStream(imageFile);
-
-            bitmap.compress(Bitmap.CompressFormat.JPEG, 100, outputStream);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-        Log.i("CommonUtil", "Final image size : " + getFileSize(imageFile));
-
-        return imageFile;
-    }
-
-
-    public static long getFileSize(final File file) {
-        if (file == null || !file.exists())
-            return 0;
-        if (!file.isDirectory())
-            return file.length();
-        final List<File> dirs = new LinkedList<File>();
-        dirs.add(file);
-        long result = 0;
-        while (!dirs.isEmpty()) {
-            final File dir = dirs.remove(0);
-            if (!dir.exists())
-                continue;
-            final File[] listFiles = dir.listFiles();
-            if (listFiles == null || listFiles.length == 0)
-                continue;
-            for (final File child : listFiles) {
-                result += child.length();
-                if (child.isDirectory())
-                    dirs.add(child);
-            }
-        }
-
-        return result;
-    }
-
-    /*public static void setCircularImageToGlide(final Context context, final CircleImageView imageView, String imageUrl) {
-        Glide.with(context).load("" + imageUrl).asBitmap().placeholder(R.drawable.ic_person).error(R.drawable.ic_person).into(new BitmapImageViewTarget(imageView) {
-            @Override
-            protected void setResource(Bitmap resource) {
-        RoundedBitmapDrawable circularBitmapDrawable =
-                RoundedBitmapDrawableFactory.create(context.getResources(), resource);
-        circularBitmapDrawable.setCircular(true);
-        imageView.setImageDrawable(circularBitmapDrawable);
-    }
-});
-        }*/
+    }*/
 }

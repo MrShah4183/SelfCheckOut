@@ -81,7 +81,6 @@ public class CompanyLoginActivity extends CameraPermissionActivity {
     private AtomicBoolean atomicBoolean;
     private UseCaseGroup.Builder useCaseGroup;
 
-    String subData = "symbology : ";
     Api apiInterface;
 
     KProgressHUD kProgressHUD;
@@ -109,7 +108,7 @@ public class CompanyLoginActivity extends CameraPermissionActivity {
         companyLoginBinding = ActivityCompanyLoginBinding.inflate(getLayoutInflater());
         setContentView(companyLoginBinding.getRoot());
         setSupportActionBar(companyLoginBinding.toolbarCompanyLogin);
-        kProgressHUD = CommonUtil.getProgressView(this);
+        //kProgressHUD = CommonUtil.getProgressView(this);
         companyDetailsModelArrayList = new ArrayList<>();
         setCompanyData();
         companyListAdapter = new CompanyListAdapter(this, companyDetailsModelArrayList);
@@ -152,15 +151,12 @@ public class CompanyLoginActivity extends CameraPermissionActivity {
         status.observe(this, aBoolean -> {
             if (aBoolean) {
                 kProgressHUD.show();
-                new Handler().postDelayed(new Runnable() {
-                    @Override
-                    public void run() {
-                        //todo load product data
-                        /*if (getAllProducts.size() == 0) {
-                            mainViewModel.getAllProducts(companyId);
-                        }*/
-                        kProgressHUD.dismiss();
-                    }
+                new Handler().postDelayed(() -> {
+                    //todo load product data
+                    /*if (getAllProducts.size() == 0) {
+                        mainViewModel.getAllProducts(companyId);
+                    }*/
+                    kProgressHUD.dismiss();
                 }, 1500);
             }
         });

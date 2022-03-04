@@ -37,7 +37,7 @@ public class UserLoginActivity extends AppCompatActivity {
         userLoginBinding = ActivityUserLoginBinding.inflate(getLayoutInflater());
         setContentView(userLoginBinding.getRoot());
         //apiInterface = ApiGenerator.getSingle().create(Api.class);
-        kProgressHUD = CommonUtil.getProgressView(UserLoginActivity.this);
+        //kProgressHUD = CommonUtil.getProgressView(UserLoginActivity.this);
         numberLengthReg = Pattern.compile(numberLengthRegex, Pattern.DOTALL);
         mobileNumberPattern = Pattern.compile(numberPatternStr, Pattern.DOTALL);
 

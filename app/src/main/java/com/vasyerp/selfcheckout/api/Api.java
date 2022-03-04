@@ -1,5 +1,8 @@
 package com.vasyerp.selfcheckout.api;
 
+import com.vasyerp.selfcheckout.models.login.LogIn;
+import com.vasyerp.selfcheckout.models.login.LoginBody;
+
 import java.util.List;
 
 import retrofit2.Call;
@@ -9,6 +12,10 @@ import retrofit2.http.POST;
 import retrofit2.http.Query;
 
 public interface Api {
+
+    //comapany loging using qr code scanning
+    @POST("mpos/api/v2/get/companydetails")
+    Call<ApiResponse<LogIn>> companyLogin(@Body LoginBody loginBody);
 
     /**
      * check domain name
