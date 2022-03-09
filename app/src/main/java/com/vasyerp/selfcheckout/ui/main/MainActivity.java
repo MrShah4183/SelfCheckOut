@@ -2,6 +2,7 @@ package com.vasyerp.selfcheckout.ui.main;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.OptIn;
+import androidx.appcompat.app.AlertDialog;
 import androidx.camera.core.AspectRatio;
 import androidx.camera.core.CameraSelector;
 import androidx.camera.core.ImageAnalysis;
@@ -12,21 +13,37 @@ import androidx.camera.core.ViewPort;
 import androidx.camera.lifecycle.ProcessCameraProvider;
 import androidx.camera.view.PreviewView;
 import androidx.core.content.ContextCompat;
+import androidx.core.view.GravityCompat;
+import androidx.lifecycle.Observer;
+import androidx.lifecycle.ViewModelProvider;
+import androidx.recyclerview.widget.ItemTouchHelper;
+import androidx.recyclerview.widget.RecyclerView;
 
 import android.annotation.SuppressLint;
+import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Rect;
 import android.media.AudioManager;
 import android.media.Image;
 import android.media.ToneGenerator;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewTreeObserver;
+import android.view.inputmethod.InputMethodManager;
+import android.widget.AdapterView;
+import android.widget.EditText;
 import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -34,6 +51,7 @@ import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.mlkit.vision.barcode.BarcodeScanner;
 import com.google.mlkit.vision.barcode.BarcodeScannerOptions;
@@ -48,11 +66,26 @@ import com.journeyapps.barcodescanner.BarcodeEncoder;
 import com.journeyapps.barcodescanner.BarcodeResult;
 import com.journeyapps.barcodescanner.camera.CameraSettings;
 import com.kaopiz.kprogresshud.KProgressHUD;
+import com.squareup.picasso.Picasso;
 import com.vasyerp.selfcheckout.R;
+import com.vasyerp.selfcheckout.adapters.batch.BatchSelectionArrayAdapter;
+import com.vasyerp.selfcheckout.adapters.cart_product.CartAdapter;
+import com.vasyerp.selfcheckout.adapters.cart_product.SwipeToRemove;
+import com.vasyerp.selfcheckout.adapters.getproductdata.AdapterGetProductData;
+import com.vasyerp.selfcheckout.adapters.listeners.CartQtyFocusCallback;
+import com.vasyerp.selfcheckout.adapters.listeners.ItemQtyCallback;
 import com.vasyerp.selfcheckout.api.Api;
+import com.vasyerp.selfcheckout.api.ApiGenerator;
 import com.vasyerp.selfcheckout.databinding.ActivityMainBinding;
 import com.vasyerp.selfcheckout.databinding.BottomSheetBarcodeBinding;
 import com.vasyerp.selfcheckout.databinding.BottomSheetOrderSummaryBinding;
+import com.vasyerp.selfcheckout.databinding.DialogSelectProductBatchBinding;
+import com.vasyerp.selfcheckout.models.product.GetAllProducts;
+import com.vasyerp.selfcheckout.models.product.Product;
+import com.vasyerp.selfcheckout.models.product.ProductDto;
+import com.vasyerp.selfcheckout.models.product.ProductVarientsDTO;
+import com.vasyerp.selfcheckout.models.product.StockMasterVo;
+import com.vasyerp.selfcheckout.repositories.MainRepository;
 import com.vasyerp.selfcheckout.ui.CameraPermissionActivity;
 import com.vasyerp.selfcheckout.ui.orders_ui.OrderDetailsActivity;
 import com.vasyerp.selfcheckout.ui.orders_ui.OrdersListActivity;
@@ -60,11 +93,23 @@ import com.vasyerp.selfcheckout.utils.CommonUtil;
 import com.vasyerp.selfcheckout.utils.ConnectivityStatus;
 import com.vasyerp.selfcheckout.utils.PreferenceManager;
 import com.vasyerp.selfcheckout.utils.ScreenUtils;
+import com.vasyerp.selfcheckout.viewmodels.main.MainViewModel;
+import com.vasyerp.selfcheckout.viewmodels.main.MainViewModelFactory;
 
+import java.text.NumberFormat;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Calendar;
 import java.util.List;
+import java.util.Locale;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.function.Function;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
+
+import lombok.SneakyThrows;
 
 public class MainActivity extends CameraPermissionActivity {
     private static final String TAG = "MainActivity";
@@ -88,8 +133,8 @@ public class MainActivity extends CameraPermissionActivity {
     private BottomSheetBarcodeBinding bottomSheetBarcodeBinding;
     private BottomSheetDialog bottomSheetBillDetails, bottomSheetBarcode;
 
-    String subData = "symbology : ";
-    Api apiInterface;
+    String storeName = "";
+    String storeImg = "";
 
     double changeAmount = 0.0;
     String isShowing = "N";
@@ -99,12 +144,86 @@ public class MainActivity extends CameraPermissionActivity {
     private long selectedScannerId = 3;
     private String barcodeId;
 
-    public long getSelectedScannerId() {
+    ArrayList<GetAllProducts> getAllProducts;
+    List<StockMasterVo> cartItemsList;
+    private ProductDto productDto;
+    private ArrayList<StockMasterVo> stockMasterVos;
+    ArrayList<Product> productArrayList;
+    Product productModel;
+
+    private double finalDisplayMrp = 0.0;
+    private double backupFinalPrice = 0.0;
+
+    private AdapterGetProductData adapterGetProductData;
+    private BatchSelectionArrayAdapter batchSelectionArrayAdapter;
+    CartAdapter cartAdapter;
+
+    DialogSelectProductBatchBinding dialogBatchSelectionBinding;
+
+    private int companyId;
+    private int userId;
+    private int branchId;
+    private String domainName;
+
+    AlertDialog batchSelectionDialog;
+
+    String newPattern = "(^|^-?)\\d+(\\.\\d+)?(?=$)|(?<=^)\\.\\d+(?=$)";
+    String gstPatternRegex = "^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$";
+    String numberPatternStr = "^\\d+$";
+    String numberLengthRegex = "^.{10}$";
+    String decimalRegex = "\\d+(\\.\\d{1,2})?";
+    Pattern pattern, mobileNumberPattern, numberLengthReg, decimalPattern;
+    NumberFormat numberFormat;
+    private StockMasterVo selectedStockMasterVo;
+    MainViewModel mainViewModel;
+    int widthOfEtBarcode = 500;
+    private boolean isInternetConnected;
+    //todo private SaveBillResponse saveBillResponse;
+    // public SaveBillResponse getSaveBillResponse() {
+    //        return saveBillResponse;
+    //    }
+    //    public void setSaveBillResponse(SaveBillResponse saveBillResponse) {
+    //        this.saveBillResponse = saveBillResponse;
+    //    }
+
+    /*public long getSelectedScannerId() {
         return selectedScannerId;
     }
 
     public void setSelectedScannerId(long selectedScannerId) {
         this.selectedScannerId = selectedScannerId;
+    }*/
+
+    public ProductDto getProductDto() {
+        return productDto;
+    }
+
+    public void setProductDto(ProductDto productDto) {
+        this.productDto = productDto;
+    }
+
+    public double getFinalDisplayMrp() {
+        return finalDisplayMrp;
+    }
+
+    public void setFinalDisplayMrp(double finalDisplayMrp) {
+        this.finalDisplayMrp = finalDisplayMrp;
+    }
+
+    public StockMasterVo getSelectedStockMasterVo() {
+        return selectedStockMasterVo;
+    }
+
+    public void setSelectedStockMasterVo(StockMasterVo selectedStockMasterVo) {
+        this.selectedStockMasterVo = selectedStockMasterVo;
+    }
+
+    public double getBackupFinalPrice() {
+        return backupFinalPrice;
+    }
+
+    public void setBackupFinalPrice(double backupFinalPrice) {
+        this.backupFinalPrice = backupFinalPrice;
     }
 
     @Override
@@ -113,8 +232,39 @@ public class MainActivity extends CameraPermissionActivity {
         activityMainBinding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(activityMainBinding.getRoot());
         setSupportActionBar(activityMainBinding.toolbarMain);
-        kProgressHUD = CommonUtil.getProgressView(this);
+        Intent intent = getIntent();
+        storeName = intent.getStringExtra("storeName");
+        storeImg = intent.getStringExtra("storeImg");
 
+        activityMainBinding.tvMainCompanyName.setText(storeName);
+        Picasso.get().load(storeImg).into(activityMainBinding.ivMainCompanyImg);
+
+        pattern = Pattern.compile(newPattern, Pattern.DOTALL);
+        numberLengthReg = Pattern.compile(numberLengthRegex, Pattern.DOTALL);
+        mobileNumberPattern = Pattern.compile(numberPatternStr, Pattern.DOTALL);
+        decimalPattern = Pattern.compile(decimalRegex, Pattern.DOTALL);
+        numberFormat = NumberFormat.getInstance();
+        companyId = Integer.parseInt(PreferenceManager.getCompanyId(this));
+        branchId = Integer.parseInt(PreferenceManager.getBranchId(this));
+        userId = Integer.parseInt(PreferenceManager.getUserId(this));
+        domainName = PreferenceManager.getDomain(this);
+
+
+        ConnectivityStatus connectivityStatus = new ConnectivityStatus(MainActivity.this);
+        connectivityStatus.observe(this, new Observer<Boolean>() {
+            @Override
+            public void onChanged(Boolean aBoolean) {
+                isInternetConnected = aBoolean;
+            }
+        });
+
+        getWidthOfEditText();
+        initArrayLists();
+        initKProgressHud();
+        initBindings();
+        initViewModelAndRepository();
+
+        //todo set dynamic
         initBillDetailsBinding();
         initBottomSheetBillDetails();
         initBarcodeBinding();
@@ -123,28 +273,75 @@ public class MainActivity extends CameraPermissionActivity {
         //setSelectedScannerId(Long.parseLong(PreferenceManager.getScanditApiKey(MainActivity.this)));
         //PreferenceManager.setBarcodeSelectionId(MainActivity.this, CommonUtil.SCANNER_SELECTION_ID, remoteConfig.getLong(CommonUtil.REMOTE_CONFIG_SCANNER_KEY));
         barcodeScannerViewSelection();
-
-        //todo call when api required
-        //apiInterface = ApiGenerator.getSingle().create(Api.class);
-
-        ConnectivityStatus status = new ConnectivityStatus(this);
+        /*ConnectivityStatus status = new ConnectivityStatus(this);
         status.observe(this, aBoolean -> {
             if (aBoolean) {
                 kProgressHUD.show();
-                new Handler().postDelayed(new Runnable() {
-                    @Override
-                    public void run() {
-                        //todo load product data
-                        /*if (getAllProducts.size() == 0) {
-                            mainViewModel.getAllProducts(companyId);
-                        }*/
-                        kProgressHUD.dismiss();
+                new Handler().postDelayed(() -> {
+                    if (getAllProducts.size() == 0) {
+
                     }
+                    kProgressHUD.dismiss();
                 }, 1500);
+            }
+        });*/
+
+
+        initBatchSelectionDialog();
+
+        setUpAdapterGetProductData();
+
+        viewObserversCollection();
+
+        initCartAdapter();
+
+        batchSelectionArrayAdapter = new BatchSelectionArrayAdapter(MainActivity.this, stockMasterVos);
+        dialogBatchSelectionBinding.spinnerBatchSelection.setAdapter(batchSelectionArrayAdapter);
+        dialogBatchSelectionBinding.spinnerBatchSelection.setSelection(0);
+        dialogBatchSelectionBinding.spinnerBatchSelection.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                setSelectedStockMasterVo((StockMasterVo) parent.getItemAtPosition(position));
+                getSelectedStockMasterVo().setOldQuantity(getSelectedStockMasterVo().getQuantity());
+//                if (getSelectedStockMasterVo().getHasNegativeSelling() == 1) {
+//                    if (Double.valueOf(getSelectedStockMasterVo().getQuantity()).doubleValue() <= 0.0) {
+//                        setSelectedStockMasterVo(null);
+//                        batchSelectionDialog.dismiss();
+//                        new Handler().postDelayed(new Runnable() {
+//                            @Override
+//                            public void run() {
+//                                CommonUtil.showSnackBar(activityMainBinding.mainLl, activityMainBinding.llTotal, "Selected product has 1 batch with zero quantity.");
+//                            }
+//                        }, 500);
+//                    }
+//                }
+//                Log.d(TAG, "onItemSelected: Selected batch: " + (StockMasterVo) parent.getItemAtPosition(position));
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+
             }
         });
 
-        //activityMainBinding.tvBtnScanOnOffMain.setOnClickListener(v -> {
+        dialogBatchSelectionBinding.dialogBtnCancelSelectBatchProduct.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                batchSelectionDialog.dismiss();
+                resumeScannerCases();
+            }
+        });
+
+        dialogBatchSelectionBinding.dialogBtnSaveSelectBatchProduct.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                saveSelectedBatchCalculation();
+                resumeScannerCases();
+            }
+        });
+
+        enableSwipeToDeleteAndUndo();
+
         activityMainBinding.btnMainOnOff.setOnClickListener(v -> {
             Log.v("Hide", "btn click start");
             if (isShowing.equals("Y")) {
@@ -172,16 +369,8 @@ public class MainActivity extends CameraPermissionActivity {
                     kProgressHUD.show();
                 }
                 barcodeId = result.toString();
-                Toast.makeText(MainActivity.this, "Product Scanned", Toast.LENGTH_SHORT).show();
-                //todo call api after scanning at zxing
-                new Handler().postDelayed(() -> {
-                    resumeScannerCases();
-                    kProgressHUD.dismiss();
-                }, 1000);
-                /*mainViewModel.getProductByProductId(
-                        getCurrentFinancialYear(),
-                        barcodeId,
-                        true);*/
+                //String financialYear, String productId, boolean isSearchByBarcode) {
+                mainViewModel.getProductByBarcodeId(getCurrentFinancialYear(), barcodeId, true);
                 activityMainBinding.zxQrDecoratedBarcodeViewMain.pause();
             }
 
@@ -199,8 +388,773 @@ public class MainActivity extends CameraPermissionActivity {
             startActivity(intent);*/
         });
 
+        activityMainBinding.etRound.addTextChangedListener(new TextWatcher() {
+            String result = "";
+            boolean isMatches = false;
+
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+            }
+
+            @SneakyThrows
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                Matcher matcher = pattern.matcher(s.toString().trim());
+                Log.d("MainActivity", "onTextChanged: pattern is: " + pattern);
+                if (matcher.matches()) {
+                    result = matcher.group(0);
+                    Log.d("MainActivity", "onTextChanged result: " + matcher.group(0));
+                    isMatches = matcher.matches();
+                }
+            }
+
+            @SneakyThrows
+            @Override
+            public void afterTextChanged(Editable s) {
+
+                double tempVal = 0;
+                boolean isNegative = false;
+                setFinalDisplayMrp(getBackupFinalPrice());
+
+                if (!result.isEmpty() && !s.toString().isEmpty()) {
+                    if (result.contains("-") && result.toString().length() > 1 && s.toString().length() > 1) {
+                        String[] ar = result.split("-");
+                        if (ar.length == 2) {
+                            tempVal = Double.parseDouble(String.format(Locale.getDefault(), "%.2f", numberFormat.parse(result.split("-")[1]).doubleValue()));
+                            isNegative = true;
+                        }
+                    } else {
+                        tempVal = Double.parseDouble(String.format(Locale.getDefault(), "%.2f", numberFormat.parse(result).doubleValue()));
+                        isNegative = false;
+                    }
+
+                    if (tempVal > getFinalDisplayMrp()) {
+                        activityMainBinding.etRound.setError("Round off must not be greater than payable amount.");
+                        setFinalDisplayMrp(getBackupFinalPrice());
+                        //if (getFinalDisplayMrp())
+                        if (getFinalDisplayMrp() % 1 == 0) {
+                            activityMainBinding.tvTotalAmount.setText(String.format(Locale.getDefault(), "%.0f", getFinalDisplayMrp()));
+                        } else {
+                            activityMainBinding.tvTotalAmount.setText(String.format(Locale.getDefault(), "%.2f", getFinalDisplayMrp()));
+                        }
+                    } else {
+                        if (isNegative) {
+                            setFinalDisplayMrp(getFinalDisplayMrp() - tempVal);
+                            if (getFinalDisplayMrp() % 1 == 0) {
+                                activityMainBinding.tvTotalAmount.setText(String.format(Locale.getDefault(), "%.0f", getFinalDisplayMrp()));
+                            } else {
+                                activityMainBinding.tvTotalAmount.setText(String.format(Locale.getDefault(), "%.2f", getFinalDisplayMrp()));
+                            }
+                            //activityMainBinding.tvTotalAmount.setText(String.format(Locale.getDefault(), "%.0f", getFinalDisplayMrp()));
+                        } else {
+                            setFinalDisplayMrp(getFinalDisplayMrp() + tempVal);
+                            if (getFinalDisplayMrp() % 1 == 0) {
+                                activityMainBinding.tvTotalAmount.setText(String.format(Locale.getDefault(), "%.0f", getFinalDisplayMrp()));
+                            } else {
+                                activityMainBinding.tvTotalAmount.setText(String.format(Locale.getDefault(), "%.2f", getFinalDisplayMrp()));
+                            }
+                            //activityMainBinding.tvTotalAmount.setText(String.format(Locale.getDefault(), "%.0f", getFinalDisplayMrp()));
+                        }
+                    }
+                } else {
+                    setFinalDisplayMrp(getBackupFinalPrice());
+                    if (getFinalDisplayMrp() % 1 == 0) {
+                        activityMainBinding.tvTotalAmount.setText(String.format(Locale.getDefault(), "%.0f", getFinalDisplayMrp()));
+                    } else {
+                        activityMainBinding.tvTotalAmount.setText(String.format(Locale.getDefault(), "%.2f", getFinalDisplayMrp()));
+                    }
+                    //activityMainBinding.tvTotalAmount.setText(String.format(Locale.getDefault(), "%.0f", getFinalDisplayMrp()));
+                    //activityMainBinding.etRound.setText("0");
+                }
+
+            }
+        });
+
+        activityMainBinding.etRound.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+            @Override
+            public void onFocusChange(View v, boolean hasFocus) {
+                if (hasFocus) {
+                    hideScannerCases();
+                    isShowing = "N";
+                }
+            }
+        });
+
         //activityMainBinding.btnOrderCancle.setOnClickListener(v -> Toast.makeText(MainActivity.this, "Remove All items", Toast.LENGTH_SHORT).show());
 
+    }
+
+    private void getWidthOfEditText() {
+        ViewTreeObserver vto = activityMainBinding.tilScanBarCode.getViewTreeObserver();
+        vto.addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+            @Override
+            public void onGlobalLayout() {
+                if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN) {
+                    activityMainBinding.tilScanBarCode.getViewTreeObserver().removeGlobalOnLayoutListener(this);
+                    //this.layout.getViewTreeObserver().removeGlobalOnLayoutListener(this);
+                } else {
+                    activityMainBinding.tilScanBarCode.getViewTreeObserver().removeOnGlobalLayoutListener(this);
+                    //this.layout.getViewTreeObserver().removeOnGlobalLayoutListener(this);
+                }
+                int width = activityMainBinding.tilScanBarCode.getMeasuredWidth();
+                int height = activityMainBinding.tilScanBarCode.getMeasuredHeight();
+                Log.e(TAG, "onGlobalLayout: " + width);
+                Log.e(TAG, "onGlobalLayout: " + height);
+                widthOfEtBarcode = width;
+            }
+        });
+    }
+
+    private void initViewModelAndRepository() {
+        Api apiInterface = ApiGenerator.getApi(domainName).create(Api.class);
+        mainViewModel = new ViewModelProvider(this, new MainViewModelFactory(MainRepository.getInstance(apiInterface), companyId, branchId, userId)).get(MainViewModel.class);
+    }
+
+    private void initKProgressHud() {
+        kProgressHUD = CommonUtil.getKProgressHud(MainActivity.this);
+        kProgressHUD.setCancellable(false);
+        kProgressHUD.setDimAmount(0.25f);
+    }
+
+    private void discardCart() {
+        if (cartAdapter != null && cartItemsList != null) {
+            new MaterialAlertDialogBuilder(MainActivity.this)
+                    .setMessage("Do, you really want to discard the items?")
+                    .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                        @SuppressLint("NotifyDataSetChanged")
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            activityMainBinding.etRound.setText("0.0");
+                            activityMainBinding.tvTotalAmount.setText("0.0");
+                            activityMainBinding.tvCount.setText("0");
+                            cartItemsList.clear();
+                            cartAdapter.notifyDataSetChanged();
+                            setBackupFinalPrice(00.00);
+                            if (batchSelectionArrayAdapter != null) {
+                                batchSelectionArrayAdapter.clear();
+                            }
+                            if (getSelectedStockMasterVo() != null) {
+                                setSelectedStockMasterVo(null);
+                            }
+                            dialog.dismiss();
+                        }
+                    })
+                    .setNegativeButton("NO", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            dialog.dismiss();
+                        }
+                    }).show();
+        }
+    }
+
+    private String getCurrentFinancialYear() {
+        String fiscalyear = "";
+        if ((Calendar.getInstance().get(Calendar.MONTH) + 1) <= 3) {
+            fiscalyear = (Calendar.getInstance().get(Calendar.YEAR) - 1) + "-" + Calendar.getInstance().get(Calendar.YEAR);
+        } else {
+            fiscalyear = Calendar.getInstance().get(Calendar.YEAR) + "-" + (Calendar.getInstance().get(Calendar.YEAR) + 1);
+        }
+        return fiscalyear;
+    }
+
+    private void initCartAdapter() {
+        cartAdapter = new CartAdapter(this, cartItemsList);
+        cartAdapter.setCartQtyFocusCallback(new CartQtyFocusCallback() {
+            @Override
+            public void setHasFocus(boolean hasFocus) {
+                if (hasFocus) {
+                    hideScannerCases();
+                    isShowing = "N";
+                }
+            }
+        });
+        activityMainBinding.rvCart.setAdapter(cartAdapter);
+        cartAdapter.setItemQtyCallback(new ItemQtyCallback() {
+            @Override
+            public void setLatestCount(double payableAmount, double cartItems) {
+                String roundOffStr = (Math.round(payableAmount) > payableAmount) ? String.format(Locale.getDefault(), "%.2f", Math.round(payableAmount) - payableAmount) : String.format(Locale.getDefault(), "%.2f", Math.round(payableAmount) - payableAmount);
+                MainActivity.this.setFinalDisplayMrp(Math.round(payableAmount) - Double.parseDouble(roundOffStr));
+                setBackupFinalPrice(Math.round(payableAmount) - Double.parseDouble(roundOffStr));
+                activityMainBinding.etRound.setText(roundOffStr);
+                //activityMainBinding.tvTotalAmount.setText(String.valueOf(String.format(Locale.getDefault(), "%.0f", MainActivity.this.getFinalDisplayMrp())));
+                if (MainActivity.this.getFinalDisplayMrp() % 1 == 0) {
+                    activityMainBinding.tvTotalAmount.setText(String.format(Locale.getDefault(), "%.0f", getFinalDisplayMrp()));
+                } else {
+                    activityMainBinding.tvTotalAmount.setText(String.format(Locale.getDefault(), "%.2f", getFinalDisplayMrp()));
+                }
+                activityMainBinding.tvCount.setText(String.valueOf(cartItems));
+            }
+        });
+    }
+
+    private void setUpAdapterGetProductData() {
+        adapterGetProductData = new AdapterGetProductData(MainActivity.this, getAllProducts);
+        //mainBinding.etBarcode.setDropDownWidth(getResources().getDisplayMetrics().widthPixels);
+        //widthOfEtBarcode = 500;
+        Log.e(TAG, "setUpAdapterGetProductData:1 " + widthOfEtBarcode);
+        new Handler().postDelayed(() -> {
+            Log.e(TAG, "setUpAdapterGetProductData run: " + widthOfEtBarcode);
+            Log.e(TAG, "setUpAdapterGetProductData:" + activityMainBinding.tilScanBarCode.getLayoutParams().width);
+            activityMainBinding.etBarcode.setDropDownWidth(widthOfEtBarcode);
+        }, 1000);
+        Log.e(TAG, "setUpAdapterGetProductData:2 " + widthOfEtBarcode);
+        activityMainBinding.etBarcode.setDropDownWidth(widthOfEtBarcode);
+        activityMainBinding.etBarcode.setAdapter(adapterGetProductData);
+        activityMainBinding.etBarcode.setOnKeyListener(new View.OnKeyListener() {
+            @Override
+            public boolean onKey(View v, int keyCode, KeyEvent event) {
+                if (keyCode == KeyEvent.KEYCODE_BACK) {
+                    InputMethodManager methodManager = (InputMethodManager) getApplicationContext().getSystemService(Context.INPUT_METHOD_SERVICE);
+                    //methodManager.toggleSoftInput(InputMethodManager.SHOW_FORCED,InputMethodManager.HIDE_IMPLICIT_ONLY);
+                    methodManager.hideSoftInputFromWindow(activityMainBinding.etBarcode.getWindowToken(), 0);
+                    //methodManager.hideSoftInputFromWindow(this,0);
+                    return false;
+                }
+                return true;
+            }
+        });
+        activityMainBinding.etBarcode.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                GetAllProducts getAllProducts = (GetAllProducts) parent.getItemAtPosition(position);
+                Log.d("ProductName", "onItemClick: " + getAllProducts.getId() + "name " + getAllProducts.getValue());
+                activityMainBinding.etBarcode.setText("");
+                if (!kProgressHUD.isShowing() && kProgressHUD != null) {
+                    kProgressHUD.show();
+                }
+                mainViewModel.getProductByBarcodeId(getCurrentFinancialYear(), String.valueOf(getAllProducts.getId()), false);
+            }
+        });
+
+        activityMainBinding.etBarcode.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+            @Override
+            public void onFocusChange(View v, boolean hasFocus) {
+                if (hasFocus) {
+                    Log.d(TAG, "onFocusChange: " + hasFocus);
+                    hideScannerCases();
+                    isShowing = "N";
+                }
+            }
+        });
+    }
+
+    private void saveSelectedBatchCalculation() {
+        Log.d(TAG, "onClick: Tax and display price calculation.");
+
+        if (getSelectedStockMasterVo().getHasNegativeSelling() == 1) {
+            double quantityForSelectedStock = Double.parseDouble(String.format(Locale.getDefault(), "%.2f", Double.parseDouble(getSelectedStockMasterVo().getQuantity())));
+            if (quantityForSelectedStock == 0.0) {
+                CommonUtil.showSnackBar(activityMainBinding.llTotal, activityMainBinding.llTotal, "Product has zero stock quantity and negative selling is off.");
+            } else {
+                cartItemCalculations();
+            }
+        } else {
+            cartItemCalculations();
+        }
+        if (batchSelectionDialog.isShowing()) {
+            batchSelectionDialog.dismiss();
+        }
+        batchSelectionArrayAdapter.clear();
+    }
+
+    private void cartItemCalculations() {
+        if (cartItemsList.size() > 0) {
+            double tempQty = 0.0;
+            boolean isItemFound = false;
+            double netMrp = 0.0, taxPrice = 0.0, displayPrice = 0.0, totalTaxPrice = 0.0, taxRate = 0.0, taxRateAdd = 0.0, netMrpHelp = 0.0, tempTotal = 0.0, batchDiscount = 0.0, taxableAmount = 0.0;
+            double discountPercent = 0.0;
+            double mrpToDiscount = 0.0;
+            for (int i = 0; i < cartItemsList.size(); i++) {
+                if (cartItemsList.get(i).getBatchNo().equals(getSelectedStockMasterVo().getBatchNo())) {
+                    tempQty += Double.parseDouble(cartItemsList.get(i).getQuantity());
+                    tempQty += 1;
+                    cartItemsList.get(i).setQuantity(String.valueOf(tempQty));
+                    displayPrice = cartItemsList.get(i).getDisplayMrp();
+                    displayPrice = displayPrice + cartItemsList.get(i).getTaxableAmount() + cartItemsList.get(i).getTaxPrice();
+                    totalTaxPrice = cartItemsList.get(i).getTotalTaxPrice();
+                    totalTaxPrice += cartItemsList.get(i).getTaxPrice();
+                    cartItemsList.get(i).setDisplayMrp(displayPrice);
+                    cartItemsList.get(i).setTotalTaxPrice(totalTaxPrice);
+                    isItemFound = true;
+                    if (cartAdapter != null) {
+                        cartAdapter.notifyItemChanged(i);
+                        activityMainBinding.rvCart.getLayoutManager().scrollToPosition(i);
+                    }
+                }
+            }
+            if (!isItemFound) {
+                if (getSelectedStockMasterVo().getHasNegativeSelling() == 1) {
+                    if (Double.valueOf(getSelectedStockMasterVo().getQuantity()).doubleValue() <= 0.0) {
+                        setSelectedStockMasterVo(null);
+                        batchSelectionDialog.dismiss();
+                        CommonUtil.showSnackBar(activityMainBinding.mainLlMain, activityMainBinding.llTotal, "Selected batch has zero quantity.");
+                    } else {
+                        getSelectedStockMasterVo().setQuantity("1.0");
+                        taxRate = getProductDto().getTax_rate();
+                        if (getProductDto().getTax_included() == 1) {
+                            Log.d(TAG, "onClick: ------------------Item not available and added to Cart and negative selling not allowed: Tax Included-------------------");
+                            Log.d(TAG, "onClick: TaxRateAdd: " + String.valueOf(taxRateAdd));
+
+                            taxRateAdd = 100 + taxRate;
+                            Log.d(TAG, "onClick: taxRateAdd = 100 + taxRate: " + String.valueOf(taxRateAdd));
+
+                            netMrp = getSelectedStockMasterVo().getMrp();
+                            Log.d(TAG, "onClick: netMrp = getSelectedStockMasterVo().getMrp(): " + netMrp);
+
+                            batchDiscount = getSelectedStockMasterVo().getMrp() - getSelectedStockMasterVo().getSellingPrice();
+                            Log.d(TAG, "onClick: Batch discount: " + batchDiscount);
+
+                            mrpToDiscount = batchDiscount;
+                            Log.d(TAG, "onClick: MrpToDiscount: " + mrpToDiscount);
+
+                            netMrpHelp = 100 / taxRateAdd;
+                            Log.d(TAG, "onClick: netMrpHelp = 100 / taxRateAdd: " + netMrpHelp);
+
+                            netMrp = netMrp * netMrpHelp; // final net mrp with tax excluded
+                            Log.d(TAG, "onClick: netMrp = netMrp * netMrpHelp: " + netMrp);
+
+                            discountPercent = (batchDiscount * 100) / getSelectedStockMasterVo().getMrp();
+                            double result = Double.isNaN(discountPercent) ? 0.0 : discountPercent;
+                            result = Double.isInfinite(result) ? 0.0 : result;
+                            Log.d(TAG, "onClick: discountPercent = (batchDiscount * 100) / getSelectedStockMasterVo().getMrp(): " + result);
+
+                            batchDiscount = (netMrp * result) / 100;
+                            Log.d(TAG, "onClick: batchDiscount = (netMrp * discountPercent) / 100: " + result);
+
+                            taxableAmount = netMrp - batchDiscount;
+                            Log.d(TAG, "onClick: taxableAmount = netMrp - batchDiscount: " + taxableAmount);
+
+                            taxPrice = taxableAmount * taxRate;
+                            Log.d(TAG, "onClick: taxPrice = taxableAmount * taxRate: " + taxPrice);
+
+                            taxPrice = taxPrice / 100; // final tax price
+                            Log.d(TAG, "onClick: taxPrice = taxPrice / 100: " + taxPrice);
+
+                            displayPrice = taxableAmount + taxPrice;
+                            Log.d(TAG, "onClick: displayPrice = netMrp + taxPrice: " + displayPrice);
+
+                            totalTaxPrice = taxPrice;
+                            Log.d(TAG, "onClick: totalTaxPrice = taxPrice: " + totalTaxPrice);
+
+                            getSelectedStockMasterVo().setDiscountType("amount");
+                            getSelectedStockMasterVo().setDiscount(batchDiscount);
+                            getSelectedStockMasterVo().setMrpToDiscount(CommonUtil.getDoubleDecimalValue(mrpToDiscount));
+                            getSelectedStockMasterVo().setTaxableAmount(taxableAmount);
+                            getSelectedStockMasterVo().setNetMrp(netMrp);
+                            getSelectedStockMasterVo().setPrice(netMrp);
+                            getSelectedStockMasterVo().setTaxPrice(taxPrice);
+                            getSelectedStockMasterVo().setDisplayMrp(displayPrice);
+                            getSelectedStockMasterVo().setTotalTaxPrice(totalTaxPrice);
+                            getSelectedStockMasterVo().setProductDto(getProductDto());
+
+                        } else {
+                            Log.d(TAG, "onClick: ------------------Item not available and added to Cart and negative selling allowed: Tax not included-------------------");
+                            netMrp = getSelectedStockMasterVo().getMrp();
+                            Log.d(TAG, "onClick: netMrp: " + netMrp);
+
+                            batchDiscount = getSelectedStockMasterVo().getMrp() - getSelectedStockMasterVo().getSellingPrice();
+                            Log.d(TAG, "onClick: Batch discount: " + batchDiscount);
+
+                            mrpToDiscount = batchDiscount;
+                            Log.d(TAG, "onClick: MrpToDiscount: " + mrpToDiscount);
+
+                            netMrp = netMrp - batchDiscount;
+                            Log.d(TAG, "onClick: netMrp with discount: " + netMrp);
+
+                            taxPrice = netMrp * taxRate;
+                            Log.d(TAG, "onClick: taxPrice: " + taxPrice);
+
+                            taxPrice = taxPrice / 100;
+                            Log.d(TAG, "onClick: taxPrice: " + taxPrice);
+
+                            displayPrice = netMrp + taxPrice;
+                            Log.d(TAG, "onClick: displayPrice: " + displayPrice);
+
+                            totalTaxPrice = taxPrice;
+                            Log.d(TAG, "onClick: totalTaxPrice: " + totalTaxPrice);
+
+                            getSelectedStockMasterVo().setDiscountType("amount");
+                            getSelectedStockMasterVo().setMrpToDiscount(CommonUtil.getDoubleDecimalValue(mrpToDiscount));
+                            getSelectedStockMasterVo().setDiscount(batchDiscount);
+                            getSelectedStockMasterVo().setNetMrp(netMrp);
+                            getSelectedStockMasterVo().setTaxableAmount(netMrp);
+                            getSelectedStockMasterVo().setPrice(getSelectedStockMasterVo().getMrp());
+                            getSelectedStockMasterVo().setTaxPrice(taxPrice);
+                            getSelectedStockMasterVo().setDisplayMrp(displayPrice);
+                            getSelectedStockMasterVo().setTotalTaxPrice(totalTaxPrice);
+                            getSelectedStockMasterVo().setProductDto(getProductDto());
+                        }
+                        cartItemsList.add(getSelectedStockMasterVo());
+                        if (cartAdapter != null) {
+                            cartAdapter.notifyItemChanged(cartItemsList.size() - 1);
+                            activityMainBinding.rvCart.getLayoutManager().scrollToPosition(cartItemsList.size() - 1);
+                        }
+                    }
+                } else {
+                    getSelectedStockMasterVo().setQuantity("1.0");
+                    taxRate = getProductDto().getTax_rate();
+                    if (getProductDto().getTax_included() == 1) {
+                        Log.d(TAG, "onClick: ------------------Empty Cart and negative selling allowed: Tax Included-------------------");
+                        Log.d(TAG, "onClick: TaxRateAdd: " + String.valueOf(taxRateAdd));
+
+                        taxRateAdd = 100 + taxRate;
+                        Log.d(TAG, "onClick: taxRateAdd = 100 + taxRate: " + String.valueOf(taxRateAdd));
+
+                        netMrp = getSelectedStockMasterVo().getMrp();
+                        Log.d(TAG, "onClick: netMrp = getSelectedStockMasterVo().getMrp(): " + netMrp);
+
+                        batchDiscount = getSelectedStockMasterVo().getMrp() - getSelectedStockMasterVo().getSellingPrice();
+                        Log.d(TAG, "onClick: Batch discount: " + batchDiscount);
+
+                        mrpToDiscount = batchDiscount;
+                        Log.d(TAG, "onClick: MrpToDiscount: " + mrpToDiscount);
+
+                        netMrpHelp = 100 / taxRateAdd;
+                        Log.d(TAG, "onClick: netMrpHelp = 100 / taxRateAdd: " + netMrpHelp);
+
+                        netMrp = netMrp * netMrpHelp; // final net mrp with tax excluded
+                        Log.d(TAG, "onClick: netMrp = netMrp * netMrpHelp: " + netMrp);
+
+                        discountPercent = (batchDiscount * 100) / getSelectedStockMasterVo().getMrp();
+                        double result = Double.isNaN(discountPercent) ? 0.0 : discountPercent;
+                        result = Double.isInfinite(result) ? 0.0 : result;
+                        Log.d(TAG, "onClick: discountPercent = (batchDiscount * 100) / getSelectedStockMasterVo().getMrp(): " + result);
+
+                        batchDiscount = (netMrp * result) / 100;
+                        Log.d(TAG, "onClick: batchDiscount = (netMrp * discountPercent) / 100: " + result);
+
+                        taxableAmount = netMrp - batchDiscount;
+                        Log.d(TAG, "onClick: taxableAmount = netMrp - batchDiscount: " + taxableAmount);
+
+                        taxPrice = taxableAmount * taxRate;
+                        Log.d(TAG, "onClick: taxPrice = taxableAmount * taxRate: " + taxPrice);
+
+                        taxPrice = taxPrice / 100; // final tax price
+                        Log.d(TAG, "onClick: taxPrice = taxPrice / 100: " + taxPrice);
+
+                        displayPrice = taxableAmount + taxPrice;
+                        Log.d(TAG, "onClick: displayPrice = netMrp + taxPrice: " + displayPrice);
+
+                        totalTaxPrice = taxPrice;
+                        Log.d(TAG, "onClick: totalTaxPrice = taxPrice: " + totalTaxPrice);
+
+                        getSelectedStockMasterVo().setDiscountType("amount");
+                        getSelectedStockMasterVo().setMrpToDiscount(CommonUtil.getDoubleDecimalValue(mrpToDiscount));
+                        getSelectedStockMasterVo().setDiscount(batchDiscount);
+                        getSelectedStockMasterVo().setTaxableAmount(taxableAmount);
+                        getSelectedStockMasterVo().setNetMrp(netMrp);
+                        getSelectedStockMasterVo().setPrice(netMrp);
+                        getSelectedStockMasterVo().setTaxPrice(taxPrice);
+                        getSelectedStockMasterVo().setDisplayMrp(displayPrice);
+                        getSelectedStockMasterVo().setTotalTaxPrice(totalTaxPrice);
+                        getSelectedStockMasterVo().setProductDto(getProductDto());
+
+                    } else {
+                        Log.d(TAG, "onClick: --------Empty cart and negative selling allowed: Tax Not included------------");
+                        netMrp = getSelectedStockMasterVo().getMrp();
+                        Log.d(TAG, "onClick: netMrp: " + netMrp);
+
+                        batchDiscount = getSelectedStockMasterVo().getMrp() - getSelectedStockMasterVo().getSellingPrice();
+                        Log.d(TAG, "onClick: Batch discount: " + batchDiscount);
+
+                        mrpToDiscount = batchDiscount;
+                        Log.d(TAG, "onClick: MrpToDiscount: " + mrpToDiscount);
+
+                        netMrp = netMrp - batchDiscount;
+                        Log.d(TAG, "onClick: netMrp with discount: " + netMrp);
+
+                        taxPrice = netMrp * taxRate;
+                        Log.d(TAG, "onClick: taxPrice: " + taxPrice);
+
+                        taxPrice = taxPrice / 100;
+                        Log.d(TAG, "onClick: taxPrice: " + taxPrice);
+
+                        displayPrice = netMrp + taxPrice;
+                        Log.d(TAG, "onClick: displayPrice: " + displayPrice);
+
+                        totalTaxPrice = taxPrice;
+                        Log.d(TAG, "onClick: totalTaxPrice: " + totalTaxPrice);
+
+                        getSelectedStockMasterVo().setDiscountType("amount");
+                        getSelectedStockMasterVo().setMrpToDiscount(CommonUtil.getDoubleDecimalValue(mrpToDiscount));
+                        getSelectedStockMasterVo().setDiscount(batchDiscount);
+                        getSelectedStockMasterVo().setNetMrp(netMrp);
+                        getSelectedStockMasterVo().setTaxableAmount(netMrp);
+                        getSelectedStockMasterVo().setPrice(getSelectedStockMasterVo().getMrp());
+                        getSelectedStockMasterVo().setTaxPrice(taxPrice);
+                        getSelectedStockMasterVo().setDisplayMrp(displayPrice);
+                        getSelectedStockMasterVo().setTotalTaxPrice(totalTaxPrice);
+                        getSelectedStockMasterVo().setProductDto(getProductDto());
+
+                    }
+                    cartItemsList.add(getSelectedStockMasterVo());
+                    if (cartAdapter != null) {
+                        cartAdapter.notifyItemChanged(cartItemsList.size() - 1);
+                        activityMainBinding.rvCart.getLayoutManager().scrollToPosition(cartItemsList.size() - 1);
+                    }
+                }
+            }
+        } else {
+            if (getSelectedStockMasterVo().getHasNegativeSelling() == 1) {
+                if (Double.valueOf(getSelectedStockMasterVo().getQuantity()).doubleValue() <= 0.0) {
+                    setSelectedStockMasterVo(null);
+                    batchSelectionDialog.dismiss();
+                    CommonUtil.showSnackBar(activityMainBinding.mainLlMain, activityMainBinding.llTotal, "Selected batch has zero quantity.");
+                } else {
+                    double netMrp = 0.0, taxPrice = 0.0, displayPrice = 0.0, totalTaxPrice = 0.0, taxRate = 0.0, taxRateAdd = 0.0, netMrpHelp = 0.0, tempTotal = 0.0, batchDiscount = 0.0, taxableAmount = 0.0;
+                    double mrpToDiscount = 0.0;
+                    double discountPercent = 0.0;
+                    getSelectedStockMasterVo().setQuantity("1.0");
+                    taxRate = getProductDto().getTax_rate();
+                    if (getProductDto().getTax_included() == 1) {
+                        Log.d(TAG, "onClick: ------------------Empty Cart and negative selling not allowed: Tax Included-------------------");
+                        Log.d(TAG, "onClick: TaxRateAdd: " + String.valueOf(taxRateAdd));
+
+                        taxRateAdd = 100 + taxRate;
+                        Log.d(TAG, "onClick: taxRateAdd = 100 + taxRate: " + String.valueOf(taxRateAdd));
+
+                        netMrp = getSelectedStockMasterVo().getMrp();
+                        Log.d(TAG, "onClick: netMrp = getSelectedStockMasterVo().getMrp(): " + netMrp);
+
+                        Log.d(TAG, "onClick: netMrp = getSelectedStockMasterVo().getSellingPrice(): " + getSelectedStockMasterVo().getSellingPrice());
+
+                        batchDiscount = getSelectedStockMasterVo().getMrp() - getSelectedStockMasterVo().getSellingPrice();
+                        Log.d(TAG, "onClick: Batch discount: " + batchDiscount);
+
+                        mrpToDiscount = batchDiscount;
+                        Log.d(TAG, "onClick: MrpToDiscount: " + mrpToDiscount);
+
+                        netMrpHelp = 100 / taxRateAdd;
+                        Log.d(TAG, "onClick: netMrpHelp = 100 / taxRateAdd: " + netMrpHelp);
+
+                        netMrp = netMrp * netMrpHelp; // final net mrp with tax excluded
+                        Log.d(TAG, "onClick: netMrp = netMrp * netMrpHelp: " + netMrp);
+
+                        discountPercent = (batchDiscount * 100) / getSelectedStockMasterVo().getMrp();
+                        double result = Double.isNaN(discountPercent) ? 0.0 : discountPercent;
+                        result = Double.isInfinite(result) ? 0.0 : result;
+                        Log.d(TAG, "onClick: discountPercent = (batchDiscount * 100) / getSelectedStockMasterVo().getMrp(): " + result);
+
+                        batchDiscount = (netMrp * result) / 100;
+                        Log.d(TAG, "onClick: batchDiscount = (netMrp * discountPercent) / 100: " + result);
+
+
+                        taxableAmount = netMrp - batchDiscount;
+                        Log.d(TAG, "onClick: taxableAmount = netMrp - batchDiscount: " + taxableAmount);
+
+                        taxPrice = taxableAmount * taxRate;
+                        Log.d(TAG, "onClick: taxPrice = taxableAmount * taxRate: " + taxPrice);
+
+                        taxPrice = taxPrice / 100; // final tax price
+                        Log.d(TAG, "onClick: taxPrice = taxPrice / 100: " + taxPrice);
+
+                        displayPrice = taxableAmount + taxPrice;
+                        Log.d(TAG, "onClick: displayPrice = netMrp + taxPrice: " + displayPrice);
+
+                        totalTaxPrice = taxPrice;
+                        Log.d(TAG, "onClick: totalTaxPrice = taxPrice: " + totalTaxPrice);
+
+                        getSelectedStockMasterVo().setDiscountType("amount");
+                        getSelectedStockMasterVo().setMrpToDiscount(CommonUtil.getDoubleDecimalValue(mrpToDiscount));
+                        getSelectedStockMasterVo().setDiscount(batchDiscount);
+                        getSelectedStockMasterVo().setTaxableAmount(taxableAmount);
+                        getSelectedStockMasterVo().setNetMrp(netMrp);
+                        getSelectedStockMasterVo().setPrice(netMrp);
+                        getSelectedStockMasterVo().setTaxPrice(taxPrice);
+                        getSelectedStockMasterVo().setDisplayMrp(displayPrice);
+                        getSelectedStockMasterVo().setTotalTaxPrice(totalTaxPrice);
+                        getSelectedStockMasterVo().setProductDto(getProductDto());
+
+                    } else {
+                        Log.d(TAG, "onClick: --------Empty cart and negative selling not allowed: Tax Not included------------");
+                        netMrp = getSelectedStockMasterVo().getMrp();
+                        Log.d(TAG, "onClick: netMrp: " + netMrp);
+
+                        batchDiscount = getSelectedStockMasterVo().getMrp() - getSelectedStockMasterVo().getSellingPrice();
+                        Log.d(TAG, "onClick: Batch discount: " + batchDiscount);
+
+                        mrpToDiscount = batchDiscount;
+                        Log.d(TAG, "onClick: MrpToDiscount: " + mrpToDiscount);
+
+                        netMrp = netMrp - batchDiscount;
+                        Log.d(TAG, "onClick: netMrp with discount: " + netMrp);
+
+                        taxPrice = netMrp * taxRate;
+                        Log.d(TAG, "onClick: taxPrice: " + taxPrice);
+
+                        taxPrice = taxPrice / 100;
+                        Log.d(TAG, "onClick: taxPrice: " + taxPrice);
+
+                        displayPrice = netMrp + taxPrice;
+                        Log.d(TAG, "onClick: displayPrice: " + displayPrice);
+
+                        totalTaxPrice = taxPrice;
+                        Log.d(TAG, "onClick: totalTaxPrice: " + totalTaxPrice);
+
+                        getSelectedStockMasterVo().setDiscountType("amount");
+                        getSelectedStockMasterVo().setMrpToDiscount(CommonUtil.getDoubleDecimalValue(mrpToDiscount));
+                        getSelectedStockMasterVo().setDiscount(batchDiscount);
+                        getSelectedStockMasterVo().setNetMrp(netMrp);
+                        getSelectedStockMasterVo().setTaxableAmount(netMrp);
+                        getSelectedStockMasterVo().setPrice(getSelectedStockMasterVo().getMrp());
+                        getSelectedStockMasterVo().setTaxPrice(taxPrice);
+                        getSelectedStockMasterVo().setDisplayMrp(displayPrice);
+                        getSelectedStockMasterVo().setTotalTaxPrice(totalTaxPrice);
+                        getSelectedStockMasterVo().setProductDto(getProductDto());
+
+                    }
+                    cartItemsList.add(getSelectedStockMasterVo());
+                    if (cartAdapter != null) {
+                        cartAdapter.notifyItemChanged(cartItemsList.size() - 1);
+                        activityMainBinding.rvCart.getLayoutManager().scrollToPosition(cartItemsList.size() - 1);
+                    }
+                }
+            } else {
+                double netMrp = 0.0, taxPrice = 0.0, displayPrice = 0.0, totalTaxPrice = 0.0, taxRate = 0.0, taxRateAdd = 0.0, netMrpHelp = 0.0, tempTotal = 0.0, batchDiscount = 0.0, taxableAmount = 0.0;
+                double discountPercent = 0.0;
+                double mrpToDiscount = 0.0;
+                getSelectedStockMasterVo().setQuantity("1.0");
+                taxRate = getProductDto().getTax_rate();
+                if (getProductDto().getTax_included() == 1) {
+                    Log.d(TAG, "onClick: ------------------Empty Cart and negative selling allowed: Tax Included-------------------");
+                    Log.d(TAG, "onClick: TaxRateAdd: " + String.valueOf(taxRateAdd));
+
+                    taxRateAdd = 100 + taxRate;
+                    Log.d(TAG, "onClick: taxRateAdd = 100 + taxRate: " + String.valueOf(taxRateAdd));
+
+                    netMrp = getSelectedStockMasterVo().getMrp();
+                    Log.d(TAG, "onClick: netMrp = getSelectedStockMasterVo().getMrp(): " + netMrp);
+
+                    batchDiscount = getSelectedStockMasterVo().getMrp() - getSelectedStockMasterVo().getSellingPrice();
+                    Log.d(TAG, "onClick: Batch discount: " + batchDiscount);
+
+                    mrpToDiscount = batchDiscount;
+                    Log.d(TAG, "onClick: MrpToDiscount: " + mrpToDiscount);
+
+                    netMrpHelp = 100 / taxRateAdd;
+                    Log.d(TAG, "onClick: netMrpHelp = 100 / taxRateAdd: " + netMrpHelp);
+
+                    netMrp = netMrp * netMrpHelp; // final net mrp with tax excluded
+                    Log.d(TAG, "onClick: netMrp = netMrp * netMrpHelp: " + netMrp);
+
+                    discountPercent = (batchDiscount * 100) / getSelectedStockMasterVo().getMrp();
+                    double result = Double.isNaN(discountPercent) ? 0.0 : discountPercent;
+                    result = Double.isInfinite(result) ? 0.0 : result;
+                    Log.d(TAG, "onClick: discountPercent = (batchDiscount * 100) / getSelectedStockMasterVo().getMrp(): " + result);
+
+                    batchDiscount = (netMrp * result) / 100;
+                    Log.d(TAG, "onClick: batchDiscount = (netMrp * discountPercent) / 100: " + result);
+
+                    taxableAmount = netMrp - batchDiscount;
+                    Log.d(TAG, "onClick: taxableAmount = netMrp - batchDiscount: " + taxableAmount);
+
+                    taxPrice = taxableAmount * taxRate;
+                    Log.d(TAG, "onClick: taxPrice = taxableAmount * taxRate: " + taxPrice);
+
+                    taxPrice = taxPrice / 100; // final tax price
+                    Log.d(TAG, "onClick: taxPrice = taxPrice / 100: " + taxPrice);
+
+                    displayPrice = taxableAmount + taxPrice;
+                    Log.d(TAG, "onClick: displayPrice = netMrp + taxPrice: " + displayPrice);
+
+                    totalTaxPrice = taxPrice;
+                    Log.d(TAG, "onClick: totalTaxPrice = taxPrice: " + totalTaxPrice);
+
+                    getSelectedStockMasterVo().setDiscountType("amount");
+                    getSelectedStockMasterVo().setMrpToDiscount(CommonUtil.getDoubleDecimalValue(mrpToDiscount));
+                    getSelectedStockMasterVo().setDiscount(batchDiscount);
+                    getSelectedStockMasterVo().setTaxableAmount(taxableAmount);
+                    getSelectedStockMasterVo().setNetMrp(netMrp);
+                    getSelectedStockMasterVo().setPrice(netMrp);
+                    getSelectedStockMasterVo().setTaxPrice(taxPrice);
+                    getSelectedStockMasterVo().setDisplayMrp(displayPrice);
+                    getSelectedStockMasterVo().setTotalTaxPrice(totalTaxPrice);
+                    getSelectedStockMasterVo().setProductDto(getProductDto());
+
+                } else {
+                    Log.d(TAG, "onClick: --------Empty cart and negative selling allowed: Tax Not included------------");
+                    netMrp = getSelectedStockMasterVo().getMrp();
+                    Log.d(TAG, "onClick: netMrp: " + netMrp);
+
+                    batchDiscount = getSelectedStockMasterVo().getMrp() - getSelectedStockMasterVo().getSellingPrice();
+                    Log.d(TAG, "onClick: Batch discount: " + batchDiscount);
+
+                    mrpToDiscount = batchDiscount;
+                    Log.d(TAG, "onClick: MrpToDiscount: " + mrpToDiscount);
+
+                    netMrp = netMrp - batchDiscount;
+                    Log.d(TAG, "onClick: netMrp with discount: " + netMrp);
+
+                    taxPrice = netMrp * taxRate;
+                    Log.d(TAG, "onClick: taxPrice: " + taxPrice);
+
+                    taxPrice = taxPrice / 100;
+                    Log.d(TAG, "onClick: taxPrice: " + taxPrice);
+
+                    displayPrice = netMrp + taxPrice;
+                    Log.d(TAG, "onClick: displayPrice: " + displayPrice);
+
+                    totalTaxPrice = taxPrice;
+                    Log.d(TAG, "onClick: totalTaxPrice: " + totalTaxPrice);
+
+                    getSelectedStockMasterVo().setDiscountType("amount");
+                    getSelectedStockMasterVo().setMrpToDiscount(CommonUtil.getDoubleDecimalValue(mrpToDiscount));
+                    getSelectedStockMasterVo().setDiscount(batchDiscount);
+                    getSelectedStockMasterVo().setNetMrp(netMrp);
+                    getSelectedStockMasterVo().setTaxableAmount(netMrp);
+                    getSelectedStockMasterVo().setPrice(getSelectedStockMasterVo().getMrp());
+                    getSelectedStockMasterVo().setTaxPrice(taxPrice);
+                    getSelectedStockMasterVo().setDisplayMrp(displayPrice);
+                    getSelectedStockMasterVo().setTotalTaxPrice(totalTaxPrice);
+                    getSelectedStockMasterVo().setProductDto(getProductDto());
+                }
+                cartItemsList.add(getSelectedStockMasterVo());
+                if (cartAdapter != null) {
+                    cartAdapter.notifyItemChanged(cartItemsList.size() - 1);
+                    activityMainBinding.rvCart.getLayoutManager().scrollToPosition(cartItemsList.size() - 1);
+                }
+            }
+        }
+    }
+
+    private void enableSwipeToDeleteAndUndo() {
+        SwipeToRemove swipeToDeleteCallback = new SwipeToRemove(this) {
+            @Override
+            public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int direction) {
+                final int position = viewHolder.getAdapterPosition();
+                cartAdapter.removeItem(position);
+                 /*Snackbar snackbar = Snackbar.make(mainBinding.mainLl, "Item was removed from the list.", Snackbar.LENGTH_LONG);
+                snackbar.setAction("UNDO", view -> {
+                    cartAdapter.restoreItem(item, position);
+                    mainBinding.rvCartlist.scrollToPosition(position);
+                    cartAdapter.setTotal();
+                });
+                snackbar.setActionTextColor(Color.YELLOW);
+                snackbar.show();*/
+                //Log.v("count", "size" + cartListData.size());
+            }
+        };
+        ItemTouchHelper itemTouchhelper = new ItemTouchHelper(swipeToDeleteCallback);
+        itemTouchhelper.attachToRecyclerView(activityMainBinding.rvCart);
+    }
+
+    private void initBindings() {
+        dialogBatchSelectionBinding = DialogSelectProductBatchBinding.inflate(getLayoutInflater());
+    }
+
+    private void initArrayLists() {
+        cartItemsList = new ArrayList<>();
+        getAllProducts = new ArrayList<>();
+        stockMasterVos = new ArrayList<>();
+        productArrayList = new ArrayList<>();
+    }
+
+    private void initBatchSelectionDialog() {
+        AlertDialog.Builder batchSelectionBuilder = new AlertDialog.Builder(this);
+        batchSelectionBuilder.setView(dialogBatchSelectionBinding.getRoot());
+        batchSelectionBuilder.setCancelable(true);
+        batchSelectionDialog = batchSelectionBuilder.create();
     }
 
     @SuppressLint("NonConstantResourceId")
@@ -267,7 +1221,7 @@ public class MainActivity extends CameraPermissionActivity {
     }
 
     @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
+    public boolean onCreateOptionsMenu(@NonNull Menu menu) {
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.main_option_menu, menu);
         return true;
@@ -279,7 +1233,7 @@ public class MainActivity extends CameraPermissionActivity {
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         switch (item.getItemId()) {
             case R.id.deleteCardMenu:
-                Toast.makeText(MainActivity.this, "Clear all cart item", Toast.LENGTH_SHORT).show();
+                discardCart();
                 return true;
             case R.id.updateProfileMenu:
                 Toast.makeText(MainActivity.this, "My Profile", Toast.LENGTH_SHORT).show();
@@ -382,7 +1336,102 @@ public class MainActivity extends CameraPermissionActivity {
     }
 
     private void viewObserversCollection() {
-        //todo call when data is get
+        mainViewModel.error.observe(this, new Observer<String>() {
+            @Override
+            public void onChanged(String s) {
+                if (s != null) {
+                    CommonUtil.showSnackBar(activityMainBinding.llTotal, activityMainBinding.llTotal, "" + s);
+                    if (s.equals("Product not found.")) {
+                        if (kProgressHUD != null && kProgressHUD.isShowing()) {
+                            kProgressHUD.dismiss();
+                        }
+                        resumeScannerCases();
+                    } else if (s.equals("Unable to resolve host.")) {
+                        if (kProgressHUD != null && kProgressHUD.isShowing()) {
+                            kProgressHUD.dismiss();
+                        }
+                        resumeScannerCases();
+                    }
+                    new Handler().postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+                            resumeScannerCases();
+                        }
+                    }, 1000);
+                }
+            }
+        });
+
+        mainViewModel.isLoading.observe(this, new Observer<Boolean>() {
+            @Override
+            public void onChanged(Boolean aBoolean) {
+                if (aBoolean) {
+                    kProgressHUD.show();
+                } else {
+                    kProgressHUD.dismiss();
+                }
+            }
+        });
+
+        mainViewModel.getProduct.observe(this, new Observer<ProductVarientsDTO>() {
+            @Override
+            public void onChanged(ProductVarientsDTO mProduct) {
+                //todo set product list of scanned or search
+                if (kProgressHUD != null && kProgressHUD.isShowing()) {
+                    kProgressHUD.dismiss();
+                }
+                if (mProduct != null) {
+                    if (mProduct.getProductStatus().isProductAddable()) {
+                        stockMasterVos.clear();
+                        batchSelectionArrayAdapter.clear();
+                        setProductDto(mProduct.getProductDto());
+                        mProduct.setStockMasterVos(mProduct
+                                .getStockMasterVos()
+                                .stream().map(new Function<StockMasterVo, StockMasterVo>() {
+                                    @Override
+                                    public StockMasterVo apply(StockMasterVo stockMasterVo) {
+                                        stockMasterVo.setOldQuantity(stockMasterVo.getQuantity());
+                                        stockMasterVo.setDiscount(mProduct.getDiscount());
+                                        stockMasterVo.setDiscountType(mProduct.getDiscountType());
+                                        return stockMasterVo;
+                                    }
+                                }).collect(Collectors.toList()));
+                        stockMasterVos.addAll(mProduct.getStockMasterVos());
+                        batchSelectionArrayAdapter.notifyBatchChanges();
+                        try {
+                            if (stockMasterVos.size() > 1) {
+                                setSelectedStockMasterVo((StockMasterVo) batchSelectionArrayAdapter.getItem(0));
+                                dialogBatchSelectionBinding.spinnerBatchSelection.setSelection(0);
+                                batchSelectionDialog.show();
+                                pauseScannerCases();
+                            } else if (stockMasterVos.size() == 1) {
+                                setSelectedStockMasterVo((StockMasterVo) batchSelectionArrayAdapter.getItem(0));
+                                saveSelectedBatchCalculation();
+                                resumeScannerCases();
+                            }
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                    } else {
+                        CommonUtil.showSnackBar(activityMainBinding.mainLlMain, activityMainBinding.llTotal, "" + mProduct.getProductStatus().getReason());
+                        resumeScannerCases();
+                    }
+                }
+            }
+        });
+
+        mainViewModel.productList.observe(this, new Observer<List<GetAllProducts>>() {
+            @Override
+            public void onChanged(List<GetAllProducts> getAllProducts) {
+                if (getAllProducts != null) {
+                    MainActivity.this.getAllProducts.clear();
+                    MainActivity.this.getAllProducts.addAll(getAllProducts);
+                    if (adapterGetProductData != null) {
+                        adapterGetProductData.notifyDataSetChanged();
+                    }
+                }
+            }
+        });
     }
 
     private void barcodeScannerViewSelection() {
@@ -427,7 +1476,7 @@ public class MainActivity extends CameraPermissionActivity {
                 processCameraProvider = cameraProviderFuture.get();
                 bindCameraPreview(processCameraProvider);
             } catch (Exception e) {
-
+                e.printStackTrace();
             }
         }, ContextCompat.getMainExecutor(this));
     }
@@ -498,8 +1547,7 @@ public class MainActivity extends CameraPermissionActivity {
         cameraProvider.bindToLifecycle(this, cameraSelector, imageAnalysis, preview);
     }
 
-    private void processBarcode
-            (List<com.google.mlkit.vision.barcode.common.Barcode> barcodes) {
+    private void processBarcode(List<com.google.mlkit.vision.barcode.common.Barcode> barcodes) {
         if (barcodes.size() > 0) {
             Log.d(TAG, "processBarcode: " + Arrays.toString(barcodes.toArray()));
             for (com.google.mlkit.vision.barcode.common.Barcode barcode : barcodes) {
@@ -510,10 +1558,7 @@ public class MainActivity extends CameraPermissionActivity {
                     resumeScannerCases();
                     kProgressHUD.dismiss();
                 }, 1000);
-                /*mainViewModel.getProductByProductId(
-                        getCurrentFinancialYear(),
-                        barcodeId,
-                        true);*/
+                mainViewModel.getProductByBarcodeId(getCurrentFinancialYear(), barcodeId, true);
             }
             atomicBoolean.set(false);
             new Handler().postDelayed(new Runnable() {
@@ -580,6 +1625,47 @@ public class MainActivity extends CameraPermissionActivity {
     @Override
     public void onCameraPermissionGranted() {
 
+    }
+
+    @Override
+    public void onBackPressed() {
+        if (cartItemsList != null && cartItemsList.size() > 0) {
+            new MaterialAlertDialogBuilder(MainActivity.this)
+                    .setTitle("Alert")
+                    .setMessage("Do you really want to exit from the application?")
+                    .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            MainActivity.super.onBackPressed();
+                            dialog.dismiss();
+                        }
+                    })
+                    .setNegativeButton("No", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            dialog.dismiss();
+                        }
+                    }).show();
+        } else {
+            super.onBackPressed();
+        }
+    }
+
+    @Override
+    public boolean dispatchTouchEvent(MotionEvent event) {
+        if (event.getAction() == MotionEvent.ACTION_DOWN) {
+            View v = getCurrentFocus();
+            if (v instanceof EditText) {
+                Rect outRect = new Rect();
+                v.getGlobalVisibleRect(outRect);
+                if (!outRect.contains((int) event.getRawX(), (int) event.getRawY())) {
+                    v.clearFocus();
+                    InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+                    imm.hideSoftInputFromWindow(v.getWindowToken(), 0);
+                }
+            }
+        }
+        return super.dispatchTouchEvent(event);
     }
 
     /*private void barcodeScannerViewSelection() {

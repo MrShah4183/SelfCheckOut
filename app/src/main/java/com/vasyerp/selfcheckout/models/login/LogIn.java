@@ -1,19 +1,25 @@
 package com.vasyerp.selfcheckout.models.login;
 
 import androidx.annotation.Keep;
+import androidx.room.Entity;
+import androidx.room.Ignore;
+import androidx.room.PrimaryKey;
 
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
+import com.vasyerp.selfcheckout.models.customer.CustomerDetailsResponse;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+@Entity
 @Keep
 @Data
-@NoArgsConstructor
-@AllArgsConstructor
+
 public class LogIn {
+    @PrimaryKey(autoGenerate = true)
+    public int tempId;
     @SerializedName("branchId")
     @Expose
     public String branchId;
@@ -86,4 +92,70 @@ public class LogIn {
     @SerializedName("cashierName")
     @Expose
     public String cashierName;
+    @Ignore
+    @SerializedName("contactVo")
+    @Expose
+    public CustomerDetailsResponse customerDetailsResponse;
+
+    @Ignore
+    public LogIn() {
+
+    }
+
+    public LogIn(int tempId, String branchId, String gstin, String address, String monthInterval, String lastDateFinancialYear, String cityCode, String contactName, String companyUpi, String branchName, String firstDateFinancialYear, String fssaino, String countriesCode, String telephone, String userFrontId, String corporateId, String financialYear, String companyId, String logoPrefix, String domainName, String logo, String stateCode, String userType, String menuPermission, String cashierName, CustomerDetailsResponse customerDetailsResponse) {
+        this.tempId = tempId;
+        this.branchId = branchId;
+        this.gstin = gstin;
+        this.address = address;
+        this.monthInterval = monthInterval;
+        this.lastDateFinancialYear = lastDateFinancialYear;
+        this.cityCode = cityCode;
+        this.contactName = contactName;
+        this.companyUpi = companyUpi;
+        this.branchName = branchName;
+        this.firstDateFinancialYear = firstDateFinancialYear;
+        this.fssaino = fssaino;
+        this.countriesCode = countriesCode;
+        this.telephone = telephone;
+        this.userFrontId = userFrontId;
+        this.corporateId = corporateId;
+        this.financialYear = financialYear;
+        this.companyId = companyId;
+        this.logoPrefix = logoPrefix;
+        this.domainName = domainName;
+        this.logo = logo;
+        this.stateCode = stateCode;
+        this.userType = userType;
+        this.menuPermission = menuPermission;
+        this.cashierName = cashierName;
+        this.customerDetailsResponse = customerDetailsResponse;
+    }
+
+    public LogIn(int tempId, String branchId, String gstin, String address, String monthInterval, String lastDateFinancialYear, String cityCode, String contactName, String companyUpi, String branchName, String firstDateFinancialYear, String fssaino, String countriesCode, String telephone, String userFrontId, String corporateId, String financialYear, String companyId, String logoPrefix, String domainName, String logo, String stateCode, String userType, String menuPermission, String cashierName) {
+        this.tempId = tempId;
+        this.branchId = branchId;
+        this.gstin = gstin;
+        this.address = address;
+        this.monthInterval = monthInterval;
+        this.lastDateFinancialYear = lastDateFinancialYear;
+        this.cityCode = cityCode;
+        this.contactName = contactName;
+        this.companyUpi = companyUpi;
+        this.branchName = branchName;
+        this.firstDateFinancialYear = firstDateFinancialYear;
+        this.fssaino = fssaino;
+        this.countriesCode = countriesCode;
+        this.telephone = telephone;
+        this.userFrontId = userFrontId;
+        this.corporateId = corporateId;
+        this.financialYear = financialYear;
+        this.companyId = companyId;
+        this.logoPrefix = logoPrefix;
+        this.domainName = domainName;
+        this.logo = logo;
+        this.stateCode = stateCode;
+        this.userType = userType;
+        this.menuPermission = menuPermission;
+        this.cashierName = cashierName;
+    }
 }

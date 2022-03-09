@@ -64,6 +64,7 @@
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:layout_centerVertical="true"
+                            android:layout_marginStart="5dp"
                             android:layout_toEndOf="@+id/ivMainCompanyImg"
                             android:ellipsize="end"
                             android:fontFamily="@font/abeezee"
@@ -180,7 +181,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
-                    app:layout_constraintGuide_percent="0.80" />
+                    app:layout_constraintGuide_percent="0.8" />
 
                 <!--<androidx.constraintlayout.widget.Guideline
                     android:id="@+id/mainline3v"
@@ -201,8 +202,7 @@
                     style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="5dp"
-                    android:layout_marginEnd="5dp"
+                    android:layout_marginHorizontal="5dp"
                     android:hint="Product name"
                     app:boxCornerRadiusBottomEnd="8dp"
                     app:boxCornerRadiusBottomStart="8dp"
@@ -210,7 +210,7 @@
                     app:boxCornerRadiusTopStart="8dp"
                     app:boxStrokeColor="@color/dark"
                     app:boxStrokeErrorColor="#FF0000"
-                    app:boxStrokeWidth="1dp"
+                    app:boxStrokeWidth="1.5dp"
                     app:errorTextColor="#FF0000"
                     app:layout_constraintEnd_toStartOf="@+id/mainline2v"
                     app:layout_constraintStart_toStartOf="parent"
@@ -219,14 +219,13 @@
                     <AutoCompleteTextView
                         android:id="@+id/et_barcode"
                         android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
+                        android:layout_height="match_parent"
                         android:fontFamily="@font/mulish_regular"
                         android:inputType="textAutoComplete"
                         android:labelFor="@+id/til_scan_bar_code"
                         android:padding="15dp"
                         android:selectAllOnFocus="true"
-                        android:textSize="16sp"
-                        tools:ignore="LabelFor,RtlSymmetry" />
+                        android:textSize="16sp" />
 
                 </com.google.android.material.textfield.TextInputLayout>
 
@@ -482,10 +481,10 @@
                     android:layout_marginBottom="3dp"
                     android:background="#504F4F"
                     android:orientation="horizontal"
-                    app:layout_constraintBottom_toTopOf="@+id/ll_btn" />
+                    app:layout_constraintBottom_toTopOf="@+id/llBtn" />
 
                 <LinearLayout
-                    android:id="@+id/ll_btn"
+                    android:id="@+id/llBtn"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="horizontal"

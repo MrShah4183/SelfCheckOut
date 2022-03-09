@@ -50,28 +50,69 @@ public class PreferenceManager {
         mEditor.commit();
     }
 
-    public static String getUserName(Context context) {
+    public static String getBranchId(Context context) {
         mSharedPreferences = context.getSharedPreferences(SHAREDPREFERENCE, Context.MODE_PRIVATE);
-        return mSharedPreferences.getString(CommonUtil.USERNAME, "username not found.");
-    }
-
-    //domain
-    public static String getDomain(Context context) {
-        mSharedPreferences = context.getSharedPreferences(SHAREDPREFERENCE, Context.MODE_PRIVATE);
-        String strDomainId = mSharedPreferences.getString(CommonUtil.DOMAIN_ID, null);
+        String strDomainId = mSharedPreferences.getString(CommonUtil.BRANCH_ID, "");
         return strDomainId;
     }
 
-    public static long getPrinterType(Context context) {
+    public static String getCompanyId(Context context) {
         mSharedPreferences = context.getSharedPreferences(SHAREDPREFERENCE, Context.MODE_PRIVATE);
-        long barCodeType = mSharedPreferences.getLong(CommonUtil.PRINTER_TYPE, 1); // false means default is scandit.
-        return barCodeType;
+        String strDomainId = mSharedPreferences.getString(CommonUtil.COMPANY_ID, "");
+        return strDomainId;
     }
 
-    public static void setPrinterType(Context context, String key, long value) {
+    public static String getUserId(Context context) {
         mSharedPreferences = context.getSharedPreferences(SHAREDPREFERENCE, Context.MODE_PRIVATE);
-        mEditor = mSharedPreferences.edit();
-        mEditor.putLong(key, value);
-        mEditor.commit();
+        String strDomainId = mSharedPreferences.getString(CommonUtil.USER_ID, "");
+        return strDomainId;
     }
+
+    public static String getDomain(Context context) {
+        mSharedPreferences = context.getSharedPreferences(SHAREDPREFERENCE, Context.MODE_PRIVATE);
+        String strDomainId = mSharedPreferences.getString(CommonUtil.DOMAIN, "https://croods.vasyerp.com/");
+        return strDomainId;
+    }
+
+    public static String userFirstName(Context context) {
+        mSharedPreferences = context.getSharedPreferences(SHAREDPREFERENCE, Context.MODE_PRIVATE);
+        String strDomainId = mSharedPreferences.getString(CommonUtil.USER_F_NAME, "");
+        return strDomainId;
+    }
+
+    public static String userLastName(Context context) {
+        mSharedPreferences = context.getSharedPreferences(SHAREDPREFERENCE, Context.MODE_PRIVATE);
+        String strDomainId = mSharedPreferences.getString(CommonUtil.USER_L_NAME, "");
+        return strDomainId;
+    }
+
+    public static String userMobile(Context context) {
+        mSharedPreferences = context.getSharedPreferences(SHAREDPREFERENCE, Context.MODE_PRIVATE);
+        String strDomainId = mSharedPreferences.getString(CommonUtil.USER_MOBILE, "");
+        return strDomainId;
+    }
+
+    public static String userAddress(Context context) {
+        mSharedPreferences = context.getSharedPreferences(SHAREDPREFERENCE, Context.MODE_PRIVATE);
+        String strDomainId = mSharedPreferences.getString(CommonUtil.USER_ADDRESS, "");
+        return strDomainId;
+    }
+
+    public static String userContactId(Context context) {
+        mSharedPreferences = context.getSharedPreferences(SHAREDPREFERENCE, Context.MODE_PRIVATE);
+        String strDomainId = mSharedPreferences.getString(CommonUtil.USER_CONTACT_ID, "");
+        return strDomainId;
+    }
+
+    /*public static String getUserName(Context context) {
+        mSharedPreferences = context.getSharedPreferences(SHAREDPREFERENCE, Context.MODE_PRIVATE);
+        return mSharedPreferences.getString(CommonUtil.USERNAME, "username not found.");
+    }*/
+
+    //domain
+    /*public static String getDomain(Context context) {
+        mSharedPreferences = context.getSharedPreferences(SHAREDPREFERENCE, Context.MODE_PRIVATE);
+        String strDomainId = mSharedPreferences.getString(CommonUtil.DOMAIN_ID, null);
+        return strDomainId;
+    }*/
 }

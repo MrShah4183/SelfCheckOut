@@ -134,6 +134,7 @@
                 tools:visibility="gone" />
 
             <LinearLayout
+                android:id="@+id/llSecond"
                 android:layout_width="match_parent"
                 android:layout_height="0dp"
                 android:layout_marginTop="5dp"

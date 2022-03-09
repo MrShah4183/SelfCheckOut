@@ -18,6 +18,7 @@ import com.vasyerp.selfcheckout.databinding.ActivityUserLoginBinding;
 import com.vasyerp.selfcheckout.ui.company.CompanyLoginActivity;
 import com.vasyerp.selfcheckout.utils.CommonUtil;
 import com.vasyerp.selfcheckout.utils.ConnectivityStatus;
+import com.vasyerp.selfcheckout.utils.PreferenceManager;
 
 import java.util.Objects;
 import java.util.regex.Pattern;
@@ -65,11 +66,24 @@ public class UserLoginActivity extends AppCompatActivity {
             }
         });
 
-        userLoginBinding.btnLoginUser.setOnClickListener(v -> {
+        userLoginBinding.btnLoginUser.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                PreferenceManager.savePref(UserLoginActivity.this, Objects.requireNonNull(userLoginBinding.etUserFirstName.getText()).toString(), CommonUtil.USER_F_NAME);
+                PreferenceManager.savePref(UserLoginActivity.this, Objects.requireNonNull(userLoginBinding.etUserLastName.getText()).toString(), CommonUtil.USER_L_NAME);
+                PreferenceManager.savePref(UserLoginActivity.this, Objects.requireNonNull(userLoginBinding.etUserMobile.getText()).toString(), CommonUtil.USER_MOBILE);
+                PreferenceManager.savePref(UserLoginActivity.this, Objects.requireNonNull(userLoginBinding.etUserAddress.getText()).toString(), CommonUtil.USER_ADDRESS);
+                Intent intent = new Intent(UserLoginActivity.this, CompanyLoginActivity.class);
+                startActivity(intent);
+                UserLoginActivity.this.finish();
+            }
+        });
+
+        /*userLoginBinding.btnLoginUser.setOnClickListener(v -> {
             if (isInternetAvailable) {
                 //if (checkLoginValidation()) {
                 //todo check login value
-                //checkLoginValue(userLoginBinding.etUserName.getText().toString(), userLoginBinding.etUserMobile.getText().toString());
+                //checkLoginValue(userLoginBinding.etUserFirstName.getText().toString(), userLoginBinding.etUserMobile.getText().toString());
                 Intent intent = new Intent(UserLoginActivity.this, CompanyLoginActivity.class);
                 startActivity(intent);
                 UserLoginActivity.this.finish();
@@ -77,23 +91,23 @@ public class UserLoginActivity extends AppCompatActivity {
             } else {
                 CommonUtil.showSnackBar(userLoginBinding.getRoot(), userLoginBinding.getRoot(), "No, Internet available!!!");
             }
-        });
+        });*/
     }
 
     private boolean checkLoginValidation() {
         boolean check;
         //todo set error remove listener
-        if (Objects.requireNonNull(Objects.requireNonNull(userLoginBinding.etUserName).getText()).toString().isEmpty()) {
-            userLoginBinding.tilUserName.setErrorEnabled(true);
-            userLoginBinding.tilUserName.setError("The Username is Required.");
-            userLoginBinding.tilUserName.setErrorIconDrawable(null);
-            userLoginBinding.tilUserName.setBoxStrokeErrorColor(ColorStateList.valueOf(ContextCompat.getColor(this, R.color.red)));
+        if (Objects.requireNonNull(Objects.requireNonNull(userLoginBinding.etUserFirstName).getText()).toString().isEmpty()) {
+            userLoginBinding.tilUserFirstName.setErrorEnabled(true);
+            userLoginBinding.tilUserFirstName.setError("The Username is Required.");
+            userLoginBinding.tilUserFirstName.setErrorIconDrawable(null);
+            userLoginBinding.tilUserFirstName.setBoxStrokeErrorColor(ColorStateList.valueOf(ContextCompat.getColor(this, R.color.red)));
             check = false;
-        } else if (Objects.requireNonNull(userLoginBinding.etUserName.getText()).toString().trim().length() < 3) {
-            userLoginBinding.tilUserName.setErrorEnabled(true);
-            userLoginBinding.tilUserName.setError("User name must be min 3 characters long.");
-            userLoginBinding.tilUserName.setErrorIconDrawable(null);
-            userLoginBinding.tilUserName.setBoxStrokeErrorColor(ColorStateList.valueOf(ContextCompat.getColor(this, R.color.red)));
+        } else if (Objects.requireNonNull(userLoginBinding.etUserFirstName.getText()).toString().trim().length() < 3) {
+            userLoginBinding.tilUserFirstName.setErrorEnabled(true);
+            userLoginBinding.tilUserFirstName.setError("User name must be min 3 characters long.");
+            userLoginBinding.tilUserFirstName.setErrorIconDrawable(null);
+            userLoginBinding.tilUserFirstName.setBoxStrokeErrorColor(ColorStateList.valueOf(ContextCompat.getColor(this, R.color.red)));
             check = false;
         } else if (Objects.requireNonNull(userLoginBinding.etUserMobile.getText()).toString().isEmpty()) {
             userLoginBinding.tilUserMobile.setErrorEnabled(true);
@@ -125,8 +139,8 @@ public class UserLoginActivity extends AppCompatActivity {
         else {
             userLoginBinding.tilUserMobile.setError(null);
             userLoginBinding.tilUserMobile.setErrorEnabled(false);
-            userLoginBinding.tilUserName.setErrorEnabled(false);
-            userLoginBinding.tilUserName.setError(null);
+            userLoginBinding.tilUserFirstName.setErrorEnabled(false);
+            userLoginBinding.tilUserFirstName.setError(null);
             check = true;
         }
         return check;

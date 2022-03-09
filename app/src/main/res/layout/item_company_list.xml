@@ -15,7 +15,7 @@
             android:layout_height="130dp"
             android:layout_margin="10dp"
             android:shadowColor="@color/green"
-
+            android:id="@+id/itemCardView"
             app:cardBackgroundColor="@color/orange_50"
             app:cardCornerRadius="10dp"
             app:cardElevation="5dp"
@@ -61,7 +61,6 @@
                         android:id="@+id/tvComNameItem"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_gravity="center_horizontal"
                         android:fontFamily="@font/robotocondensed_bold"
                         android:letterSpacing="0.01"
                         android:maxLines="2"
@@ -80,6 +79,18 @@
                         android:text="@string/app_name"
                         android:textColor="@color/black"
                         android:textSize="16sp" />
+
+                    <TextView
+                        android:id="@+id/tvComBranchId"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:visibility="gone" />
+
+                    <TextView
+                        android:id="@+id/tvComCompanyId"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:visibility="gone" />
 
                 </LinearLayout>
 

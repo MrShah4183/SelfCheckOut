@@ -1,11 +1,13 @@
-package com.vasyerp.selfcheckout.viewmodels;
+package com.vasyerp.selfcheckout.viewmodels.companylogin;
+
+import android.util.Log;
 
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
 import com.vasyerp.selfcheckout.models.login.LogIn;
-import com.vasyerp.selfcheckout.models.login.LoginBody;
+import com.vasyerp.selfcheckout.models.login.CompanyCustomerBody;
 import com.vasyerp.selfcheckout.repositories.CompanyLoginRepository;
 import com.vasyerp.selfcheckout.repositories.DataSource;
 
@@ -23,35 +25,18 @@ public class CompanyLoginViewModel extends ViewModel {
 
     private DataSource<LogIn> dataSource;
 
-    /*public HomeViewModel(HomeRepository homeRepository,long userFrontId) {
-        this.homeRepository = homeRepository;
-        this.getProductsDto = _getProductDto;
-        this.error = _error;
-        this.isLoading = _isLoading;
-        this.salesResponse = _salesResponse;
-        this.serviceableArea = _serviceableArea;
-        this.stateList = _stateList;
-        this.cityList = _cityList;
-        this.savedSalesKey = _savedSalesKey;
-        initGetProductDtoDataSource();
-        homeRepository.getProduct(dataSource, false,userFrontId);
-        getStateList("IN");
-        getCityList("24");
-        this.syncCountLiveData = homeRepository.getSyncLiveData(userFrontId);
-        this.orderDetailsLiveData = homeRepository.getOrderDetailsLiveData(userFrontId);
-    }*/
-
-    public CompanyLoginViewModel(CompanyLoginRepository companyLoginRepository, LoginBody loginBody) {
+    public CompanyLoginViewModel(CompanyLoginRepository companyLoginRepository) {
         this.companyLoginRepository = companyLoginRepository;
         this.getCompanyLoginData = _getCompanyLoginData;
         this.error = _error;
         this.isLoading = _isLoading;
         initGetCompanyLoginDataSource();
         //homeRepository.getProduct(dataSource, false,userFrontId);
-        companyLoginRepository.companyLoginFromRemote(dataSource, loginBody);
+        //companyLoginRepository.companyLoginFromRemote(dataSource, loginBody);
     }
 
     private void initGetCompanyLoginDataSource() {
+        Log.e("TAG", "companyLogin: call model method");
         dataSource = new DataSource<LogIn>() {
             @Override
             public void loading(boolean isLoading) {
@@ -68,6 +53,25 @@ public class CompanyLoginViewModel extends ViewModel {
                 _getCompanyLoginData.postValue(data);
             }
         };
+    }
+
+    public void companyLogin(CompanyCustomerBody companyCustomerBody) {
+        companyLoginRepository.companyLoginFromRemote(new DataSource<LogIn>() {
+            @Override
+            public void loading(boolean isLoading) {
+                _isLoading.postValue(isLoading);
+            }
+
+            @Override
+            public void error(String errorMessage) {
+                _error.postValue(errorMessage);
+            }
+
+            @Override
+            public void data(LogIn data) {
+                _getCompanyLoginData.postValue(data);
+            }
+        }, companyCustomerBody);
     }
 
 

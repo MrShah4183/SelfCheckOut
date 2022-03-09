@@ -12,6 +12,7 @@ import androidx.camera.core.ViewPort;
 import androidx.camera.lifecycle.ProcessCameraProvider;
 import androidx.camera.view.PreviewView;
 import androidx.core.content.ContextCompat;
+import androidx.lifecycle.ViewModelProvider;
 
 import android.annotation.SuppressLint;
 import android.content.Intent;
@@ -32,6 +33,7 @@ import com.google.android.gms.tasks.Task;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.firebase.remoteconfig.FirebaseRemoteConfig;
 import com.google.firebase.remoteconfig.FirebaseRemoteConfigSettings;
+import com.google.gson.Gson;
 import com.google.mlkit.vision.barcode.BarcodeScanner;
 import com.google.mlkit.vision.barcode.BarcodeScannerOptions;
 import com.google.mlkit.vision.barcode.BarcodeScanning;
@@ -44,15 +46,25 @@ import com.journeyapps.barcodescanner.camera.CameraSettings;
 import com.kaopiz.kprogresshud.KProgressHUD;
 import com.vasyerp.selfcheckout.BuildConfig;
 import com.vasyerp.selfcheckout.R;
+import com.vasyerp.selfcheckout.SelfCheckOutApp;
 import com.vasyerp.selfcheckout.adapters.CompanyListAdapter;
+import com.vasyerp.selfcheckout.adapters.listeners.CompanyListClickListener;
 import com.vasyerp.selfcheckout.api.Api;
+import com.vasyerp.selfcheckout.api.ApiGenerator;
 import com.vasyerp.selfcheckout.databinding.ActivityCompanyLoginBinding;
-import com.vasyerp.selfcheckout.models.CompanyDetailsModel;
+import com.vasyerp.selfcheckout.db.SelfCheckOutDB;
+import com.vasyerp.selfcheckout.db.SelfCheckOutDao;
+import com.vasyerp.selfcheckout.models.customer.CreateCustomerBody;
+import com.vasyerp.selfcheckout.models.login.LogIn;
+import com.vasyerp.selfcheckout.models.login.CompanyCustomerBody;
+import com.vasyerp.selfcheckout.repositories.CompanyLoginRepository;
 import com.vasyerp.selfcheckout.ui.CameraPermissionActivity;
 import com.vasyerp.selfcheckout.ui.main.MainActivity;
 import com.vasyerp.selfcheckout.utils.CommonUtil;
 import com.vasyerp.selfcheckout.utils.ConnectivityStatus;
 import com.vasyerp.selfcheckout.utils.PreferenceManager;
+import com.vasyerp.selfcheckout.viewmodels.companylogin.CompanyLoginViewModel;
+import com.vasyerp.selfcheckout.viewmodels.companylogin.CompanyLoginViewModelFactory;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -64,6 +76,14 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public class CompanyLoginActivity extends CameraPermissionActivity {
     ActivityCompanyLoginBinding companyLoginBinding;
     private static final String TAG = "CompanyLoginActivity";
+
+    private SelfCheckOutApp selfCheckOutApp;
+    private SelfCheckOutDao selfCheckOutDao;
+    int totalRow = -1;
+    private static ArrayList<LogIn> tempDBLoginList;
+    private ArrayList<LogIn> storeList;
+    CompanyCustomerBody companyCustomerBody;
+    CreateCustomerBody createCustomerBody;
 
     /**
      * zxing barcode scanner
@@ -80,8 +100,7 @@ public class CompanyLoginActivity extends CameraPermissionActivity {
     private ListenableFuture<ProcessCameraProvider> cameraProviderFuture;
     private AtomicBoolean atomicBoolean;
     private UseCaseGroup.Builder useCaseGroup;
-
-    Api apiInterface;
+    CompanyLoginViewModel companyLoginViewModel;
 
     KProgressHUD kProgressHUD;
     FirebaseRemoteConfig remoteConfig;
@@ -89,9 +108,10 @@ public class CompanyLoginActivity extends CameraPermissionActivity {
     private long selectedScannerId = 3;
     private String barcodeId;
     String isShowing = "N";
-    ArrayList<CompanyDetailsModel> companyDetailsModelArrayList;
-    CompanyDetailsModel companyDetailsModel;
+    //ArrayList<CompanyDetailsModel> companyDetailsModelArrayList;
+    //CompanyDetailsModel companyDetailsModel;
     CompanyListAdapter companyListAdapter;
+    private boolean isInternetConnected;
 
     public long getSelectedScannerId() {
         return selectedScannerId;
@@ -108,10 +128,36 @@ public class CompanyLoginActivity extends CameraPermissionActivity {
         companyLoginBinding = ActivityCompanyLoginBinding.inflate(getLayoutInflater());
         setContentView(companyLoginBinding.getRoot());
         setSupportActionBar(companyLoginBinding.toolbarCompanyLogin);
-        //kProgressHUD = CommonUtil.getProgressView(this);
-        companyDetailsModelArrayList = new ArrayList<>();
-        setCompanyData();
-        companyListAdapter = new CompanyListAdapter(this, companyDetailsModelArrayList);
+
+        tempDBLoginList = new ArrayList<>();
+        storeList = new ArrayList<>();
+        kProgressHUD = CommonUtil.getKProgressHud(this);
+        initDB();
+        ConnectivityStatus connectivityStatus = new ConnectivityStatus(CompanyLoginActivity.this);
+        connectivityStatus.observe(this, aBoolean -> {
+            Log.e(TAG, "onChanged net state: " + aBoolean);
+            isInternetConnected = aBoolean;
+            createCustomerBody = new CreateCustomerBody();
+            createCustomerBody.setFirstName(PreferenceManager.userFirstName(this));
+            createCustomerBody.setLastName(PreferenceManager.userLastName(this));
+            createCustomerBody.setMobileNo(PreferenceManager.userMobile(this));
+            createCustomerBody.setAddressLine1(PreferenceManager.userAddress(this));
+        });
+        initViewModelAndRepository();
+        //companyDetailsModelArrayList = new ArrayList<>();
+        //setCompanyData();
+        companyListAdapter = new CompanyListAdapter(this, storeList);
+        companyListAdapter.setCompanyListClickListener(new CompanyListClickListener() {
+            @Override
+            public void setLoginData(String strCompanyId, String strBranchId) {
+                Log.e(TAG, "setLoginData: click listener" + strBranchId);
+                CompanyCustomerBody companyCustomerBody = new CompanyCustomerBody();
+                companyCustomerBody.setCompanyId(strCompanyId);
+                companyCustomerBody.setBranchId(strBranchId);
+                companyCustomerBody.setContactDetails(createCustomerBody);
+                companyLoginViewModel.companyLogin(companyCustomerBody);
+            }
+        });
         companyLoginBinding.rvShopList.setAdapter(companyListAdapter);
         //set shop list adapter
 
@@ -144,25 +190,40 @@ public class CompanyLoginActivity extends CameraPermissionActivity {
             }
         });
 
-        //todo call when api required
-        //apiInterface = ApiGenerator.getSingle().create(Api.class);
-
-        ConnectivityStatus status = new ConnectivityStatus(this);
-        status.observe(this, aBoolean -> {
-            if (aBoolean) {
-                kProgressHUD.show();
-                new Handler().postDelayed(() -> {
-                    //todo load product data
-                    /*if (getAllProducts.size() == 0) {
-                        mainViewModel.getAllProducts(companyId);
-                    }*/
-                    kProgressHUD.dismiss();
-                }, 1500);
+        companyLoginViewModel.error.observe(this, s -> {
+            if (s != null) {
+                CommonUtil.showSnackBar(companyLoginBinding.llSecond, companyLoginBinding.llSecond, "" + s);
+                resumeScannerCases();
             }
         });
 
-        // Setup the CartAdapter
-        //initCartAdapter();
+        companyLoginViewModel.isLoading.observe(this, aBoolean -> {
+            if (aBoolean) {
+                kProgressHUD.show();
+            } else {
+                kProgressHUD.dismiss();
+            }
+        });
+
+        companyLoginViewModel.getCompanyLoginData.observe(this, logIn -> {
+            if (logIn != null) {
+                PreferenceManager.savePref(CompanyLoginActivity.this, logIn.getCompanyId(), CommonUtil.COMPANY_ID);
+                PreferenceManager.savePref(CompanyLoginActivity.this, logIn.getBranchId(), CommonUtil.BRANCH_ID);
+                PreferenceManager.savePref(CompanyLoginActivity.this, logIn.getUserFrontId(), CommonUtil.USER_ID);
+                PreferenceManager.savePref(CompanyLoginActivity.this, String.valueOf(logIn.getCustomerDetailsResponse().getContactId()), CommonUtil.USER_CONTACT_ID);
+                new Handler().postDelayed(() -> {
+                    Intent intent = new Intent(CompanyLoginActivity.this, MainActivity.class);
+                    String imgPath = logIn.getLogoPrefix() + logIn.getLogo();
+                    intent.putExtra("storeName", logIn.getBranchName());
+                    intent.putExtra("storeImg", imgPath);
+                    startActivity(intent);
+                }, 1000);
+            } else {
+                CommonUtil.showSnackBar(companyLoginBinding.llSecond, companyLoginBinding.llSecond, "Store Not Found.");
+            }
+            /*Log.e(TAG, "onChanged: " + logIn.getBranchId());
+            Log.e(TAG, "onChanged: " + logIn.getBranchId());*/
+        });
 
         companyLoginBinding.btnComOnOff.setOnClickListener(v -> {
             Log.v("Hide", "btn click start");
@@ -184,25 +245,29 @@ public class CompanyLoginActivity extends CameraPermissionActivity {
         companyLoginBinding.zxQrDecoratedBarcodeViewCom.decodeContinuous(new BarcodeCallback() {
             @Override
             public void barcodeResult(BarcodeResult result) {
+                hideScannerCases();
+                isShowing = "N";
                 ToneGenerator toneGen1 = new ToneGenerator(AudioManager.STREAM_MUSIC, 100);
                 toneGen1.startTone(ToneGenerator.TONE_PROP_BEEP2, 150);
                 Log.d("MainActivity", "Barcode Result from zxing: " + result.toString());
-                if (kProgressHUD != null && !kProgressHUD.isShowing()) {
+                /*if (kProgressHUD != null && !kProgressHUD.isShowing()) {
                     kProgressHUD.show();
-                }
+                }*/
                 barcodeId = result.toString();
-                Toast.makeText(CompanyLoginActivity.this, "Product Scanned", Toast.LENGTH_SHORT).show();
-                //todo call api after scanning at zxing
-                new Handler().postDelayed(() -> {
-                    Intent intent = new Intent(CompanyLoginActivity.this, MainActivity.class);
-                    startActivity(intent);
-                    resumeScannerCases();
-                    kProgressHUD.dismiss();
-                }, 1000);
-                /*mainViewModel.getProductByProductId(
-                        getCurrentFinancialYear(),
-                        barcodeId,
-                        true);*/
+                Log.e(TAG, "barcodeResult: " + barcodeId);
+                Gson gson = new Gson();
+                try {
+                    companyCustomerBody = gson.fromJson(barcodeId, CompanyCustomerBody.class);
+                    companyCustomerBody.setContactDetails(createCustomerBody);
+                    Log.e(TAG, "barcodeResult: " + companyCustomerBody.getCompanyId());
+                    Log.e(TAG, "barcodeResult: " + companyCustomerBody.getBranchId());
+                    Log.e(TAG, "barcodeResult: " + companyCustomerBody.getContactDetails().getFirstName());
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    CommonUtil.showSnackBar(companyLoginBinding.llSecond, companyLoginBinding.llSecond, e.toString());
+                }
+                Log.e(TAG, "companyLogin: call model method");
+                companyLoginViewModel.companyLogin(companyCustomerBody);
                 companyLoginBinding.zxQrDecoratedBarcodeViewCom.pause();
             }
 
@@ -213,35 +278,43 @@ public class CompanyLoginActivity extends CameraPermissionActivity {
         });
     }
 
-    private void setCompanyData() {
-        companyDetailsModel = new CompanyDetailsModel(
-                "img1",
-                R.drawable.m1,
-                "Shah traders",
-                "Saraspur, Milan Cinema Road, Nr.Hari bhai godani hospital, Ahmedabad-380018."
-        );
-        companyDetailsModelArrayList.add(companyDetailsModel);
-        companyDetailsModel = new CompanyDetailsModel(
-                "img2",
-                R.drawable.m2,
-                "Krisha Cards",
-                "Guruji Bridge, daxini Soc., Maninagar, Ahmedabad-38----."
-        );
-        companyDetailsModelArrayList.add(companyDetailsModel);
-        companyDetailsModel = new CompanyDetailsModel(
-                "img3",
-                R.drawable.m3,
-                "Marvel Studio",
-                "Frank G. Wells Building 2nd Floor 500 South Buena Vista Street, Burbank, California , United States"
-        );
-        companyDetailsModelArrayList.add(companyDetailsModel);
-        companyDetailsModel = new CompanyDetailsModel(
-                "img4",
-                R.drawable.m4,
-                "Warner Bros. Studios",
-                "4000 Warner Boulevard, Burbank, California, United States"
-        );
-        companyDetailsModelArrayList.add(companyDetailsModel);
+    private void initViewModelAndRepository() {
+        Api apiInterface = ApiGenerator.getApi(" ").create(Api.class);
+        companyLoginViewModel = new ViewModelProvider(this, new CompanyLoginViewModelFactory(CompanyLoginRepository.getInstance(apiInterface, selfCheckOutApp.selfCheckOutDao))).get(CompanyLoginViewModel.class);
+        //homeViewModel = new ViewModelProvider(this, new HomeViewModelFactory(HomeRepository.getInstance(api, gajanandApp.gajanandDao), userFrontId)).get(HomeViewModel.class);
+    }
+
+    @SuppressLint("NotifyDataSetChanged")
+    private void initDB() {
+        kProgressHUD.show();
+        try {
+            Log.e(TAG, "initDB: start method");
+            selfCheckOutApp = (SelfCheckOutApp) this.getApplication();
+            selfCheckOutDao = selfCheckOutApp.selfCheckOutDao;
+
+            SelfCheckOutDB.databaseWriteExecutor.execute(() -> totalRow = selfCheckOutDao.getTotalRow());
+            new Handler().postDelayed(() -> {
+                if (totalRow > 0) {
+                    tempDBLoginList.clear();
+                    Log.e(TAG, "initDB: get row");
+                    SelfCheckOutDB.databaseWriteExecutor.execute(() -> tempDBLoginList.addAll(selfCheckOutDao.getAllStoreData()));
+                    new Handler().postDelayed(() -> {
+                        Log.e(TAG, "initDB: size" + tempDBLoginList.size());
+                        if (tempDBLoginList.size() > 0) {
+                            Log.e(TAG, "initDB: add data");
+                            storeList.clear();
+                            storeList.addAll(tempDBLoginList);
+                            companyListAdapter.notifyDataSetChanged();
+                        } else
+                            Log.e(TAG, "run: size is zero");
+                    }, 1000);
+                }
+            }, 1000);
+            kProgressHUD.dismiss();
+        } catch (Exception e) {
+            e.printStackTrace();
+            kProgressHUD.dismiss();
+        }
     }
 
     private void hideScannerCases() {
@@ -266,7 +339,7 @@ public class CompanyLoginActivity extends CameraPermissionActivity {
     }
 
     private void showScannerCases() {
-        Log.d(TAG, "showScannerCases: " + String.valueOf(PreferenceManager.getBarcodeSelectionId(CompanyLoginActivity.this)));
+        Log.d(TAG, "showScannerCases: " + PreferenceManager.getBarcodeSelectionId(CompanyLoginActivity.this));
         switch (String.valueOf(PreferenceManager.getBarcodeSelectionId(CompanyLoginActivity.this))) {
             case "1":
                 /*companyLoginBinding.mainLl.setWeightSum(2f);
@@ -325,10 +398,6 @@ public class CompanyLoginActivity extends CameraPermissionActivity {
                 companyLoginBinding.zxQrDecoratedBarcodeViewCom.pause();
                 break;
         }
-    }
-
-    private void viewObserversCollection() {
-        //todo call when data is get
     }
 
     private void barcodeScannerViewSelection() {
@@ -444,32 +513,39 @@ public class CompanyLoginActivity extends CameraPermissionActivity {
         cameraProvider.bindToLifecycle(this, cameraSelector, imageAnalysis, preview);
     }
 
-    private void processBarcode
-            (List<com.google.mlkit.vision.barcode.common.Barcode> barcodes) {
+    private void processBarcode(List<com.google.mlkit.vision.barcode.common.Barcode> barcodes) {
         if (barcodes.size() > 0) {
+            atomicBoolean.set(false);
+            hideScannerCases();
+            isShowing = "N";
             Log.d(TAG, "processBarcode: " + Arrays.toString(barcodes.toArray()));
             for (com.google.mlkit.vision.barcode.common.Barcode barcode : barcodes) {
                 Rect rect = barcode.getBoundingBox();
                 barcodeId = barcode.getDisplayValue();
-                //todo call api after scanning at mlkit
-                new Handler().postDelayed(() -> {
+                Log.e(TAG, "processBarcode: mlkit" + barcodeId);
+                Gson gson = new Gson();
+                try {
+                    companyCustomerBody = gson.fromJson(barcodeId, CompanyCustomerBody.class);
+                    companyCustomerBody.setContactDetails(createCustomerBody);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    CommonUtil.showSnackBar(companyLoginBinding.llSecond, companyLoginBinding.llSecond, e.toString());
+                }
+                Log.e(TAG, "companyLogin: call model method");
+                companyLoginViewModel.companyLogin(companyCustomerBody);
+                /*new Handler().postDelayed(() -> {
                     Intent intent = new Intent(CompanyLoginActivity.this, MainActivity.class);
                     startActivity(intent);
                     resumeScannerCases();
                     kProgressHUD.dismiss();
-                }, 1000);
+                }, 1000);*/
                 /*mainViewModel.getProductByProductId(
                         getCurrentFinancialYear(),
                         barcodeId,
                         true);*/
             }
-            atomicBoolean.set(false);
-            new Handler().postDelayed(new Runnable() {
-                @Override
-                public void run() {
-                    atomicBoolean.set(true);
-                }
-            }, 3000);
+
+            //new Handler().postDelayed(() -> atomicBoolean.set(true), 3000);
         }
     }
 
@@ -533,6 +609,7 @@ public class CompanyLoginActivity extends CameraPermissionActivity {
             hideScannerCases();
             isShowing = "N";
         }
+        initDB();
         Log.d(TAG, "onResume: Called.");
     }
 
@@ -540,4 +617,35 @@ public class CompanyLoginActivity extends CameraPermissionActivity {
     public void onCameraPermissionGranted() {
 
     }
+
+    /*private void setCompanyData() {
+        companyDetailsModel = new CompanyDetailsModel(
+                "img1",
+                R.drawable.m1,
+                "Shah traders",
+                "Saraspur, Milan Cinema Road, Nr.Hari bhai godani hospital, Ahmedabad-380018."
+        );
+        companyDetailsModelArrayList.add(companyDetailsModel);
+        companyDetailsModel = new CompanyDetailsModel(
+                "img2",
+                R.drawable.m2,
+                "Krisha Cards",
+                "Guruji Bridge, daxini Soc., Maninagar, Ahmedabad-38----."
+        );
+        companyDetailsModelArrayList.add(companyDetailsModel);
+        companyDetailsModel = new CompanyDetailsModel(
+                "img3",
+                R.drawable.m3,
+                "Marvel Studio",
+                "Frank G. Wells Building 2nd Floor 500 South Buena Vista Street, Burbank, California , United States"
+        );
+        companyDetailsModelArrayList.add(companyDetailsModel);
+        companyDetailsModel = new CompanyDetailsModel(
+                "img4",
+                R.drawable.m4,
+                "Warner Bros. Studios",
+                "4000 Warner Boulevard, Burbank, California, United States"
+        );
+        companyDetailsModelArrayList.add(companyDetailsModel);
+    }*/
 }

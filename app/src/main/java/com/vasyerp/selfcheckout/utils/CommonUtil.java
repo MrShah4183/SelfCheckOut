@@ -26,12 +26,21 @@ public class CommonUtil {
 
     //public static final String SCANDIT_LICENSE_KEY = BuildConfig.SCANDIT_API_KEY;
     public static final String SCANDIT_LICENSE_KEY = "";
-    public final static String DOMAIN_ID = "DOMAIN_ID";
+    //public final static String DOMAIN_ID = "DOMAIN_ID";
     public static final String SCANNER_SELECTION_ID = "barcodeSelectionId";
     public static final String REMOTE_CONFIG_SCANNER_KEY = "SCANNER";
     public static final String SCANDIT_API_KEY = "SCANDIT_API_KEY";
-    public static final String USERNAME = "USERNAME";
-    public static final String PRINTER_TYPE = "printerType";
+    /*public static final String USERNAME = "USERNAME";
+    public static final String PRINTER_TYPE = "printerType";*/
+    public final static String BRANCH_ID = "branchId";
+    public final static String COMPANY_ID = "companyId";
+    public static final String USER_ID = "userFrontId";
+    public static final String DOMAIN = "domain";
+    public static final String USER_F_NAME = "userFirstName";
+    public static final String USER_L_NAME = "userLastName";
+    public static final String USER_MOBILE = "userMobile";
+    public static final String USER_ADDRESS = "userAddress";
+    public static final String USER_CONTACT_ID = "userContactId";
 
     /*public static final String PRINT_BILL = "printBill";
     public static final String BLUETOOTH_NAME = "bluetoothName";

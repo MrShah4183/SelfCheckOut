@@ -28,7 +28,7 @@ public class OrdersListActivity extends AppCompatActivity {
         ordersListBinding = ActivityOrdersListBinding.inflate(getLayoutInflater());
         setContentView(ordersListBinding.getRoot());
         orderListModelArrayList = new ArrayList<>();
-        kProgressHUD = CommonUtil.getProgressView(this);
+        kProgressHUD = CommonUtil.getKProgressHud(this);
         setOrderListData();
         orderListAdapter = new OrderListAdapter(OrdersListActivity.this, orderListModelArrayList);
         ordersListBinding.rvOrderList.setAdapter(orderListAdapter);

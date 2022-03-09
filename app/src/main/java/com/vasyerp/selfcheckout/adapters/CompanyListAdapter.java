@@ -1,6 +1,7 @@
 package com.vasyerp.selfcheckout.adapters;
 
 import android.content.Context;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
 
@@ -10,20 +11,30 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.squareup.picasso.Picasso;
 import com.vasyerp.selfcheckout.R;
+import com.vasyerp.selfcheckout.adapters.listeners.CompanyListClickListener;
 import com.vasyerp.selfcheckout.databinding.ItemCompanyListBinding;
-import com.vasyerp.selfcheckout.models.CompanyDetailsModel;
+import com.vasyerp.selfcheckout.models.login.LogIn;
 
 import java.util.ArrayList;
 
 public class CompanyListAdapter extends RecyclerView.Adapter<CompanyListAdapter.MyViewHolder> {
 
     Context context;
-    ArrayList<CompanyDetailsModel> companyDetailsModelArrayList;
+    ArrayList<LogIn> logInArrayList;
+    private CompanyListClickListener companyListClickListener;
+    //private CartQtyFocusCallback cartQtyFocusCallback
 
-
-    public CompanyListAdapter(Context context, ArrayList<CompanyDetailsModel> companyDetailsModelArrayList) {
+    public CompanyListAdapter(Context context, ArrayList<LogIn> logInArrayList) {
         this.context = context;
-        this.companyDetailsModelArrayList = companyDetailsModelArrayList;
+        this.logInArrayList = logInArrayList;
+    }
+
+    public CompanyListClickListener getCompanyListClickListener() {
+        return companyListClickListener;
+    }
+
+    public void setCompanyListClickListener(CompanyListClickListener companyListClickListener) {
+        this.companyListClickListener = companyListClickListener;
     }
 
     @NonNull
@@ -36,20 +47,29 @@ public class CompanyListAdapter extends RecyclerView.Adapter<CompanyListAdapter.
 
     @Override
     public void onBindViewHolder(@NonNull CompanyListAdapter.MyViewHolder holder, int position) {
-        holder.itemComListBinding.tvComNameItem.setText(companyDetailsModelArrayList.get(holder.getAbsoluteAdapterPosition()).getCompanyName());
-        holder.itemComListBinding.tvComAddressItem.setText(companyDetailsModelArrayList.get(holder.getAbsoluteAdapterPosition()).getCompanyAddress());
+        holder.itemComListBinding.tvComNameItem.setText(logInArrayList.get(holder.getAbsoluteAdapterPosition()).getBranchName());
+        holder.itemComListBinding.tvComAddressItem.setText(logInArrayList.get(holder.getAbsoluteAdapterPosition()).getAddress());
         //Picasso.get().load(R.drawable.m1).into(holder.itemComListBinding.ivComLogoItem);
+        String imgPath = logInArrayList.get(holder.getAbsoluteAdapterPosition()).getLogoPrefix() + logInArrayList.get(holder.getAbsoluteAdapterPosition()).getLogo();
         Picasso.get()
-                .load(companyDetailsModelArrayList.get(holder.getAbsoluteAdapterPosition()).getCompanyIV())
+                .load(imgPath)
                 .resize(2048, 2048)
                 .onlyScaleDown()
                 .into(holder.itemComListBinding.ivComLogoItem);
-        //holder.itemComListBinding.tvComNameItem.setText(companyDetailsModelArrayList.get(holder.getAbsoluteAdapterPosition()).getCompanyName());
+        holder.itemComListBinding.tvComBranchId.setText(logInArrayList.get(holder.getAbsoluteAdapterPosition()).getBranchId());
+        holder.itemComListBinding.tvComCompanyId.setText(logInArrayList.get(holder.getAbsoluteAdapterPosition()).getCompanyId());
+        //holder.itemComListBinding.tvComNameItem.setText(logInArrayList.get(holder.getAbsoluteAdapterPosition()).getCompanyName());
+
+        holder.itemComListBinding.itemCardView.setOnClickListener(v -> {
+            Log.e("TAG", "onClick: " + holder.itemComListBinding.tvComCompanyId.getText().toString());
+            Log.e("TAG", "onClick: " + holder.itemComListBinding.tvComBranchId.getText().toString());
+            companyListClickListener.setLoginData(holder.itemComListBinding.tvComCompanyId.getText().toString(), holder.itemComListBinding.tvComBranchId.getText().toString());
+        });
     }
 
     @Override
     public int getItemCount() {
-        return companyDetailsModelArrayList.size();
+        return logInArrayList.size();
     }
 
     public static class MyViewHolder extends RecyclerView.ViewHolder {

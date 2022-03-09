@@ -1,7 +1,9 @@
 package com.vasyerp.selfcheckout.api;
 
 import com.vasyerp.selfcheckout.models.login.LogIn;
-import com.vasyerp.selfcheckout.models.login.LoginBody;
+import com.vasyerp.selfcheckout.models.login.CompanyCustomerBody;
+import com.vasyerp.selfcheckout.models.product.GetAllProducts;
+import com.vasyerp.selfcheckout.models.product.Product;
 
 import java.util.List;
 
@@ -15,48 +17,45 @@ public interface Api {
 
     //comapany loging using qr code scanning
     @POST("mpos/api/v2/get/companydetails")
-    Call<ApiResponse<LogIn>> companyLogin(@Body LoginBody loginBody);
+    Call<ApiResponse<LogIn>> companyLogin(@Body CompanyCustomerBody companyCustomerBody);
+
+    //get all products for edittext autocomplete
+    //http://192.168.2.20:8080/mpos/api/v2/getproductdata?companyId=64
+    @GET("mpos/api/v2/getproductdata")
+    Call<ApiResponse<List<GetAllProducts>>> getAllProductList(@Query("companyId") String companyId);
 
     /**
-     * check domain name
-     * http://192.168.2.20:8080/mpos/api/v2/domain/checkdomain?url=croods
-     * @param url
+     * Get product by barcode.
+     * http://192.168.2.156:8080/mpos/api/v2/getproductbybarcode?branchId=64&barcode=12345678&companyId=64&yearinterval='2021-2022'
+     *
+     * @param branchId
+     * @param barcode
+     * @param companyId
+     * @param yearinterval
      * @return
      */
-    /*@GET("mpos/api/v2/domain/checkdomain")
-    Call<ApiResponse<Object>> checkDomain(@Query("url") String url);*/
+    @GET("mpos/api/v2/getproductbybarcode")
+    Call<ApiResponse<Product>> getProductByBarCode(
+            @Query("branchId") String branchId,
+            @Query("barcode") String barcode,
+            @Query("companyId") String companyId,
+            @Query("yearinterval") String yearinterval);
 
-    /**
-     * check user login
-     * http://192.168.2.20:8080/mpos/api/v2/check/login?username=vyaparerp&password=123456789&domain=croods.vasyerp.com
-     * @param loginBody
-     * @param domaina
-     * @return
-     */
-    /*@POST("mpos/api/v2/check/login")
-    Call<ApiResponse<LogIn>> checkLogins(
-            @Body LoginBody loginBody,
-            @Query("domain") String domaina);*/
-
-    /*@POST("mpos/api/v2/check/login")
-    Call<ApiResponse<LogIn>> oldCheckLogin(
-            @Query("username") String username,
-            @Query("password") String password,
-            @Query("domain") String domaina);*/
     /**
      * Get product by id.
      * http://192.168.2.20:8080/mpos/api/v2/getproductbyproductId?branchId=64&productVarientId=425841&companyId=64&yearinterval='2021-2022'
+     *
      * @param branchId
      * @param productVarientId
      * @param companyId
      * @param yearinterval
      * @return
      */
-    /*@GET("mpos/api/v2/getproductbyproductId")
+    @GET("mpos/api/v2/getproductbyproductId")
     Call<ApiResponse<Product>> getProductByProductId(
             @Query("branchId") String branchId,
             @Query("productVarientId") String productVarientId,
             @Query("companyId") String companyId,
-            @Query("yearinterval") String yearinterval);*/
+            @Query("yearinterval") String yearinterval);
 
 }

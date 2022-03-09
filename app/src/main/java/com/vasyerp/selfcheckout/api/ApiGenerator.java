@@ -19,14 +19,21 @@ public class ApiGenerator {
         interceptor.setLevel(HttpLoggingInterceptor.Level.BODY);
         OkHttpClient client = new OkHttpClient.Builder()
                 .readTimeout(120, TimeUnit.SECONDS)
-                .writeTimeout(120,TimeUnit.SECONDS)
+                .writeTimeout(120, TimeUnit.SECONDS)
                 .addInterceptor(interceptor)
                 .addInterceptor(new ApiInterceptor())
                 .build();
+        String finalBaseUrl = "http://192.168.175.41:9090/";
+        if (baseURL.trim().isEmpty()) {
+            finalBaseUrl = finalBaseUrl;
+        } else {
+            finalBaseUrl = "";
+            finalBaseUrl = baseURL;
+        }
 
         retrofit = new Retrofit.Builder()
                 //.baseUrl(baseURL)
-                .baseUrl("http://192.168.175.82:8080/")
+                .baseUrl(finalBaseUrl)
                 .addConverterFactory(GsonConverterFactory.create(gson))
                 .client(client)
                 .build();
