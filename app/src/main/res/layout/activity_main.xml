@@ -221,7 +221,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
                         android:fontFamily="@font/mulish_regular"
-                        android:inputType="textAutoComplete"
+                        android:inputType="text"
                         android:labelFor="@+id/til_scan_bar_code"
                         android:padding="15dp"
                         android:selectAllOnFocus="true"

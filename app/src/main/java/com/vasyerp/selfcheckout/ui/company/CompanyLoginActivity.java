@@ -47,7 +47,7 @@ import com.kaopiz.kprogresshud.KProgressHUD;
 import com.vasyerp.selfcheckout.BuildConfig;
 import com.vasyerp.selfcheckout.R;
 import com.vasyerp.selfcheckout.SelfCheckOutApp;
-import com.vasyerp.selfcheckout.adapters.CompanyListAdapter;
+import com.vasyerp.selfcheckout.adapters.company_list.CompanyListAdapter;
 import com.vasyerp.selfcheckout.adapters.listeners.CompanyListClickListener;
 import com.vasyerp.selfcheckout.api.Api;
 import com.vasyerp.selfcheckout.api.ApiGenerator;
@@ -140,7 +140,8 @@ public class CompanyLoginActivity extends CameraPermissionActivity {
             createCustomerBody = new CreateCustomerBody();
             createCustomerBody.setFirstName(PreferenceManager.userFirstName(this));
             createCustomerBody.setLastName(PreferenceManager.userLastName(this));
-            createCustomerBody.setMobileNo(PreferenceManager.userMobile(this));
+            //todo set preferenceManager Mobile no createCustomerBody.setMobileNo(PreferenceManager.userMobile(this));
+            createCustomerBody.setMobileNo("9106896990");
             createCustomerBody.setAddressLine1(PreferenceManager.userAddress(this));
         });
         initViewModelAndRepository();
@@ -210,7 +211,7 @@ public class CompanyLoginActivity extends CameraPermissionActivity {
                 PreferenceManager.savePref(CompanyLoginActivity.this, logIn.getCompanyId(), CommonUtil.COMPANY_ID);
                 PreferenceManager.savePref(CompanyLoginActivity.this, logIn.getBranchId(), CommonUtil.BRANCH_ID);
                 PreferenceManager.savePref(CompanyLoginActivity.this, logIn.getUserFrontId(), CommonUtil.USER_ID);
-                PreferenceManager.savePref(CompanyLoginActivity.this, String.valueOf(logIn.getCustomerDetailsResponse().getContactId()), CommonUtil.USER_CONTACT_ID);
+                PreferenceManager.savePref(CompanyLoginActivity.this, "68856", CommonUtil.USER_CONTACT_ID);
                 new Handler().postDelayed(() -> {
                     Intent intent = new Intent(CompanyLoginActivity.this, MainActivity.class);
                     String imgPath = logIn.getLogoPrefix() + logIn.getLogo();

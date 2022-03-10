@@ -866,7 +866,7 @@
                     app:layout_constraintTop_toTopOf="parent" />
 
                 <TextView
-                    android:id="@+id/netAmountTextView"
+                    android:id="@+id/orderDate"
                     android:layout_width="0dp"
                     android:layout_height="0dp"
                     android:gravity="center|bottom"

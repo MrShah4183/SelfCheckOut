@@ -2,6 +2,8 @@ package com.vasyerp.selfcheckout.api;
 
 import com.vasyerp.selfcheckout.models.login.LogIn;
 import com.vasyerp.selfcheckout.models.login.CompanyCustomerBody;
+import com.vasyerp.selfcheckout.models.orderlist.OrdersListResponse;
+import com.vasyerp.selfcheckout.models.ordersummary.OrderSummary;
 import com.vasyerp.selfcheckout.models.product.GetAllProducts;
 import com.vasyerp.selfcheckout.models.product.Product;
 
@@ -57,5 +59,27 @@ public interface Api {
             @Query("productVarientId") String productVarientId,
             @Query("companyId") String companyId,
             @Query("yearinterval") String yearinterval);
+
+    @GET("mpos/api/v2/allorders/")
+    Call<ApiResponse<OrdersListResponse>> getAllOrderList(
+            @Query("pageNo") int pageNo,
+            @Query("limit") int limit,
+            @Query("branchId") String branchId,
+            @Query("companyId") String companyId,
+            @Query("contactId") int contactId);
+
+    /**
+     * GetOrderSummary
+     *
+     * @param branchId
+     * @param companyId
+     * @param salesId
+     * @return
+     */
+    @GET("/mpos/api/v2/orderdetails")
+    Call<ApiResponse<OrderSummary>> getOrderSummary(
+            @Query("branchId") int branchId,
+            @Query("companyId") int companyId,
+            @Query("salesId") int salesId);
 
 }

@@ -1,4 +1,4 @@
-package com.vasyerp.selfcheckout.adapters;
+package com.vasyerp.selfcheckout.adapters.company_list;
 
 import android.content.Context;
 import android.util.Log;

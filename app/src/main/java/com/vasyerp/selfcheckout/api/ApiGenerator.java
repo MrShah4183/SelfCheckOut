@@ -23,7 +23,8 @@ public class ApiGenerator {
                 .addInterceptor(interceptor)
                 .addInterceptor(new ApiInterceptor())
                 .build();
-        String finalBaseUrl = "http://192.168.175.41:9090/";
+        //vaibhav bhai ip String finalBaseUrl = "http://192.168.175.41:9090/";
+        String finalBaseUrl = "http://192.168.175.38:8080/";
         if (baseURL.trim().isEmpty()) {
             finalBaseUrl = finalBaseUrl;
         } else {
