@@ -12,6 +12,8 @@ import com.vasyerp.selfcheckout.models.product.Product;
 import com.vasyerp.selfcheckout.models.product.ProductDto;
 import com.vasyerp.selfcheckout.models.product.ProductStatus;
 import com.vasyerp.selfcheckout.models.product.ProductVarientsDTO;
+import com.vasyerp.selfcheckout.models.savebill.SaveBill;
+import com.vasyerp.selfcheckout.models.savebill.SaveBillResponse;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -280,6 +282,57 @@ public class MainRepository {
                 }
             });
         }
+    }
+
+
+    //SaveBill saveBill, int userId, int branchId, int companyId
+    public void postOrder(DataSource<SaveBillResponse> dataSource, int companyId, int branchId, int userId, SaveBill saveBill) {
+        Call<ApiResponse<SaveBillResponse>> callPostOrder = api.saveBill(
+                userId,
+                branchId,
+                companyId,
+                saveBill
+        );
+
+        callPostOrder.enqueue(new Callback<ApiResponse<SaveBillResponse>>() {
+            @Override
+            public void onResponse(@NonNull Call<ApiResponse<SaveBillResponse>> call, @NonNull Response<ApiResponse<SaveBillResponse>> response) {
+                if (response.isSuccessful()) {
+                    if (response.body() != null) {
+                        if (response.body().getResponse() != null) {
+                            if (response.body().isStatus()) {
+                                dataSource.data(response.body().getResponse());
+                                dataSource.loading(false);
+                                dataSource.error(null);
+                            } else {
+                                dataSource.data(response.body().getResponse());
+                                dataSource.loading(false);
+                                dataSource.error(response.message());
+                            }
+                            Log.e(TAG, "onResponse: call set db data");
+                        } else {
+                            Log.d(TAG, "onResponse: response is null.");
+                            dataSource.loading(false);
+                            dataSource.data(null);
+                            dataSource.error("no list available");
+                        }
+                        dataSource.data(response.body().getResponse());
+                    }
+                } else {
+                    Log.d(TAG, "onResponse: response fail.");
+                    dataSource.loading(false);
+                    dataSource.data(null);
+                    dataSource.error("Response fail.");
+                }
+            }
+
+            @Override
+            public void onFailure(@NonNull Call<ApiResponse<SaveBillResponse>> call, @NonNull Throwable t) {
+                dataSource.loading(false);
+                dataSource.data(null);
+                dataSource.error("fail to connect.");
+            }
+        });
     }
 
     public void getAllProductListApiCall(DataSource<List<GetAllProducts>> dataSource, int companyId) {

@@ -6,6 +6,8 @@ import com.vasyerp.selfcheckout.models.orderlist.OrdersListResponse;
 import com.vasyerp.selfcheckout.models.ordersummary.OrderSummary;
 import com.vasyerp.selfcheckout.models.product.GetAllProducts;
 import com.vasyerp.selfcheckout.models.product.Product;
+import com.vasyerp.selfcheckout.models.savebill.SaveBill;
+import com.vasyerp.selfcheckout.models.savebill.SaveBillResponse;
 
 import java.util.List;
 
@@ -81,5 +83,21 @@ public interface Api {
             @Query("branchId") int branchId,
             @Query("companyId") int companyId,
             @Query("salesId") int salesId);
+
+    /**
+     * Save bill
+     * http://192.168.2.20:8080/mpos/api/v2/savebill?userId=64&brachId=64&companyId=64
+     * @param userId
+     * @param brachId
+     * @param companyId
+     * @param saveBill
+     * @return
+     */
+    @POST("mpos/api/v2/savebill")
+    Call<ApiResponse<SaveBillResponse>> saveBill(
+            @Query("userId") int userId,
+            @Query("branchId") int branchId,
+            @Query("companyId") int companyId,
+            @Body SaveBill saveBill);
 
 }
