@@ -95,7 +95,7 @@ public class MainViewModel extends ViewModel {
         }, intCompanyId);
     }
 
-    private void postOrderData(int companyId, int branchId, int userId, SaveBill saveBill) {
+    public void postOrderData(int companyId, int branchId, int userId, SaveBill saveBill) {
         mainRepository.postOrder(new DataSource<SaveBillResponse>() {
             @Override
             public void loading(boolean isLoading) {

@@ -68,6 +68,24 @@ public class PreferenceManager {
         return strDomainId;
     }
 
+    public static String getCompanyLogoPrefix(Context context) {
+        mSharedPreferences = context.getSharedPreferences(SHAREDPREFERENCE, Context.MODE_PRIVATE);
+        String strDomainId = mSharedPreferences.getString(CommonUtil.COMPANY_LOGO_PREFIX, "");
+        return strDomainId;
+    }
+
+    public static String getCompanyLogo(Context context) {
+        mSharedPreferences = context.getSharedPreferences(SHAREDPREFERENCE, Context.MODE_PRIVATE);
+        String strDomainId = mSharedPreferences.getString(CommonUtil.COMPANY_LOGO, "");
+        return strDomainId;
+    }
+
+    public static String getCompanyBranchName(Context context) {
+        mSharedPreferences = context.getSharedPreferences(SHAREDPREFERENCE, Context.MODE_PRIVATE);
+        String strDomainId = mSharedPreferences.getString(CommonUtil.COMPANY_BRANCH_NAME, "");
+        return strDomainId;
+    }
+
     public static String getDomain(Context context) {
         mSharedPreferences = context.getSharedPreferences(SHAREDPREFERENCE, Context.MODE_PRIVATE);
         String strDomainId = mSharedPreferences.getString(CommonUtil.DOMAIN, "https://croods.vasyerp.com/");

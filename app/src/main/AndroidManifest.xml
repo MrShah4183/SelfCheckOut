@@ -19,7 +19,9 @@
         tools:overrideLibrary="com.google.firebase.firebase_analytics"
         tools:replace="android:allowBackup"
         tools:targetApi="r">
-
+        <activity
+            android:name=".ui.payment.RazorpayPaymentActivity"
+            android:exported="false" />
         <activity
             android:name=".ui.orders_ui.OrdersListActivity"
             android:exported="false" />
@@ -50,21 +52,31 @@
         <activity
             android:name=".ui.splash.SplashActivity"
             android:exported="true">
-            <!--<intent-filter>
+
+            <!--
+            <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>-->
+            </intent-filter>
+            -->
         </activity>
         <activity
             android:name=".ui.main.MainActivity"
             android:exported="true">
-            <!--<intent-filter>
+
+            <!--
+            <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>-->
+            </intent-filter>
+            -->
         </activity>
+
+        <meta-data
+            android:name="com.razorpay.ApiKey"
+            android:value="rzp_test_goYqawczzlm2Yp" />
 
         <meta-data
             android:name="preloaded_fonts"

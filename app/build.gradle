@@ -55,6 +55,9 @@ android {
 }
 
 dependencies {
+    //razorpay dependency
+    implementation 'com.razorpay:checkout:1.6.18'
+
     // Import the BoM for the Firebase platform
     implementation platform('com.google.firebase:firebase-bom:26.6.0')
     implementation 'com.google.firebase:firebase-config:21.0.1'

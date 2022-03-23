@@ -17,6 +17,8 @@ public class ProductDto {
     @Expose
     private String name;
     @Expose
+    private String varient_name;
+    @Expose
     private double mrp;
     @Expose
     private int cess;
@@ -42,6 +44,7 @@ public class ProductDto {
     private int is_deleted;
     @Expose
     private String display_name;
+    private String db_display_name;
     @Expose
     private int purchase_tax_id;
     @Expose

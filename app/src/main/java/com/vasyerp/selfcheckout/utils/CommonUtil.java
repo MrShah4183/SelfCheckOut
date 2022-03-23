@@ -22,8 +22,10 @@ import java.util.List;
 import java.util.Locale;
 import java.util.regex.Pattern;
 
-public class CommonUtil {
+import retrofit2.http.PUT;
 
+public class CommonUtil {
+    public static final String baseUrlRazorpay = "https://api.razorpay.com/v1/";
     //public static final String SCANDIT_LICENSE_KEY = BuildConfig.SCANDIT_API_KEY;
     public static final String SCANDIT_LICENSE_KEY = "";
     //public final static String DOMAIN_ID = "DOMAIN_ID";
@@ -35,12 +37,17 @@ public class CommonUtil {
     public final static String BRANCH_ID = "branchId";
     public final static String COMPANY_ID = "companyId";
     public static final String USER_ID = "userFrontId";
+    public static final String COMPANY_LOGO_PREFIX = "companyLogoPrefix";
+    public static final String COMPANY_LOGO = "companyLogo";
+    public static final String COMPANY_BRANCH_NAME = "companyBranchName";
     public static final String DOMAIN = "domain";
     public static final String USER_F_NAME = "userFirstName";
     public static final String USER_L_NAME = "userLastName";
     public static final String USER_MOBILE = "userMobile";
     public static final String USER_ADDRESS = "userAddress";
     public static final String USER_CONTACT_ID = "userContactId";
+    public static final String ORDER_DETAIL_SALE_NO = "orderSalesNo";//order no
+    public static final String ORDER_DETAIL_STATUS = "orderStatus";//true for current order false for previous order
 
     /*public static final String PRINT_BILL = "printBill";
     public static final String BLUETOOTH_NAME = "bluetoothName";
@@ -87,6 +94,17 @@ public class CommonUtil {
         Snackbar snackbar = Snackbar.make(parentView, message, Snackbar.LENGTH_LONG);
         snackbar.setAnchorView(anchorView);
         snackbar.show();
+    }
+    /*public static double getDoubleDecimalValue(double value) {
+        return Double.parseDouble(String.format(Locale.getDefault(), "%.2f", value));
+    }
+
+    public static double getDoubleFromString(String amount, int decimal) {
+        return Double.parseDouble(String.format(Locale.getDefault(), "%." + decimal + "f", Double.parseDouble(amount)));
+    }*/
+
+    public static double getDoubleFromString(String amount, int decimal) {
+        return Double.parseDouble(String.format(Locale.getDefault(), "%." + decimal + "f", Double.parseDouble(amount)));
     }
 
     public static double getDoubleDecimalValue(double value) {

@@ -23,7 +23,6 @@ import com.vasyerp.selfcheckout.api.Api;
 import com.vasyerp.selfcheckout.api.ApiGenerator;
 import com.vasyerp.selfcheckout.databinding.ActivityOrderDetailsBinding;
 import com.vasyerp.selfcheckout.models.ordersummary.OrderSummary;
-import com.vasyerp.selfcheckout.models.ordersummary.Receipt;
 import com.vasyerp.selfcheckout.models.ordersummary.SalesItems;
 import com.vasyerp.selfcheckout.repositories.OrderSummaryRepository;
 import com.vasyerp.selfcheckout.utils.CommonUtil;
@@ -45,9 +44,9 @@ public class OrderDetailsActivity extends AppCompatActivity {
     ActivityOrderDetailsBinding orderDetailsBinding;
     private ArrayList<SalesItems> salesItems;
     Double ordTotal = 0.0;
-    private ArrayList<Receipt> receipt;
+    //private ArrayList<Receipt> receipt;
     KProgressHUD kProgressHUD;
-    private boolean isInternetConnected;
+    boolean isInternetConnected;
     private int companyId;
     private int userId;
     private int branchId;
@@ -55,8 +54,8 @@ public class OrderDetailsActivity extends AppCompatActivity {
     /*ArrayList<OrderDetailsModel> orderDetailsModelArrayList;
     OrderDetailsModel orderDetailsModel;
     OrderDetailsAdapter orderDetailsAdapter;*/
-    int viewQrCode;
-    int salesId;
+    boolean orderDetailsStatus;
+    int orderDetailsSalesNo;
     OrderProductsAdapter orderProductsAdapter;
     OrderSummaryViewModel orderSummaryViewModel;
 
@@ -68,10 +67,10 @@ public class OrderDetailsActivity extends AppCompatActivity {
         setContentView(orderDetailsBinding.getRoot());
         salesItems = new ArrayList<>();
         Intent intent = getIntent();
-        viewQrCode = intent.getIntExtra("checkStatus", 0);
-        salesId = intent.getIntExtra("salesId", 0);
+        orderDetailsStatus = intent.getBooleanExtra(CommonUtil.ORDER_DETAIL_STATUS, false);
+        orderDetailsSalesNo = intent.getIntExtra(CommonUtil.ORDER_DETAIL_SALE_NO, 0);
 
-        Log.e(TAG, "onCreate: " + salesId);
+        Log.e(TAG, "onCreate: " + orderDetailsSalesNo);
 
         companyId = Integer.parseInt(PreferenceManager.getCompanyId(this));
         branchId = Integer.parseInt(PreferenceManager.getBranchId(this));
@@ -87,7 +86,7 @@ public class OrderDetailsActivity extends AppCompatActivity {
 
         initViewModelAndRepository();
 
-        if (viewQrCode == 1) {
+        if (orderDetailsStatus) {
             orderDetailsBinding.rlBarcodeView.setVisibility(View.VISIBLE);
             setQrCode();
         } else {
@@ -106,8 +105,7 @@ public class OrderDetailsActivity extends AppCompatActivity {
             public void onChanged(Boolean aBoolean) {
                 isInternetConnected = aBoolean;
                 if (aBoolean) {
-                    //ordersListViewModel.getAllCustomerOrders(pageNo, limit, contactId);
-                    orderSummaryViewModel.getOrderSummaryDetails(salesId);
+                    orderSummaryViewModel.getOrderSummaryDetails(orderDetailsSalesNo);
                 } else {
                     CommonUtil.showSnackBar(orderDetailsBinding.totalAmountCardView, orderDetailsBinding.totalAmountCardView, "Check Internet Connection");
                 }
@@ -126,17 +124,20 @@ public class OrderDetailsActivity extends AppCompatActivity {
                 orderProductsAdapter.submitList(salesItems);
                 //_totalAmount.postValue(sales.getTotal() - Double.parseDouble(String.format(Locale.getDefault(), "%.2f", sales.getRoundOff())));
                 ordTotal = orderSummary.getSales().getTotal() - Double.parseDouble(String.format(Locale.getDefault(), "%.2f", orderSummary.getSales().getRoundOff()));
-                orderDetailsBinding.totalAmountTextView.setText(String.format(Locale.getDefault(), "%.2f", ordTotal));
-                SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
-                SimpleDateFormat sdf2 = new SimpleDateFormat("yyyy-MM-dd");
+                orderDetailsBinding.tvOrderTotalAmt.setText(String.format(Locale.getDefault(), "%.2f", ordTotal));
+                @SuppressLint("SimpleDateFormat") SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
+                @SuppressLint("SimpleDateFormat") SimpleDateFormat sdf2 = new SimpleDateFormat("yyyy-MM-dd");
                 if (orderSummary.getReceipt().size() > 0) {
                     Date oldDate = sdf2.parse(orderSummary.getReceipt().get(0).getReceiptDate());
+                    assert oldDate != null;
                     String oldFormattedDate = sdf.format(oldDate.getTime());
-                    orderDetailsBinding.orderDate.setText(oldFormattedDate);
+                    orderDetailsBinding.tvOrderDate.setText(oldFormattedDate);
                 } else {
-                    orderDetailsBinding.orderDate.setText(" ");
+                    orderDetailsBinding.tvOrderDate.setText(" ");
                 }
-
+                orderDetailsBinding.tvOrderRoundOff.setText(String.valueOf(CommonUtil.getDoubleFromString(String.valueOf(orderSummary.getSales().getRoundOff()), 2)));
+                String strOrderNo = orderSummary.getSales().getPrefix() + String.valueOf(orderSummary.getSales().getSalesNo());
+                orderDetailsBinding.tvOrderNoCombination.setText(strOrderNo);
             }
         });
 
@@ -159,8 +160,6 @@ public class OrderDetailsActivity extends AppCompatActivity {
 
         ordersListBinding.ivOrderListBack.setOnClickListener(v -> OrdersListActivity.this.finish());*/
 
-
-
         /*setOrderDetailsData();
         orderDetailsModelArrayList = new ArrayList<>();
         orderDetailsAdapter = new OrderDetailsAdapter(this, orderDetailsModelArrayList);
@@ -170,8 +169,8 @@ public class OrderDetailsActivity extends AppCompatActivity {
     }
 
     private void initViewModelAndRepository() {
-        Api apiInterface = ApiGenerator.getApi(" ").create(Api.class);
-        //Api apiInterface = ApiGenerator.getApi(" ").create(Api.class);
+        //String strBaseUrl = PreferenceManager.getDomain(OrderDetailsActivity.this);
+        Api apiInterface = ApiGenerator.getApi(domainName).create(Api.class);
         orderSummaryViewModel = new ViewModelProvider(this, new OrderSummaryViewModelFactory(OrderSummaryRepository.getInstance(apiInterface), companyId, branchId, userId)).get(OrderSummaryViewModel.class);
     }
 
@@ -179,7 +178,7 @@ public class OrderDetailsActivity extends AppCompatActivity {
     private void setQrCode() {
         BarcodeEncoder barcodeEncoder = new BarcodeEncoder();
         try {
-            Bitmap bitmap = barcodeEncoder.encodeBitmap(String.valueOf(salesId), BarcodeFormat.CODE_128, 700, 150);
+            Bitmap bitmap = barcodeEncoder.encodeBitmap(String.valueOf(orderDetailsSalesNo), BarcodeFormat.CODE_128, 700, 150);
             orderDetailsBinding.tvStatus.setText("Unpaid");
             Drawable buttonDrawable = orderDetailsBinding.tvStatus.getBackground();
             buttonDrawable = DrawableCompat.wrap(buttonDrawable);
@@ -192,7 +191,7 @@ public class OrderDetailsActivity extends AppCompatActivity {
             orderDetailsBinding.tvStatus.setBackgroundResource(R.drawable.et_bg);*/
             //orderDetailsBinding.tvStatus.setBackgroundTintList(ColorStateList.valueOf(R.color.red));
             orderDetailsBinding.ivBarcode.setImageBitmap(bitmap);
-            orderDetailsBinding.tvOrderNo.setText(String.valueOf(salesId));
+            orderDetailsBinding.tvOrderNo.setText(String.valueOf(orderDetailsSalesNo));
         } catch (WriterException e) {
             e.printStackTrace();
             //orderDetailsBinding.tvStatus.setBackground(ContextCompat.getColor(OrderDetailsActivity.this, R.color.offwhite));
@@ -200,38 +199,4 @@ public class OrderDetailsActivity extends AppCompatActivity {
             Log.e(TAG, "onCreate: some interrupt ");
         }
     }
-
-    /*private void setOrderDetailsData() {
-        orderDetailsModel = new OrderDetailsModel(
-                "product 1",
-                1.0,
-                0.0,
-                10.0
-        );
-        orderDetailsModelArrayList.add(orderDetailsModel);
-
-        orderDetailsModel = new OrderDetailsModel(
-                "product 2",
-                2.0,
-                0.0,
-                20.0
-        );
-        orderDetailsModelArrayList.add(orderDetailsModel);
-
-        orderDetailsModel = new OrderDetailsModel(
-                "product 3",
-                3.0,
-                0.0,
-                30.0
-        );
-        orderDetailsModelArrayList.add(orderDetailsModel);
-
-        orderDetailsModel = new OrderDetailsModel(
-                "product 4",
-                4.0,
-                0.0,
-                40.0
-        );
-        orderDetailsModelArrayList.add(orderDetailsModel);
-    }*/
 }

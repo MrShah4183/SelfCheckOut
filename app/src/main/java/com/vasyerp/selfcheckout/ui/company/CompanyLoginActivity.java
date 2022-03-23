@@ -208,10 +208,14 @@ public class CompanyLoginActivity extends CameraPermissionActivity {
 
         companyLoginViewModel.getCompanyLoginData.observe(this, logIn -> {
             if (logIn != null) {
+                Log.e(TAG, "onCreate: " + String.valueOf(logIn.getCustomerDetailsResponse().getContactId()));
                 PreferenceManager.savePref(CompanyLoginActivity.this, logIn.getCompanyId(), CommonUtil.COMPANY_ID);
                 PreferenceManager.savePref(CompanyLoginActivity.this, logIn.getBranchId(), CommonUtil.BRANCH_ID);
                 PreferenceManager.savePref(CompanyLoginActivity.this, logIn.getUserFrontId(), CommonUtil.USER_ID);
-                PreferenceManager.savePref(CompanyLoginActivity.this, "68856", CommonUtil.USER_CONTACT_ID);
+                PreferenceManager.savePref(CompanyLoginActivity.this, String.valueOf(logIn.getCustomerDetailsResponse().getContactId()), CommonUtil.USER_CONTACT_ID);
+                PreferenceManager.savePref(CompanyLoginActivity.this, logIn.getBranchName(), CommonUtil.COMPANY_BRANCH_NAME);
+                PreferenceManager.savePref(CompanyLoginActivity.this, logIn.getLogoPrefix(), CommonUtil.COMPANY_LOGO_PREFIX);
+                PreferenceManager.savePref(CompanyLoginActivity.this, logIn.getLogo(), CommonUtil.COMPANY_LOGO);
                 new Handler().postDelayed(() -> {
                     Intent intent = new Intent(CompanyLoginActivity.this, MainActivity.class);
                     String imgPath = logIn.getLogoPrefix() + logIn.getLogo();
@@ -280,7 +284,8 @@ public class CompanyLoginActivity extends CameraPermissionActivity {
     }
 
     private void initViewModelAndRepository() {
-        Api apiInterface = ApiGenerator.getApi(" ").create(Api.class);
+        String strBaseUrl = PreferenceManager.getDomain(CompanyLoginActivity.this);
+        Api apiInterface = ApiGenerator.getApi(strBaseUrl).create(Api.class);
         companyLoginViewModel = new ViewModelProvider(this, new CompanyLoginViewModelFactory(CompanyLoginRepository.getInstance(apiInterface, selfCheckOutApp.selfCheckOutDao))).get(CompanyLoginViewModel.class);
         //homeViewModel = new ViewModelProvider(this, new HomeViewModelFactory(HomeRepository.getInstance(api, gajanandApp.gajanandDao), userFrontId)).get(HomeViewModel.class);
     }

@@ -54,13 +54,26 @@ public class MainRepository {
                                     if (product != null) {
                                         ProductDto productDto = product.getMposProductDTO();
                                         ProductVarientsDTO productVarientsDTO = product.getProductVarientsDTO();
+                                        productDto.setDb_display_name(productDto.getDisplay_name());
+                                        if (productDto.getName() != null) {
+                                            if (!productDto.getName().trim().isEmpty()) {
+                                                productDto.setDisplay_name(productDto.getName());
+                                                if (productDto.getVarient_name() != null) {
+                                                    if (!productDto.getVarient_name().trim().isEmpty()) {
+                                                        String finalDisplayName = productDto.getName() + " " + productDto.getVarient_name();
+                                                        productDto.setDisplay_name(finalDisplayName);
+                                                    }
+                                                }
+                                            }
+                                        }
                                         CompanySettingVo companySettingVo = product.getCompanySettingVo();
                                         productVarientsDTO.setProductStatus(status);
                                         if (companySettingVo.getValue() == 1) {
                                             if (productVarientsDTO.getActive() == 0) {
                                                 productVarientsDTO.setStockMasterVos(productVarientsDTO.getStockMasterVos()
                                                         .stream()
-                                                        .filter(stockMasterVo -> Double.valueOf(stockMasterVo.getQuantity()).doubleValue() >= 0.0)
+                                                        .filter(stockMasterVo -> Double.valueOf(stockMasterVo.getQuantity()).doubleValue() > 0.0)
+                                                        .filter(stockMasterVo -> stockMasterVo.getIsDisable() == 0)
                                                         .map(stockMasterVo -> {
                                                             stockMasterVo.setHasNegativeSelling(companySettingVo.getValue());
                                                             return stockMasterVo;
@@ -96,6 +109,7 @@ public class MainRepository {
                                             if (productVarientsDTO.getActive() == 0) {
                                                 productVarientsDTO.setStockMasterVos(productVarientsDTO.getStockMasterVos()
                                                         .stream()
+                                                        .filter(stockMasterVo -> stockMasterVo.getIsDisable() == 0)
                                                         .map(stockMasterVo -> {
                                                             stockMasterVo.setHasNegativeSelling(companySettingVo.getValue());
                                                             return stockMasterVo;
@@ -293,7 +307,7 @@ public class MainRepository {
                 companyId,
                 saveBill
         );
-
+        dataSource.loading(true);
         callPostOrder.enqueue(new Callback<ApiResponse<SaveBillResponse>>() {
             @Override
             public void onResponse(@NonNull Call<ApiResponse<SaveBillResponse>> call, @NonNull Response<ApiResponse<SaveBillResponse>> response) {
@@ -309,7 +323,6 @@ public class MainRepository {
                                 dataSource.loading(false);
                                 dataSource.error(response.message());
                             }
-                            Log.e(TAG, "onResponse: call set db data");
                         } else {
                             Log.d(TAG, "onResponse: response is null.");
                             dataSource.loading(false);

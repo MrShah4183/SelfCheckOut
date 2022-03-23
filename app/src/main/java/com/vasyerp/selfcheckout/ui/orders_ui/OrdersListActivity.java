@@ -27,6 +27,7 @@ import com.vasyerp.selfcheckout.databinding.ActivityOrdersListBinding;
 import com.vasyerp.selfcheckout.models.orderlist.OrderModel;
 import com.vasyerp.selfcheckout.models.orderlist.OrdersListResponse;
 import com.vasyerp.selfcheckout.repositories.OrdersListRepository;
+import com.vasyerp.selfcheckout.ui.company.CompanyLoginActivity;
 import com.vasyerp.selfcheckout.utils.CommonUtil;
 import com.vasyerp.selfcheckout.utils.ConnectivityStatus;
 import com.vasyerp.selfcheckout.utils.PreferenceManager;
@@ -212,8 +213,9 @@ public class OrdersListActivity extends AppCompatActivity {
     }
 
     private void initViewModelAndRepository() {
-        //Api apiInterface = ApiGenerator.getApi(domainName).create(Api.class);
-        Api apiInterface = ApiGenerator.getApi(" ").create(Api.class);
+        //Api apiInterface = RazorpayApiGenerator.getApi(domainName).create(Api.class);
+        String strBaseUrl = PreferenceManager.getDomain(OrdersListActivity.this);
+        Api apiInterface = ApiGenerator.getApi(strBaseUrl).create(Api.class);
         ordersListViewModel = new ViewModelProvider(this, new OrdersListViewModelFactory(OrdersListRepository.getInstance(apiInterface), companyId, branchId, userId)).get(OrdersListViewModel.class);
     }
 

@@ -449,7 +449,7 @@
                         android:weightSum="2">
 
                         <TextView
-                            android:id="@+id/tv_total_amount"
+                            android:id="@+id/tvTotalAmount"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:layout_gravity="center_horizontal"
@@ -487,7 +487,7 @@
                     android:id="@+id/llBtn"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:orientation="horizontal"
+                    android:orientation="vertical"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent">
@@ -515,8 +515,8 @@
 
                     <com.google.android.material.button.MaterialButton
                         android:id="@+id/btnMainCheckOut"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
+                        android:layout_width="match_parent"
+                        android:layout_height="0dp"
                         android:layout_marginHorizontal="10dp"
                         android:layout_weight="1"
                         android:backgroundTint="@color/dark_slate_blue"
@@ -534,6 +534,15 @@
                         app:iconPadding="0dp"
                         app:iconSize="25dp"
                         app:rippleColor="@color/blue" />
+
+                    <TextView
+                        android:id="@+id/tvSample"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:layout_marginHorizontal="10dp"
+                        android:text="@string/app_name"
+                        android:textStyle="bold"
+                        android:visibility="gone" />
 
                     <!--<com.google.android.material.button.MaterialButton
                         android:id="@+id/tv_btn_upi"

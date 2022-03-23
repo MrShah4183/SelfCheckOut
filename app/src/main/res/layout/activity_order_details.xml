@@ -817,16 +817,16 @@
                     app:layout_constraintGuide_percent="0.75" />
 
                 <TextView
-                    android:id="@+id/taxAmountTextView"
+                    android:id="@+id/tvOrderNoCombination"
                     android:layout_width="0dp"
                     android:layout_height="0dp"
                     android:gravity="center|bottom"
-                    android:text="GGU/21-22/110615"
+                    android:text="POS2056"
                     android:textColor="#4C4C4C"
                     android:textSize="16sp"
                     android:textStyle="bold"
                     app:layout_constraintBottom_toTopOf="@+id/orderSummaryLineh1"
-                    app:layout_constraintEnd_toStartOf="@+id/orderSummaryLinev2"
+                    app:layout_constraintEnd_toStartOf="@+id/orderSummaryLinev1"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent" />
 
@@ -834,14 +834,14 @@
                     android:layout_width="0dp"
                     android:layout_height="0dp"
                     android:background="#E8E8E8"
-                    android:visibility="gone"
+                    android:visibility="visible"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toStartOf="@+id/orderSummaryLinev11"
                     app:layout_constraintStart_toEndOf="@+id/orderSummaryLinev1"
                     app:layout_constraintTop_toTopOf="parent" />
 
                 <TextView
-                    android:id="@+id/totalRoundOffTextView"
+                    android:id="@+id/tvOrderRoundOff"
                     android:layout_width="0dp"
                     android:layout_height="0dp"
                     android:layout_margin="0dp"
@@ -850,7 +850,7 @@
                     android:textColor="#4C4C4C"
                     android:textSize="16sp"
                     android:textStyle="bold"
-                    android:visibility="gone"
+                    android:visibility="visible"
                     app:layout_constraintBottom_toTopOf="@+id/orderSummaryLineh1"
                     app:layout_constraintEnd_toStartOf="@+id/orderSummaryLinev2"
                     app:layout_constraintStart_toEndOf="@+id/orderSummaryLinev11"
@@ -866,7 +866,7 @@
                     app:layout_constraintTop_toTopOf="parent" />
 
                 <TextView
-                    android:id="@+id/orderDate"
+                    android:id="@+id/tvOrderDate"
                     android:layout_width="0dp"
                     android:layout_height="0dp"
                     android:gravity="center|bottom"
@@ -889,7 +889,7 @@
                     app:layout_constraintTop_toTopOf="parent" />
 
                 <TextView
-                    android:id="@+id/totalAmountTextView"
+                    android:id="@+id/tvOrderTotalAmt"
                     android:layout_width="0dp"
                     android:layout_height="0dp"
                     android:gravity="center|bottom"
@@ -935,7 +935,7 @@
                     android:textSize="14sp"
                     android:textStyle="normal"
                     app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintEnd_toStartOf="@+id/orderSummaryLinev2"
+                    app:layout_constraintEnd_toStartOf="@+id/orderSummaryLinev1"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toBottomOf="@+id/orderSummaryLineh2" />
 
@@ -944,10 +944,10 @@
                     android:layout_width="0dp"
                     android:layout_height="0dp"
                     android:gravity="center"
-                    android:text="Date"
+                    android:text="RoundOff"
                     android:textSize="14sp"
                     android:textStyle="normal"
-                    android:visibility="gone"
+                    android:visibility="visible"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toStartOf="@+id/orderSummaryLinev2"
                     app:layout_constraintStart_toEndOf="@+id/orderSummaryLinev11"

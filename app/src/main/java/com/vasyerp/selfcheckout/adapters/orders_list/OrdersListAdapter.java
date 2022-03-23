@@ -15,6 +15,7 @@ import com.vasyerp.selfcheckout.R;
 import com.vasyerp.selfcheckout.databinding.ItemOrderListBinding;
 import com.vasyerp.selfcheckout.models.orderlist.OrderModel;
 import com.vasyerp.selfcheckout.ui.orders_ui.OrderDetailsActivity;
+import com.vasyerp.selfcheckout.utils.CommonUtil;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -55,8 +56,10 @@ public class OrdersListAdapter extends RecyclerView.Adapter<OrdersListAdapter.My
         holder.itemOrderListBinding.llItemOrder.setOnClickListener(v -> {
             Toast.makeText(context, "Click on " + holder.itemOrderListBinding.tvItemOrderInv.getText().toString(), Toast.LENGTH_SHORT).show();
             Intent intentOrderDetails = new Intent(context, OrderDetailsActivity.class);
-            intentOrderDetails.putExtra("checkStatus", 0);
-            intentOrderDetails.putExtra("salesId", orderModelArrayList.get(holder.getAbsoluteAdapterPosition()).getSalesId());
+            intentOrderDetails.putExtra(CommonUtil.ORDER_DETAIL_SALE_NO, orderModelArrayList.get(holder.getAbsoluteAdapterPosition()).getSalesId());
+            intentOrderDetails.putExtra(CommonUtil.ORDER_DETAIL_STATUS, false);
+            /*intentOrderDetails.putExtra("checkStatus", 0);
+            intentOrderDetails.putExtra("salesId", orderModelArrayList.get(holder.getAbsoluteAdapterPosition()).getSalesId());*/
             //orderLists.get(position).getSalesId())
             context.startActivity(intentOrderDetails);
             Log.e("TAG", "onBindViewHolder: ");

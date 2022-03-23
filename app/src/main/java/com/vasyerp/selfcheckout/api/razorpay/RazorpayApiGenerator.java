@@ -1,4 +1,4 @@
-package com.vasyerp.selfcheckout.api;
+package com.vasyerp.selfcheckout.api.razorpay;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -10,7 +10,7 @@ import okhttp3.logging.HttpLoggingInterceptor;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
-public class ApiGenerator {
+public class RazorpayApiGenerator {
     private static Retrofit retrofit = null;
 
     public static Retrofit getApi(String baseURL) {
@@ -21,15 +21,8 @@ public class ApiGenerator {
                 .readTimeout(120, TimeUnit.SECONDS)
                 .writeTimeout(120, TimeUnit.SECONDS)
                 .addInterceptor(interceptor)
-                .addInterceptor(new ApiInterceptor())
+                .addInterceptor(new RazorpayApiInterceptor())
                 .build();
-        /*String finalBaseUrl = "http://192.168.175.38:8080/";
-        if (baseURL.trim().isEmpty()) {
-            finalBaseUrl = finalBaseUrl;
-        } else {
-            finalBaseUrl = "";
-            finalBaseUrl = baseURL;
-        }*/
 
         retrofit = new Retrofit.Builder()
                 .baseUrl(baseURL)
