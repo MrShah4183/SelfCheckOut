@@ -70,6 +70,10 @@ public class ProductVarientsDTO {
     private double discount;
 
     @Expose
+    @SerializedName("itemCode")
+    private String itemCode;
+
+    @Expose
     @SerializedName("purchaseTaxrate")
     private double purchaseTaxrate;
 

@@ -30,7 +30,6 @@ public class ApiGenerator {
             finalBaseUrl = "";
             finalBaseUrl = baseURL;
         }*/
-
         retrofit = new Retrofit.Builder()
                 .baseUrl(baseURL)
                 //.baseUrl(finalBaseUrl)

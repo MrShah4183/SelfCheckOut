@@ -18,7 +18,7 @@ import retrofit2.http.POST;
 import retrofit2.http.Query;
 
 public interface Api {
-
+    //"customerId":216174
     //comapany loging using qr code scanning
     @POST("mpos/api/v2/get/companydetails")
     Call<ApiResponse<LogIn>> companyLogin(@Body CompanyCustomerBody companyCustomerBody);
@@ -87,8 +87,9 @@ public interface Api {
     /**
      * Save bill
      * http://192.168.2.20:8080/mpos/api/v2/savebill?userId=64&brachId=64&companyId=64
+     *
      * @param userId
-     * @param brachId
+     * @param //brachId
      * @param companyId
      * @param saveBill
      * @return

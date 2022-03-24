@@ -197,7 +197,16 @@ public class MainActivity extends CameraPermissionActivity implements PaymentRes
     MainViewModel mainViewModel;
     int widthOfEtBarcode = 500;
     private boolean isInternetConnected;
+    private SaveBillResponse saveBillResponseData;
     private SaveBill saveBill;
+
+    public SaveBillResponse getSaveBillResponseData() {
+        return saveBillResponseData;
+    }
+
+    public void setSaveBillResponseData(SaveBillResponse saveBillResponseData) {
+        this.saveBillResponseData = saveBillResponseData;
+    }
 
     public SaveBill getSaveBill() {
         return saveBill;
@@ -253,9 +262,13 @@ public class MainActivity extends CameraPermissionActivity implements PaymentRes
         activityMainBinding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(activityMainBinding.getRoot());
         setSupportActionBar(activityMainBinding.toolbarMain);
-        Intent intent = getIntent();
+        PreferenceManager.savePref(MainActivity.this, "205797", CommonUtil.USER_CONTACT_ID);
+        //todo change intent
+        /*Intent intent = getIntent();
         storeName = intent.getStringExtra("storeName");
-        storeImg = intent.getStringExtra("storeImg");
+        storeImg = intent.getStringExtra("storeImg");*/
+        storeName = "vasyERP ";
+        storeImg = "https://s3-us-west-2.amazonaws.com/vasyerpsolutions/Gmart/pv_logo/logo-small.png";
 
         activityMainBinding.tvMainCompanyName.setText(storeName);
         Picasso.get().load(storeImg).into(activityMainBinding.ivMainCompanyImg);
@@ -546,7 +559,7 @@ public class MainActivity extends CameraPermissionActivity implements PaymentRes
     }
 
     private void initViewModelAndRepository() {
-        Api apiInterface = ApiGenerator.getApi(domainName).create(Api.class);
+        Api apiInterface = ApiGenerator.getApi(CommonUtil.tempBaseUrl).create(Api.class);
         mainViewModel = new ViewModelProvider(this, new MainViewModelFactory(MainRepository.getInstance(apiInterface), companyId, branchId, userId)).get(MainViewModel.class);
     }
 
@@ -1223,7 +1236,7 @@ public class MainActivity extends CameraPermissionActivity implements PaymentRes
             Toast.makeText(MainActivity.this, "Order Placed with unpaid.", Toast.LENGTH_SHORT).show();
             if (this.bottomSheetOrderSummaryBinding.radioCounter.isChecked()) {
                 Toast.makeText(MainActivity.this, "Make Payment At Counter", Toast.LENGTH_SHORT).show();
-                SaveBill saveBillPost = prepareSaveBillModel("cash");
+                SaveBill saveBillPost = prepareSaveBillModel("");
                 setSaveBill(saveBillPost);
                 //mainViewModel.getProductByBarcodeId(getCurrentFinancialYear(), barcodeId, true);
                 mainViewModel.postOrderData(
@@ -1234,7 +1247,7 @@ public class MainActivity extends CameraPermissionActivity implements PaymentRes
                 );
             } else if (this.bottomSheetOrderSummaryBinding.radioOnline.isChecked()) {
                 Toast.makeText(MainActivity.this, "Make Payment Online", Toast.LENGTH_SHORT).show();
-                SaveBill saveBillPost = prepareSaveBillModel("upi");
+                SaveBill saveBillPost = prepareSaveBillModel("");
                 setSaveBill(saveBillPost);
 
                 /*Intent intent = new Intent(MainActivity.this, RazorpayPaymentActivity.class);
@@ -1259,13 +1272,19 @@ public class MainActivity extends CameraPermissionActivity implements PaymentRes
         //private SaveBill prepareSaveBillModel() {
         SaveBill saveBill = new SaveBill();
         saveBill.setCustomerId(Long.parseLong(PreferenceManager.userContactId(MainActivity.this)));
-        if (paymentMode.trim().toLowerCase().equals("upi")) {
+        /*if (paymentMode.trim().toLowerCase().equals("online")) {
             saveBill.setBankId(151);
         } else {
             saveBill.setBankId(0);
-        }
+            //Double tenderedAmt = CommonUtil.getDoubleFromString(activityMainBinding.tvTotalAmount.getText().toString(), 2) + CommonUtil.getDoubleFromString(activityMainBinding.etRound.getText().toString(), 2);
+            //saveBill.setTendered(activityMainBinding.tvTotalAmount.getText().toString());//todo ask sir for this payment
+        }*/
+        saveBill.setBankId(0);
         saveBill.setRoundOff(Double.parseDouble(activityMainBinding.etRound.getText().toString()));
-        saveBill.setNetAmount(Double.parseDouble(activityMainBinding.tvTotalAmount.getText().toString()));
+        saveBill.setNetAmount(CommonUtil.getDoubleFromString(activityMainBinding.tvTotalAmount.getText().toString(), 2));
+        saveBill.setTendered("0.0");
+        Log.e(TAG, "prepareSaveBillModel:netAmt " + CommonUtil.getDoubleFromString(activityMainBinding.tvTotalAmount.getText().toString(), 2));
+        saveBill.setPaymentMode(paymentMode);
         //paymentTypeForBill = paymentMode;
         /*if (paymentMode.toLowerCase().equals("upi")) {
             saveBill.setTendered("0.0");
@@ -1273,37 +1292,62 @@ public class MainActivity extends CameraPermissionActivity implements PaymentRes
             saveBill.setTendered("0.0");
         } else {*/
         //saveBill.setPaymentMode(paymentMode); //todo ask sir for payment
-        saveBill.setPaymentMode(paymentMode);
-        Double tenderedAmt = CommonUtil.getDoubleFromString(activityMainBinding.tvTotalAmount.getText().toString(), 2) + CommonUtil.getDoubleFromString(activityMainBinding.etRound.getText().toString(), 2);
-        saveBill.setTendered(String.valueOf(tenderedAmt));//todo ask sir for this payment
+
         //}
         saveBill.setFinancialYear(getCurrentFinancialYear());
         @SuppressLint("SimpleDateFormat")
         SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
         saveBill.setDate(format.format(new Date()));
         Log.d(TAG, "prepareModelCashOrder: saved bill date: " + saveBill.getDate());
-
+        /* "discountType": "percentage",
+      "discountTypeAdditional": "percentage",
+      "landingCost": 105.0,
+      "mrp": 80.0,
+      "mrpToDiscount": 43.0,
+      "mrpToDiscountType": "amount",
+      "mrpToDiscountTypeAdditional": "amount",
+      "mrpTodiscountAdditional": 0.0,
+      "netAmount": 45.88,
+      "orderBy": 1,
+      "price": 80.0,
+      "productVarientId": 124053,
+      "profit": -59.12,
+       "qty": 1.0,
+      "sellingPrice": 37.0,
+      "taxAmount": 8.88,
+      "taxId": 84,
+      "taxRate": 24.0*/
         List<SalesDTO> salesDTOs = new ArrayList<>();
         for (int i = 0; i < cartItemsList.size(); i++) {
             SalesDTO salesDTO = new SalesDTO();
-            salesDTO.setProductVarientId(cartItemsList.get(i).getProductVarientId());
-            salesDTO.setQty(Double.parseDouble(cartItemsList.get(i).getQuantity()));
-            salesDTO.setMrp(cartItemsList.get(i).getMrp());
-            salesDTO.setTaxId(cartItemsList.get(i).getProductDto().getTax_id());
-            salesDTO.setTaxRate(cartItemsList.get(i).getProductDto().getTax_rate());
-            salesDTO.setTaxAmount(Double.parseDouble(String.format("%.3f", cartItemsList.get(i).getTotalTaxPrice())));
-            salesDTO.setPrice(Double.parseDouble(String.format("%.3f", cartItemsList.get(i).getPrice())));
-            salesDTO.setNetAmount(Double.parseDouble(String.format("%.3f", cartItemsList.get(i).getDisplayMrp())));
-            salesDTO.setLandingCost(cartItemsList.get(i).getLandingcost());
             salesDTO.setBatchId(cartItemsList.get(i).getStockId());
             salesDTO.setBatchNo(cartItemsList.get(i).getBatchNo());
-            double profit = (cartItemsList.get(i).getDisplayMrp() - (cartItemsList.get(i).getLandingcost() * Double.valueOf(cartItemsList.get(i).getQuantity()).doubleValue()));
-            salesDTO.setSellingPrice(cartItemsList.get(i).getSellingPrice());
-            salesDTO.setProfit(Double.parseDouble(String.format("%.3f", profit)));
-            salesDTO.setMrpToDiscount(cartItemsList.get(i).getMrpToDiscount());
             salesDTO.setDiscount(Double.parseDouble(String.format("%.3f", cartItemsList.get(i).getDiscount())) * Double.valueOf(cartItemsList.get(i).getQuantity()).doubleValue());
+            //"discountAdditional": 0.0,
+            salesDTO.setDiscountAdditional(0.0);
             salesDTO.setDiscountType(cartItemsList.get(i).getDiscountType());
+            //"discountTypeAdditional": "percentage",
+            salesDTO.setDiscountTypeAdditional("percentage");
+            salesDTO.setLandingCost(cartItemsList.get(i).getLandingcost());
+            salesDTO.setMrp(cartItemsList.get(i).getMrp());
+            salesDTO.setMrpToDiscount(cartItemsList.get(i).getMrpToDiscount());
+            //"mrpToDiscountTypeAdditional": "amount",
+            //"mrpTodiscountAdditional": 0.0,
+            salesDTO.setMrpToDiscountTypeAdditional("amount");
+            salesDTO.setMrpTodiscountAdditional(0.0);
+            salesDTO.setNetAmount(Double.parseDouble(String.format("%.3f", cartItemsList.get(i).getDisplayMrp())));
             salesDTO.setOrderBy(i + 1);
+            salesDTO.setPrice(Double.parseDouble(String.format("%.3f", cartItemsList.get(i).getPrice())));
+            salesDTO.setProductVarientId(cartItemsList.get(i).getProductVarientId());
+            double profit = (cartItemsList.get(i).getDisplayMrp() - (cartItemsList.get(i).getLandingcost() * Double.valueOf(cartItemsList.get(i).getQuantity()).doubleValue()));
+            salesDTO.setProfit(Double.parseDouble(String.format("%.3f", profit)));
+            salesDTO.setQty(Double.parseDouble(cartItemsList.get(i).getQuantity()));
+            salesDTO.setSellingPrice(cartItemsList.get(i).getSellingPrice());
+            salesDTO.setTaxAmount(Double.parseDouble(String.format("%.3f", cartItemsList.get(i).getTotalTaxPrice())));
+            salesDTO.setTaxId(cartItemsList.get(i).getProductDto().getTax_id());
+            salesDTO.setTaxRate(cartItemsList.get(i).getProductDto().getTax_rate());
+            salesDTO.setItemCode(cartItemsList.get(i).getItemCode());
+            //todo set itemcode salesDTO.setItemCode(cartItemsList.get(i));
             salesDTOs.add(salesDTO);
         }
         saveBill.setMposItemSalesDTOs(salesDTOs);
@@ -1455,6 +1499,85 @@ public class MainActivity extends CameraPermissionActivity implements PaymentRes
         }
     }
 
+    private void razorpayPayment(SaveBillResponse saveBillResponse) {
+        RazorpayApi apiInterface;
+        String baseUrl = CommonUtil.baseUrlRazorpay;
+        apiInterface = RazorpayApiGenerator.getApi(baseUrl).create(RazorpayApi.class);
+        PostOrderData postOrderData = new PostOrderData();
+        kProgressHUD.show();
+
+        double orderTotalAmt = getSaveBill().getNetAmount() * 100;
+        postOrderData.setAmount(orderTotalAmt);
+        postOrderData.setCurrency("INR");
+        postOrderData.setReceipt(String.valueOf(saveBillResponse.getSalesId()));
+
+        Call<SingleOrderModel> callCreateOrder = apiInterface.createOrder(
+                postOrderData,
+                RazorpayApiAuthentication.getAuthToken()
+        );
+
+        callCreateOrder.enqueue(new Callback<SingleOrderModel>() {
+            @Override
+            public void onResponse(@NonNull Call<SingleOrderModel> call, @NonNull Response<SingleOrderModel> response) {
+                if (response.isSuccessful()) {
+                    Log.e(TAG, "onResponse: order created");
+                    assert response.body() != null;
+                    Log.e(TAG, "onResponse: order data" + response.body().getId());
+                    Log.e(TAG, "onResponse: order data" + response.body().toString());
+                    kProgressHUD.dismiss();
+                    Toast.makeText(MainActivity.this, "Your Payment Process Is Started", Toast.LENGTH_SHORT).show();
+                    new Handler().postDelayed(() -> {
+                        Log.e(TAG, "run: payment start");
+                        makePaymentAtRazorpay(response.body());
+                    }, 1000);
+                } else {
+                    kProgressHUD.dismiss();
+                    Log.e(TAG, "onResponse: order create fail");
+                }
+            }
+
+            @Override
+            public void onFailure(@NonNull Call<SingleOrderModel> call, @NonNull Throwable t) {
+                Log.e(TAG, "onFailure: " + t.getMessage());
+                kProgressHUD.dismiss();
+            }
+        });
+    }
+
+    private void makePaymentAtRazorpay(SingleOrderModel singleOrderModel) {
+        final Activity activity = this;
+        final Checkout co = new Checkout();
+        co.setKeyID("rzp_test_goYqawczzlm2Yp");
+        try {
+            JSONObject options = new JSONObject();
+            String userFullName = PreferenceManager.userFirstName(MainActivity.this) + " " + PreferenceManager.userLastName(MainActivity.this);
+            String companyLogoPath = PreferenceManager.getCompanyLogoPrefix(MainActivity.this) + PreferenceManager.getCompanyLogo(MainActivity.this);
+            String userMobileNo = PreferenceManager.userMobile(MainActivity.this);
+            options.put("name", userFullName);
+            options.put("description", "Checking Order API");
+            options.put("image", companyLogoPath);
+            options.put("currency", singleOrderModel.getCurrency());
+            options.put("amount", singleOrderModel.getAmount());
+            options.put("order_id", singleOrderModel.getId());
+
+            JSONObject preFill = new JSONObject();
+            preFill.put("email", "shahmeeto1o82o@gmail.com");
+            preFill.put("contact", userMobileNo);
+            options.put("prefill", preFill);
+
+            JSONObject notify = new JSONObject();
+            notify.put("sms", true);
+            notify.put("email", true);
+            options.put("notify", notify);
+
+            options.put("reminder_enable", true);
+            co.open(activity, options);
+        } catch (Exception e) {
+            Toast.makeText(activity, "Error in payment: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+            e.printStackTrace();
+        }
+    }
+
     private void viewObserversCollection() {
         mainViewModel.error.observe(this, new Observer<String>() {
             @Override
@@ -1547,86 +1670,21 @@ public class MainActivity extends CameraPermissionActivity implements PaymentRes
             @SuppressLint("NotifyDataSetChanged")
             @Override
             public void onChanged(SaveBillResponse saveBillResponse) {
-                if (bottomSheetOrderSummaryBinding.radioCounter.isChecked()) {
-                    Log.e(TAG, "onChanged: at counter");
-                    if (saveBillResponse != null) {
+                if (saveBillResponse != null) {
+                    if (bottomSheetOrderSummaryBinding.radioCounter.isChecked()) {
+                        Log.e(TAG, "onChanged: at counter");
                         Log.e(TAG, "onChanged: " + saveBillResponse.getSalesNo());
                         Log.e(TAG, "onChanged: pass intent with salesNo to get data and show status");
-
-                        bottomSheetOrderSummaryBinding.tvOrderTotal.setText("0.0");
-                        bottomSheetOrderSummaryBinding.tvOrderRoundOff.setText("0.0");
-                        bottomSheetOrderSummaryBinding.tvOrderTotalItems.setText("0.0");
-                        bottomSheetOrderSummaryBinding.tvOrderTotalQty.setText("0.0");
-                        bottomSheetOrderSummaryBinding.tvOrderTotalTax.setText("0.0");
-                        activityMainBinding.etRound.setText("0.0");
-                        activityMainBinding.tvTotalAmount.setText("0.0");
-                        activityMainBinding.tvCount.setText("0");
-                        cartItemsList.clear();
-                        cartAdapter.notifyDataSetChanged();
-                        setBackupFinalPrice(00.00);
-                        if (batchSelectionArrayAdapter != null) {
-                            batchSelectionArrayAdapter.clear();
-                        }
-                        if (getSelectedStockMasterVo() != null) {
-                            setSelectedStockMasterVo(null);
-                        }
-                    /*activityMainBinding.tvTotalAmount.setText("Shah meet");
-                    activityMainBinding.etRound.setText("Shah");
-                    activityMainBinding.tvCount.setText("Meet");*/
-                        if (bottomSheetBillDetails.isShowing()) {
-                            bottomSheetBillDetails.dismiss();
-                        }
+                        clearDataAfterOrderPlace();
                         Intent intentOrderSummary = new Intent(MainActivity.this, OrderDetailsActivity.class);
                         intentOrderSummary.putExtra(CommonUtil.ORDER_DETAIL_SALE_NO, saveBillResponse.getSalesId());
                         intentOrderSummary.putExtra(CommonUtil.ORDER_DETAIL_STATUS, true);
                         startActivity(intentOrderSummary);
+                    } else if (bottomSheetOrderSummaryBinding.radioOnline.isChecked()) {
+                        Log.e(TAG, "onChanged: online");
+                        razorpayPayment(saveBillResponse);
+                        setSaveBillResponseData(saveBillResponse);
                     }
-                } else if (bottomSheetOrderSummaryBinding.radioOnline.isChecked()) {
-                    Log.e(TAG, "onChanged: at online");
-                    SaveBill saveBillPosted = getSaveBill();
-                    PostOrderData postOrderData = new PostOrderData();
-                    //long orderTotal = Math.round(saveBillPosted.getNetAmount() * 100);
-                    kProgressHUD.show();
-                    postOrderData.setAmount(Double.parseDouble(saveBillPosted.getTendered()));
-                    postOrderData.setCurrency("INR");
-                    postOrderData.setReceipt(String.valueOf(saveBillResponse.getSalesId()));
-                    RazorpayApi razorpayApiInterface = RazorpayApiGenerator.getApi(CommonUtil.baseUrlRazorpay).create(RazorpayApi.class);
-
-                    Call<SingleOrderModel> callCreateOrder = razorpayApiInterface.createOrder(
-                            postOrderData,
-                            RazorpayApiAuthentication.getAuthToken()
-                    );
-
-                    callCreateOrder.enqueue(new Callback<SingleOrderModel>() {
-                        @Override
-                        public void onResponse(@NonNull Call<SingleOrderModel> call, @NonNull Response<SingleOrderModel> response) {
-                            if (response.isSuccessful()) {
-                                Log.e(TAG, "onResponse: order created");
-                                assert response.body() != null;
-                                Log.e(TAG, "onResponse: order data" + response.body().getId());
-                                Log.e(TAG, "onResponse: order data" + response.body().toString());
-
-                                Toast.makeText(MainActivity.this, "Your Payment Process Is Started", Toast.LENGTH_SHORT).show();
-                                kProgressHUD.dismiss();
-                                /*new Handler().postDelayed(() -> {
-                                    Log.e(TAG, "run: payment start");
-                                    kProgressHUD.dismiss();
-                                    makePaymentsAtRazorpay(response.body());
-                                }, 1000);*/
-
-                            } else {
-                                kProgressHUD.dismiss();
-                                Log.e(TAG, "onResponse: order create fail");
-                            }
-                        }
-
-                        @Override
-                        public void onFailure(@NonNull Call<SingleOrderModel> call, @NonNull Throwable t) {
-                            kProgressHUD.dismiss();
-                            Log.e(TAG, "onFailure: " + t.getMessage());
-                        }
-                    });
-                    //ApiGenerator.getApi(baseUrl).create(Api.class);
                 }
             }
         });
@@ -1645,59 +1703,29 @@ public class MainActivity extends CameraPermissionActivity implements PaymentRes
         });
     }
 
-    private void makePaymentsAtRazorpay(SingleOrderModel singleOrderModel) {
-        final Activity activity = this;
-        final Checkout co = new Checkout();
-        co.setKeyID("rzp_test_goYqawczzlm2Yp");
-
-
-        try {
-            JSONObject options = new JSONObject();
-            String userName = PreferenceManager.userFirstName(MainActivity.this) + " " + PreferenceManager.userLastName(MainActivity.this);
-            options.put("name", userName);
-            String companyDetails = PreferenceManager.getCompanyBranchName(MainActivity.this);
-            if (companyDetails != null) {
-                options.put("description", companyDetails);
-            } else {
-                options.put("description", "VasyERP");
-            }
-
-            String companyLogoPrefix = PreferenceManager.getCompanyLogoPrefix(MainActivity.this);
-            String companyLogoName = PreferenceManager.getCompanyLogo(MainActivity.this);
-
-            if (companyLogoPrefix != null && companyLogoName != null) {
-                String finalImg = companyLogoPrefix + companyLogoName;
-                options.put("image", finalImg);
-            } else {
-                options.put("image", "https://i.postimg.cc/sxc8sSTj/IMG-20200929-WA0000.jpg");
-            }
-
-            //options.put("image", "https://i.postimg.cc/sxc8sSTj/IMG-20200929-WA0000.jpg");
-            options.put("currency", singleOrderModel.getCurrency());
-            options.put("amount", singleOrderModel.getAmount());
-            options.put("order_id", singleOrderModel.getId());
-            //notifyModel.setEmail(true);
-            //        notifyModel.setSms(true);
-
-            JSONObject preFill = new JSONObject();
-            Random random = new Random();
-            int randomNum = random.nextInt(999 - 100) + 100;
-            String strEmailId = "shahmeet" + randomNum + "@gmail.com";
-            preFill.put("email", strEmailId);
-            preFill.put("contact", PreferenceManager.userMobile(MainActivity.this));
-            options.put("prefill", preFill);
-
-            JSONObject notify = new JSONObject();
-            notify.put("sms", true);
-            notify.put("email", true);
-            options.put("notify", notify);
-
-            options.put("reminder_enable", true);
-
-            co.open(activity, options);
-        } catch (Exception e) {
-            Toast.makeText(activity, "Error in payment: " + e.getMessage(), Toast.LENGTH_SHORT).show();
-            e.printStackTrace();
+    @SuppressLint("NotifyDataSetChanged")
+    private void clearDataAfterOrderPlace() {
+        bottomSheetOrderSummaryBinding.tvOrderTotal.setText("0.0");
+        bottomSheetOrderSummaryBinding.tvOrderRoundOff.setText("0.0");
+        bottomSheetOrderSummaryBinding.tvOrderTotalItems.setText("0.0");
+        bottomSheetOrderSummaryBinding.tvOrderTotalQty.setText("0.0");
+        bottomSheetOrderSummaryBinding.tvOrderTotalTax.setText("0.0");
+        activityMainBinding.etRound.setText("0.0");
+        activityMainBinding.tvTotalAmount.setText("0.0");
+        activityMainBinding.tvCount.setText("0");
+        cartItemsList.clear();
+        cartAdapter.notifyDataSetChanged();
+        setBackupFinalPrice(00.00);
+        saveBill = null;
+        saveBillResponseData = null;
+        if (batchSelectionArrayAdapter != null) {
+            batchSelectionArrayAdapter.clear();
+        }
+        if (getSelectedStockMasterVo() != null) {
+            setSelectedStockMasterVo(null);
+        }
+        if (bottomSheetBillDetails.isShowing()) {
+            bottomSheetBillDetails.dismiss();
         }
     }
 
@@ -1937,13 +1965,21 @@ public class MainActivity extends CameraPermissionActivity implements PaymentRes
 
     @Override
     public void onPaymentSuccess(String s) {
+        activityMainBinding.tvSample.setVisibility(View.VISIBLE);
         activityMainBinding.tvSample.setText("Successful payment ID :" + s);
-
+        clearDataAfterOrderPlace();
+        Intent intentOrderSummary = new Intent(MainActivity.this, OrderDetailsActivity.class);
+        intentOrderSummary.putExtra(CommonUtil.ORDER_DETAIL_SALE_NO, getSaveBillResponseData().getSalesId());
+        intentOrderSummary.putExtra(CommonUtil.ORDER_DETAIL_STATUS, true);
+        startActivity(intentOrderSummary);
+        new Handler().postDelayed(() -> activityMainBinding.tvSample.setVisibility(View.GONE), 60000);
     }
 
     @Override
     public void onPaymentError(int i, String s) {
-        activityMainBinding.tvSample.setText("Failed and cause is :" + s);
+        bottomSheetOrderSummaryBinding.tvErrorPaymentData.setVisibility(View.VISIBLE);
+        bottomSheetOrderSummaryBinding.tvErrorPaymentData.setText("Failed and cause is :" + s);
+        new Handler().postDelayed(() -> bottomSheetOrderSummaryBinding.tvErrorPaymentData.setVisibility(View.GONE), 60000);
     }
 
     /*private void barcodeScannerViewSelection() {
@@ -1979,5 +2015,119 @@ public class MainActivity extends CameraPermissionActivity implements PaymentRes
                 break;
         }
         activityMainBinding.mainLlMain.setWeightSum(1.5f);
+    }*/
+
+    /*private void razorpayPayment(SaveBillResponse saveBillResponse) {
+        RazorpayApi apiInterface;
+        String baseUrl = CommonUtil.baseUrlRazorpay;
+        apiInterface = RazorpayApiGenerator.getApi(baseUrl).create(RazorpayApi.class);
+
+        new Handler().postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                PostOrderData postOrderData = new PostOrderData();
+                Random random = new Random();
+                //todo int asfdl = Math.round(Float.parseFloat(var) * 100);
+                int totalAmount = random.nextInt(999 - 100) + 100;
+                //int intAmount = Math.round(Float.parseFloat(strAmount) * 100);
+                //totalAmount = Math.round(Float.parseFloat(String.valueOf(totalAmount)) * 100);
+                String strPostTotal = String.valueOf(saveBillResponse.getSalesId());
+                double postTotal = CommonUtil.getDoubleFromString(strPostTotal, 2);
+                totalAmount = 8238;
+                postOrderData.setAmount((double) totalAmount);
+                postOrderData.setCurrency("INR");
+                //int no = random.nextInt(999 - 100) + 100;
+                postOrderData.setReceipt(String.valueOf(saveBillResponse.getSalesId()));
+
+                Call<SingleOrderModel> callCreateOrder = apiInterface.createOrder(
+                        postOrderData,
+                        RazorpayApiAuthentication.getAuthToken()
+                );
+
+                callCreateOrder.enqueue(new Callback<SingleOrderModel>() {
+                    @Override
+                    public void onResponse(@NonNull Call<SingleOrderModel> call, @NonNull Response<SingleOrderModel> response) {
+                        if (response.isSuccessful()) {
+                            Log.e(TAG, "onResponse: order created");
+                            assert response.body() != null;
+                            Log.e(TAG, "onResponse: order data" + response.body().getId());
+                            Log.e(TAG, "onResponse: order data" + response.body().toString());
+                            //orderId = response.body().getId();
+
+                            Toast.makeText(MainActivity.this, "Your Payment Process Is Started", Toast.LENGTH_SHORT).show();
+
+                            new Handler().postDelayed(() -> {
+                                Log.e(TAG, "run: payment start");
+                                makePayments(response.body());
+                            }, 2000);
+
+                        } else {
+                            Log.e(TAG, "onResponse: order create fail");
+                        }
+                    }
+
+                    @Override
+                    public void onFailure(@NonNull Call<SingleOrderModel> call, @NonNull Throwable t) {
+                        Log.e(TAG, "onFailure: " + t.getMessage());
+                    }
+                });
+
+
+            }
+        }, 1000);
+    }*/
+
+    /*private void makePaymentsAtRazorpay(SingleOrderModel singleOrderModel) {
+        final Activity activity = this;
+        final Checkout co = new Checkout();
+        co.setKeyID("rzp_test_goYqawczzlm2Yp");
+
+
+        try {
+            JSONObject options = new JSONObject();
+            String userName = PreferenceManager.userFirstName(MainActivity.this) + " " + PreferenceManager.userLastName(MainActivity.this);
+            String companyDetails = PreferenceManager.getCompanyBranchName(MainActivity.this);
+            if (companyDetails != null) {
+                options.put("description", companyDetails);
+            } else {
+                options.put("description", "VasyERP");
+            }
+            String companyLogoPrefix = PreferenceManager.getCompanyLogoPrefix(MainActivity.this);
+            String companyLogoName = PreferenceManager.getCompanyLogo(MainActivity.this);
+            if (companyLogoPrefix != null && companyLogoName != null) {
+                String finalImg = companyLogoPrefix + companyLogoName;
+                options.put("image", finalImg);
+            } else {
+                options.put("image", "https://i.postimg.cc/sxc8sSTj/IMG-20200929-WA0000.jpg");
+            }
+
+            //options.put("image", "https://i.postimg.cc/sxc8sSTj/IMG-20200929-WA0000.jpg");
+            options.put("name", userName);
+            options.put("currency", singleOrderModel.getCurrency());
+            options.put("amount", singleOrderModel.getAmount());
+            options.put("order_id", singleOrderModel.getId());
+            //notifyModel.setEmail(true);
+            //        notifyModel.setSms(true);
+
+            JSONObject preFill = new JSONObject();
+            Random random = new Random();
+            int randomNum = random.nextInt(999 - 100) + 100;
+            String strEmailId = "shahmeet" + randomNum + "@gmail.com";
+            preFill.put("email", strEmailId);
+            preFill.put("contact", PreferenceManager.userMobile(MainActivity.this));
+            options.put("prefill", preFill);
+
+            JSONObject notify = new JSONObject();
+            notify.put("sms", true);
+            notify.put("email", true);
+            options.put("notify", notify);
+
+            options.put("reminder_enable", true);
+
+            co.open(activity, options);
+        } catch (Exception e) {
+            Toast.makeText(activity, "Error in payment: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+            e.printStackTrace();
+        }
     }*/
 }

@@ -26,6 +26,7 @@ import retrofit2.http.PUT;
 
 public class CommonUtil {
     public static final String baseUrlRazorpay = "https://api.razorpay.com/v1/";
+    public static final String tempBaseUrl = "http://192.168.175.38:8080";
     //public static final String SCANDIT_LICENSE_KEY = BuildConfig.SCANDIT_API_KEY;
     public static final String SCANDIT_LICENSE_KEY = "";
     //public final static String DOMAIN_ID = "DOMAIN_ID";

@@ -78,4 +78,7 @@ public class StockMasterVo {
     private String discountType;
 
     private double discount;
+
+    private String itemCode;
+
 }

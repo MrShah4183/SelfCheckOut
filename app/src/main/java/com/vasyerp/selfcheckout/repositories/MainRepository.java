@@ -76,6 +76,7 @@ public class MainRepository {
                                                         .filter(stockMasterVo -> stockMasterVo.getIsDisable() == 0)
                                                         .map(stockMasterVo -> {
                                                             stockMasterVo.setHasNegativeSelling(companySettingVo.getValue());
+                                                            stockMasterVo.setItemCode(productVarientsDTO.getItemCode());
                                                             return stockMasterVo;
                                                         })
                                                         .collect(Collectors.toList()));
@@ -112,6 +113,7 @@ public class MainRepository {
                                                         .filter(stockMasterVo -> stockMasterVo.getIsDisable() == 0)
                                                         .map(stockMasterVo -> {
                                                             stockMasterVo.setHasNegativeSelling(companySettingVo.getValue());
+                                                            stockMasterVo.setItemCode(productVarientsDTO.getItemCode());
                                                             return stockMasterVo;
                                                         })
                                                         .collect(Collectors.toList()));
@@ -197,6 +199,7 @@ public class MainRepository {
                                                         .filter(stockMasterVo -> Double.valueOf(stockMasterVo.getQuantity()).doubleValue() >= 0.0)
                                                         .map(stockMasterVo -> {
                                                             stockMasterVo.setHasNegativeSelling(companySettingVo.getValue());
+                                                            stockMasterVo.setItemCode(productVarientsDTO.getItemCode());
                                                             return stockMasterVo;
                                                         })
                                                         .collect(Collectors.toList()));
@@ -232,6 +235,7 @@ public class MainRepository {
                                                         .stream()
                                                         .map(stockMasterVo -> {
                                                             stockMasterVo.setHasNegativeSelling(companySettingVo.getValue());
+                                                            stockMasterVo.setItemCode(productVarientsDTO.getItemCode());
                                                             return stockMasterVo;
                                                         })
                                                         .collect(Collectors.toList()));

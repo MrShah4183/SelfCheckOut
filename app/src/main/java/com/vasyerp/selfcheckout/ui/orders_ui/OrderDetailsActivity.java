@@ -170,7 +170,7 @@ public class OrderDetailsActivity extends AppCompatActivity {
 
     private void initViewModelAndRepository() {
         //String strBaseUrl = PreferenceManager.getDomain(OrderDetailsActivity.this);
-        Api apiInterface = ApiGenerator.getApi(domainName).create(Api.class);
+        Api apiInterface = ApiGenerator.getApi(CommonUtil.tempBaseUrl).create(Api.class);
         orderSummaryViewModel = new ViewModelProvider(this, new OrderSummaryViewModelFactory(OrderSummaryRepository.getInstance(apiInterface), companyId, branchId, userId)).get(OrderSummaryViewModel.class);
     }
 
