@@ -35,9 +35,6 @@
             android:name=".ui.test.TestActivity"
             android:exported="false" />
         <activity
-            android:name=".ui.test.TestingActivity"
-            android:exported="false" />
-        <activity
             android:name=".ui.company.CompanyLoginActivity"
             android:exported="true">
             <!--<intent-filter>
@@ -52,14 +49,11 @@
         <activity
             android:name=".ui.splash.SplashActivity"
             android:exported="true">
-
-            <!--
-            <intent-filter>
+            <!--<intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-            -->
+            </intent-filter>-->
         </activity>
         <activity
             android:name=".ui.main.MainActivity"

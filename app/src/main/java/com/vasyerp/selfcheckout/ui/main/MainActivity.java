@@ -96,6 +96,8 @@ import com.vasyerp.selfcheckout.models.razorpaymodel.order.SingleOrderModel;
 import com.vasyerp.selfcheckout.models.savebill.SalesDTO;
 import com.vasyerp.selfcheckout.models.savebill.SaveBill;
 import com.vasyerp.selfcheckout.models.savebill.SaveBillResponse;
+import com.vasyerp.selfcheckout.models.savebill.SaveBillStatusModel;
+import com.vasyerp.selfcheckout.models.savebill.UpdateBillResponse;
 import com.vasyerp.selfcheckout.repositories.MainRepository;
 import com.vasyerp.selfcheckout.ui.CameraPermissionActivity;
 import com.vasyerp.selfcheckout.ui.orders_ui.OrderDetailsActivity;
@@ -264,11 +266,11 @@ public class MainActivity extends CameraPermissionActivity implements PaymentRes
         setSupportActionBar(activityMainBinding.toolbarMain);
         PreferenceManager.savePref(MainActivity.this, "205797", CommonUtil.USER_CONTACT_ID);
         //todo change intent
-        /*Intent intent = getIntent();
+        Intent intent = getIntent();
         storeName = intent.getStringExtra("storeName");
-        storeImg = intent.getStringExtra("storeImg");*/
-        storeName = "vasyERP ";
-        storeImg = "https://s3-us-west-2.amazonaws.com/vasyerpsolutions/Gmart/pv_logo/logo-small.png";
+        storeImg = intent.getStringExtra("storeImg");
+        /*storeName = "vasyERP ";
+        storeImg = "https://s3-us-west-2.amazonaws.com/vasyerpsolutions/Gmart/pv_logo/logo-small.png";*/
 
         activityMainBinding.tvMainCompanyName.setText(storeName);
         Picasso.get().load(storeImg).into(activityMainBinding.ivMainCompanyImg);
@@ -559,7 +561,7 @@ public class MainActivity extends CameraPermissionActivity implements PaymentRes
     }
 
     private void initViewModelAndRepository() {
-        Api apiInterface = ApiGenerator.getApi(CommonUtil.tempBaseUrl).create(Api.class);
+        Api apiInterface = ApiGenerator.getApi(CommonUtil.tempBaseUrlTesting).create(Api.class);
         mainViewModel = new ViewModelProvider(this, new MainViewModelFactory(MainRepository.getInstance(apiInterface), companyId, branchId, userId)).get(MainViewModel.class);
     }
 
@@ -1299,24 +1301,6 @@ public class MainActivity extends CameraPermissionActivity implements PaymentRes
         SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
         saveBill.setDate(format.format(new Date()));
         Log.d(TAG, "prepareModelCashOrder: saved bill date: " + saveBill.getDate());
-        /* "discountType": "percentage",
-      "discountTypeAdditional": "percentage",
-      "landingCost": 105.0,
-      "mrp": 80.0,
-      "mrpToDiscount": 43.0,
-      "mrpToDiscountType": "amount",
-      "mrpToDiscountTypeAdditional": "amount",
-      "mrpTodiscountAdditional": 0.0,
-      "netAmount": 45.88,
-      "orderBy": 1,
-      "price": 80.0,
-      "productVarientId": 124053,
-      "profit": -59.12,
-       "qty": 1.0,
-      "sellingPrice": 37.0,
-      "taxAmount": 8.88,
-      "taxId": 84,
-      "taxRate": 24.0*/
         List<SalesDTO> salesDTOs = new ArrayList<>();
         for (int i = 0; i < cartItemsList.size(); i++) {
             SalesDTO salesDTO = new SalesDTO();
@@ -1331,6 +1315,7 @@ public class MainActivity extends CameraPermissionActivity implements PaymentRes
             salesDTO.setLandingCost(cartItemsList.get(i).getLandingcost());
             salesDTO.setMrp(cartItemsList.get(i).getMrp());
             salesDTO.setMrpToDiscount(cartItemsList.get(i).getMrpToDiscount());
+            salesDTO.setMrpToDiscountType("amount");
             //"mrpToDiscountTypeAdditional": "amount",
             //"mrpTodiscountAdditional": 0.0,
             salesDTO.setMrpToDiscountTypeAdditional("amount");
@@ -1701,6 +1686,18 @@ public class MainActivity extends CameraPermissionActivity implements PaymentRes
                 }
             }
         });
+        mainViewModel.billStatusResponse.observe(this, new Observer<UpdateBillResponse>() {
+            @Override
+            public void onChanged(UpdateBillResponse updateBillResponse) {
+                if (updateBillResponse != null) {
+                    if (updateBillResponse.isStatus()) {
+                        Toast.makeText(MainActivity.this, "Update Order Status successfully.", Toast.LENGTH_SHORT).show();
+                    } else {
+                        Toast.makeText(MainActivity.this, "Update Order Status failed.", Toast.LENGTH_SHORT).show();
+                    }
+                }
+            }
+        });
     }
 
     @SuppressLint("NotifyDataSetChanged")
@@ -1965,14 +1962,30 @@ public class MainActivity extends CameraPermissionActivity implements PaymentRes
 
     @Override
     public void onPaymentSuccess(String s) {
-        activityMainBinding.tvSample.setVisibility(View.VISIBLE);
-        activityMainBinding.tvSample.setText("Successful payment ID :" + s);
-        clearDataAfterOrderPlace();
-        Intent intentOrderSummary = new Intent(MainActivity.this, OrderDetailsActivity.class);
+        try {
+            activityMainBinding.tvSample.setVisibility(View.VISIBLE);
+            activityMainBinding.tvSample.setText("Successful payment ID :" + s);
+            SaveBillStatusModel saveBillStatusModel = new SaveBillStatusModel();
+            saveBillStatusModel.setPaymentStatus("paid");
+            saveBillStatusModel.setPaymentId(s);
+            saveBillStatusModel.setPaymentMode(CommonUtil.paymentGatewayRazorpay.trim());
+            saveBillStatusModel.setSalesId(getSaveBillResponseData().getSalesId());
+            Log.e(TAG, "onPaymentSuccess: call api update status");
+            mainViewModel.updateOrderStatus(
+                    Integer.parseInt(PreferenceManager.getCompanyId(MainActivity.this)),
+                    Integer.parseInt(PreferenceManager.getBranchId(MainActivity.this)),
+                    Integer.parseInt(PreferenceManager.getCompanyId(MainActivity.this)),
+                    saveBillStatusModel
+            );
+            clearDataAfterOrderPlace();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        /*Intent intentOrderSummary = new Intent(MainActivity.this, OrderDetailsActivity.class);
         intentOrderSummary.putExtra(CommonUtil.ORDER_DETAIL_SALE_NO, getSaveBillResponseData().getSalesId());
         intentOrderSummary.putExtra(CommonUtil.ORDER_DETAIL_STATUS, true);
-        startActivity(intentOrderSummary);
-        new Handler().postDelayed(() -> activityMainBinding.tvSample.setVisibility(View.GONE), 60000);
+        startActivity(intentOrderSummary);*/
+        //new Handler().postDelayed(() -> activityMainBinding.tvSample.setVisibility(View.GONE), 10000);
     }
 
     @Override

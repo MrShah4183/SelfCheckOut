@@ -13,7 +13,9 @@ import com.vasyerp.selfcheckout.models.product.ProductDto;
 import com.vasyerp.selfcheckout.models.product.ProductStatus;
 import com.vasyerp.selfcheckout.models.product.ProductVarientsDTO;
 import com.vasyerp.selfcheckout.models.savebill.SaveBill;
+import com.vasyerp.selfcheckout.models.savebill.SaveBillStatusModel;
 import com.vasyerp.selfcheckout.models.savebill.SaveBillResponse;
+import com.vasyerp.selfcheckout.models.savebill.UpdateBillResponse;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -300,6 +302,48 @@ public class MainRepository {
                 }
             });
         }
+    }
+
+    //public void editOrderData(DataSource<ApiResponse<>>){
+    public void updateSaveBillStatusApiCall(DataSource<UpdateBillResponse> dataSource, int companyId, int branchId, int userId, SaveBillStatusModel saveBillStatusModel) {
+        Call<UpdateBillResponse> callEditOrderStatusApi = api.updateSaveBillStatus(
+                userId,
+                branchId,
+                companyId,
+                saveBillStatusModel
+        );
+        dataSource.loading(true);
+        callEditOrderStatusApi.enqueue(new Callback<UpdateBillResponse>() {
+            @Override
+            public void onResponse(@NonNull Call<UpdateBillResponse> call, @NonNull Response<UpdateBillResponse> response) {
+                if (response.isSuccessful()) {
+                    if (response.body() != null) {
+                        if (response.body().isStatus()) {
+                            dataSource.data(response.body());
+                            dataSource.loading(false);
+                            dataSource.error(null);
+                        } else {
+                            dataSource.data(response.body());
+                            dataSource.loading(false);
+                            dataSource.error(response.message());
+                        }
+                        //dataSource.data(response.body());
+                    }
+                } else {
+                    Log.d(TAG, "onResponse: response fail.");
+                    dataSource.loading(false);
+                    dataSource.data(null);
+                    dataSource.error("Response fail.");
+                }
+            }
+
+            @Override
+            public void onFailure(@NonNull Call<UpdateBillResponse> call, @NonNull Throwable t) {
+                dataSource.loading(false);
+                dataSource.data(null);
+                dataSource.error("fail to connect.");
+            }
+        });
     }
 
 

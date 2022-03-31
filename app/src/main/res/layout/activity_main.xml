@@ -271,7 +271,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="5dp"
-                    android:background="@color/dark"
+                    android:background="@color/dark_slate_blue"
                     android:orientation="horizontal"
                     android:paddingBottom="5dp"
                     android:weightSum="5"

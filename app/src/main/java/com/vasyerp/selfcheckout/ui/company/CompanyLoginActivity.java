@@ -285,8 +285,8 @@ public class CompanyLoginActivity extends CameraPermissionActivity {
 
     private void initViewModelAndRepository() {
         String strBaseUrl = PreferenceManager.getDomain(CompanyLoginActivity.this);
-        strBaseUrl = CommonUtil.tempBaseUrl;
-        Api apiInterface = ApiGenerator.getApi(CommonUtil.tempBaseUrl).create(Api.class);
+        strBaseUrl = CommonUtil.tempBaseUrlTesting;
+        Api apiInterface = ApiGenerator.getApi(CommonUtil.tempBaseUrlTesting).create(Api.class);
         companyLoginViewModel = new ViewModelProvider(this, new CompanyLoginViewModelFactory(CompanyLoginRepository.getInstance(apiInterface, selfCheckOutApp.selfCheckOutDao))).get(CompanyLoginViewModel.class);
         //homeViewModel = new ViewModelProvider(this, new HomeViewModelFactory(HomeRepository.getInstance(api, gajanandApp.gajanandDao), userFrontId)).get(HomeViewModel.class);
     }

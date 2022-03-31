@@ -73,7 +73,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="5dp"
-            android:background="@color/black"
+            android:background="@color/dark_slate_blue"
             android:orientation="horizontal"
             android:paddingVertical="5dp"
             android:paddingBottom="5dp"

@@ -7,7 +7,9 @@ import com.vasyerp.selfcheckout.models.ordersummary.OrderSummary;
 import com.vasyerp.selfcheckout.models.product.GetAllProducts;
 import com.vasyerp.selfcheckout.models.product.Product;
 import com.vasyerp.selfcheckout.models.savebill.SaveBill;
+import com.vasyerp.selfcheckout.models.savebill.SaveBillStatusModel;
 import com.vasyerp.selfcheckout.models.savebill.SaveBillResponse;
+import com.vasyerp.selfcheckout.models.savebill.UpdateBillResponse;
 
 import java.util.List;
 
@@ -83,6 +85,13 @@ public interface Api {
             @Query("branchId") int branchId,
             @Query("companyId") int companyId,
             @Query("salesId") int salesId);
+
+    @POST("/mpos/api/v2/savepayment")
+    Call<UpdateBillResponse> updateSaveBillStatus(
+            @Query("userId") int userId,
+            @Query("branchId") int branchId,
+            @Query("companyId") int companyId,
+            @Body SaveBillStatusModel saveBillStatusModel);
 
     /**
      * Save bill

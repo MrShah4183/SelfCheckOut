@@ -4,11 +4,12 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
-import com.vasyerp.selfcheckout.api.Api;
 import com.vasyerp.selfcheckout.models.product.GetAllProducts;
 import com.vasyerp.selfcheckout.models.product.ProductVarientsDTO;
 import com.vasyerp.selfcheckout.models.savebill.SaveBill;
+import com.vasyerp.selfcheckout.models.savebill.SaveBillStatusModel;
 import com.vasyerp.selfcheckout.models.savebill.SaveBillResponse;
+import com.vasyerp.selfcheckout.models.savebill.UpdateBillResponse;
 import com.vasyerp.selfcheckout.repositories.DataSource;
 import com.vasyerp.selfcheckout.repositories.MainRepository;
 
@@ -32,6 +33,9 @@ public class MainViewModel extends ViewModel {
     private MutableLiveData<ProductVarientsDTO> _getProduct = new MutableLiveData<>();
     public LiveData<ProductVarientsDTO> getProduct;
 
+    private MutableLiveData<UpdateBillResponse> _billStatusResponse = new MutableLiveData<>();
+    public LiveData<UpdateBillResponse> billStatusResponse;
+
     private MutableLiveData<SaveBillResponse> _saveBillResponse = new MutableLiveData<>();
     public LiveData<SaveBillResponse> saveBillResponse;
 
@@ -51,6 +55,7 @@ public class MainViewModel extends ViewModel {
         this.getProduct = _getProduct;
         this.productList = _productList;
         this.saveBillResponse = _saveBillResponse;
+        this.billStatusResponse = _billStatusResponse;
         this.error = _error;
         this.isLoading = _isLoading;
         initGetProductDataSource();
@@ -112,6 +117,25 @@ public class MainViewModel extends ViewModel {
                 _saveBillResponse.postValue(data);
             }
         }, companyId, branchId, userId, saveBill);
+    }
+
+    public void updateOrderStatus(int companyId, int branchId, int userId, SaveBillStatusModel saveBillStatusModel) {
+        mainRepository.updateSaveBillStatusApiCall(new DataSource<UpdateBillResponse>() {
+            @Override
+            public void loading(boolean isLoading) {
+                _isLoading.postValue(isLoading);
+            }
+
+            @Override
+            public void error(String errorMessage) {
+                _error.postValue(errorMessage);
+            }
+
+            @Override
+            public void data(UpdateBillResponse data) {
+                _billStatusResponse.postValue(data);
+            }
+        }, companyId, branchId, userId, saveBillStatusModel);
     }
 
     //public void getProductByBarcodeId(DataSource<ProductVarientsDTO> dataSource, String financialYear, String productId, boolean isSearchByBarcode,

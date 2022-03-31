@@ -215,7 +215,7 @@ public class OrdersListActivity extends AppCompatActivity {
     private void initViewModelAndRepository() {
         //Api apiInterface = RazorpayApiGenerator.getApi(domainName).create(Api.class);
         String strBaseUrl = PreferenceManager.getDomain(OrdersListActivity.this);
-        Api apiInterface = ApiGenerator.getApi(CommonUtil.tempBaseUrl).create(Api.class);
+        Api apiInterface = ApiGenerator.getApi(CommonUtil.tempBaseUrlTesting).create(Api.class);
         ordersListViewModel = new ViewModelProvider(this, new OrdersListViewModelFactory(OrdersListRepository.getInstance(apiInterface), companyId, branchId, userId)).get(OrdersListViewModel.class);
     }
 
