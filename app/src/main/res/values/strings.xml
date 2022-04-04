@@ -5,7 +5,8 @@
     <string name="l_name">Last Name</string>
     <string name="mobile_no">Mobile No.</string>
     <string name="login">Login</string>
-    <string name="toast_no_internet">No Internet</string>
+    <string name="toast_no_internet">Internet Is Not Available</string>
+    <string name="toast_internet">Internet Available</string>
     <string name="recently_visited_shop">Recently Visited Shop</string>
     <string name="find_shop">Find Shop</string>
     <string name="sign_in_to_continue">Sign in to continue</string>

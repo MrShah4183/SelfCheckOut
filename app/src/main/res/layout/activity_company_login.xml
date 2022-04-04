@@ -7,17 +7,6 @@
 
         <import type="android.view.View" />
 
-        <variable
-            name="isScandit"
-            type="boolean" />
-
-        <variable
-            name="isZxing"
-            type="boolean" />
-
-        <variable
-            name="isMLkit"
-            type="boolean" />
     </data>
 
     <RelativeLayout
@@ -112,26 +101,11 @@
                 android:layout_width="match_parent"
                 android:layout_height="0dp"
                 android:layout_weight="0.5"
-                android:visibility="@{ isZxing ? View.VISIBLE : View.GONE}"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
                 tools:visibility="visible" />
-
-            <androidx.camera.view.PreviewView
-                android:id="@+id/viewFinderCom"
-                android:layout_width="match_parent"
-                android:layout_height="0dp"
-                android:layout_weight="0.5"
-                android:visibility="@{ isMLkit ? View.VISIBLE : View.GONE}"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintDimensionRatio="4:2"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                app:scaleType="fillCenter"
-                tools:visibility="gone" />
 
             <LinearLayout
                 android:id="@+id/llSecond"
@@ -140,6 +114,17 @@
                 android:layout_marginTop="5dp"
                 android:layout_weight="1.5"
                 android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/tvCompanyLoginNoInternet"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="serif-monospace"
+                    android:gravity="center"
+                    android:textColor="@color/red"
+                    android:textSize="25sp"
+                    android:textStyle="bold"
+                    android:visibility="gone" />
 
                 <TextView
                     android:layout_width="wrap_content"
@@ -161,7 +146,15 @@
                     app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
                     tools:listitem="@layout/item_company_list" />
 
+
             </LinearLayout>
         </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/llSnackBar"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            android:layout_alignParentBottom="true"
+            android:orientation="vertical" />
     </RelativeLayout>
 </layout>

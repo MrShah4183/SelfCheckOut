@@ -128,7 +128,7 @@ public class OrderDetailsActivity extends AppCompatActivity {
                 @SuppressLint("SimpleDateFormat") SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
                 @SuppressLint("SimpleDateFormat") SimpleDateFormat sdf2 = new SimpleDateFormat("yyyy-MM-dd");
                 if (orderSummary.getReceipt().size() > 0) {
-                    Date oldDate = sdf2.parse(orderSummary.getReceipt().get(0).getReceiptDate());
+                    Date oldDate = sdf2.parse(orderSummary.getSales().getSalesDate());
                     assert oldDate != null;
                     String oldFormattedDate = sdf.format(oldDate.getTime());
                     orderDetailsBinding.tvOrderDate.setText(oldFormattedDate);
@@ -170,7 +170,7 @@ public class OrderDetailsActivity extends AppCompatActivity {
 
     private void initViewModelAndRepository() {
         //String strBaseUrl = PreferenceManager.getDomain(OrderDetailsActivity.this);
-        Api apiInterface = ApiGenerator.getApi(CommonUtil.tempBaseUrlTesting).create(Api.class);
+        Api apiInterface = ApiGenerator.getApi(CommonUtil.tempBaseUrl).create(Api.class);
         orderSummaryViewModel = new ViewModelProvider(this, new OrderSummaryViewModelFactory(OrderSummaryRepository.getInstance(apiInterface), companyId, branchId, userId)).get(OrderSummaryViewModel.class);
     }
 

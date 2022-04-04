@@ -1,6 +1,9 @@
 package com.vasyerp.selfcheckout.models.savebill;
 
 import androidx.annotation.Keep;
+import androidx.room.Entity;
+import androidx.room.ForeignKey;
+import androidx.room.PrimaryKey;
 
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
@@ -13,7 +16,18 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+@Entity(foreignKeys = {@ForeignKey(entity = SaveBill.class,
+        parentColumns = "salesId",
+        childColumns = "parentSalesId",
+        onDelete = ForeignKey.CASCADE)})
+
 public class SalesDTO {
+
+    @PrimaryKey(autoGenerate = true)
+    private int salesDtoId;
+
+    private int parentSalesId;
+
     @Expose
     @SerializedName("productVarientId")
     private long productVarientId;

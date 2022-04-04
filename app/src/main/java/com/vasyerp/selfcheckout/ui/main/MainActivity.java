@@ -1,19 +1,6 @@
 package com.vasyerp.selfcheckout.ui.main;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.OptIn;
-import androidx.appcompat.app.AlertDialog;
-import androidx.camera.core.AspectRatio;
-import androidx.camera.core.CameraSelector;
-import androidx.camera.core.ImageAnalysis;
-import androidx.camera.core.ImageProxy;
-import androidx.camera.core.Preview;
-import androidx.camera.core.UseCaseGroup;
-import androidx.camera.core.ViewPort;
-import androidx.camera.lifecycle.ProcessCameraProvider;
-import androidx.camera.view.PreviewView;
-import androidx.core.content.ContextCompat;
-import androidx.core.view.GravityCompat;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.ItemTouchHelper;
@@ -24,10 +11,8 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.graphics.Bitmap;
 import android.graphics.Rect;
 import android.media.AudioManager;
-import android.media.Image;
 import android.media.ToneGenerator;
 import android.os.Build;
 import android.os.Bundle;
@@ -43,27 +28,13 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewTreeObserver;
 import android.view.inputmethod.InputMethodManager;
-import android.widget.AdapterView;
 import android.widget.EditText;
 import android.widget.Toast;
 
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.android.gms.tasks.Task;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
-import com.google.common.util.concurrent.ListenableFuture;
-import com.google.mlkit.vision.barcode.BarcodeScanner;
-import com.google.mlkit.vision.barcode.BarcodeScannerOptions;
-import com.google.mlkit.vision.barcode.BarcodeScanning;
-import com.google.mlkit.vision.barcode.common.Barcode;
-import com.google.mlkit.vision.common.InputImage;
-import com.google.zxing.BarcodeFormat;
 import com.google.zxing.ResultPoint;
-import com.google.zxing.WriterException;
 import com.journeyapps.barcodescanner.BarcodeCallback;
-import com.journeyapps.barcodescanner.BarcodeEncoder;
 import com.journeyapps.barcodescanner.BarcodeResult;
 import com.journeyapps.barcodescanner.camera.CameraSettings;
 import com.kaopiz.kprogresshud.KProgressHUD;
@@ -75,17 +46,13 @@ import com.vasyerp.selfcheckout.adapters.batch.BatchSelectionArrayAdapter;
 import com.vasyerp.selfcheckout.adapters.cart_product.CartAdapter;
 import com.vasyerp.selfcheckout.adapters.cart_product.SwipeToRemove;
 import com.vasyerp.selfcheckout.adapters.getproductdata.AdapterGetProductData;
-import com.vasyerp.selfcheckout.adapters.listeners.CartQtyFocusCallback;
-import com.vasyerp.selfcheckout.adapters.listeners.ItemQtyCallback;
 import com.vasyerp.selfcheckout.api.Api;
 import com.vasyerp.selfcheckout.api.ApiGenerator;
 import com.vasyerp.selfcheckout.api.razorpay.RazorpayApi;
 import com.vasyerp.selfcheckout.api.razorpay.RazorpayApiAuthentication;
 import com.vasyerp.selfcheckout.api.razorpay.RazorpayApiGenerator;
 import com.vasyerp.selfcheckout.databinding.ActivityMainBinding;
-import com.vasyerp.selfcheckout.databinding.BottomSheetBarcodeBinding;
 import com.vasyerp.selfcheckout.databinding.BottomSheetOrderSummaryBinding;
-import com.vasyerp.selfcheckout.databinding.DialogSelectProductBatchBinding;
 import com.vasyerp.selfcheckout.models.product.GetAllProducts;
 import com.vasyerp.selfcheckout.models.product.Product;
 import com.vasyerp.selfcheckout.models.product.ProductDto;
@@ -102,7 +69,6 @@ import com.vasyerp.selfcheckout.repositories.MainRepository;
 import com.vasyerp.selfcheckout.ui.CameraPermissionActivity;
 import com.vasyerp.selfcheckout.ui.orders_ui.OrderDetailsActivity;
 import com.vasyerp.selfcheckout.ui.orders_ui.OrdersListActivity;
-import com.vasyerp.selfcheckout.ui.payment.RazorpayPaymentActivity;
 import com.vasyerp.selfcheckout.utils.CommonUtil;
 import com.vasyerp.selfcheckout.utils.ConnectivityStatus;
 import com.vasyerp.selfcheckout.utils.PreferenceManager;
@@ -115,14 +81,10 @@ import org.json.JSONObject;
 import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
-import java.util.Random;
-import java.util.concurrent.Executors;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -144,25 +106,18 @@ public class MainActivity extends CameraPermissionActivity implements PaymentRes
     /**
      * mlkit barcode  scanner
      */
-    private Preview preview;
-    private ImageAnalysis imageAnalysis;
-    private CameraSelector cameraSelector;
-    private ProcessCameraProvider processCameraProvider;
-    private ListenableFuture<ProcessCameraProvider> cameraProviderFuture;
-    private AtomicBoolean atomicBoolean;
-    private UseCaseGroup.Builder useCaseGroup;
-    private BottomSheetOrderSummaryBinding bottomSheetOrderSummaryBinding;
-    private BottomSheetBarcodeBinding bottomSheetBarcodeBinding;
-    private BottomSheetDialog bottomSheetBillDetails, bottomSheetBarcode;
+    //private AtomicBoolean atomicBoolean;
 
-    String storeName = "";
-    String storeImg = "";
+
+    private BottomSheetOrderSummaryBinding bottomSheetOrderSummaryBinding;
+    //private BottomSheetBarcodeBinding bottomSheetBarcodeBinding;
+    private BottomSheetDialog bottomSheetBillDetails;
+    //BottomSheetDialog bottomSheetBarcode;
 
     String isShowing = "N";
 
     ActivityMainBinding activityMainBinding;
     KProgressHUD kProgressHUD;
-    private long selectedScannerId = 3;
     private String barcodeId;
 
     ArrayList<GetAllProducts> getAllProducts;
@@ -171,7 +126,6 @@ public class MainActivity extends CameraPermissionActivity implements PaymentRes
     private ArrayList<StockMasterVo> stockMasterVos;
     ArrayList<Product> productArrayList;
 
-
     private double finalDisplayMrp = 0.0;
     private double backupFinalPrice = 0.0;
 
@@ -179,17 +133,19 @@ public class MainActivity extends CameraPermissionActivity implements PaymentRes
     private BatchSelectionArrayAdapter batchSelectionArrayAdapter;
     CartAdapter cartAdapter;
 
-    DialogSelectProductBatchBinding dialogBatchSelectionBinding;
+    //DialogSelectProductBatchBinding dialogBatchSelectionBinding;
 
     private int companyId;
     private int userId;
     private int branchId;
-    private String domainName;
+    //private String domainName;
 
-    AlertDialog batchSelectionDialog;
+    private boolean isInternetConnected;
+
+    //AlertDialog batchSelectionDialog;
 
     String newPattern = "(^|^-?)\\d+(\\.\\d+)?(?=$)|(?<=^)\\.\\d+(?=$)";
-    String gstPatternRegex = "^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$";
+    //todo gst pattern String gstPatternRegex = "^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$";
     String numberPatternStr = "^\\d+$";
     String numberLengthRegex = "^.{10}$";
     String decimalRegex = "\\d+(\\.\\d{1,2})?";
@@ -198,7 +154,6 @@ public class MainActivity extends CameraPermissionActivity implements PaymentRes
     private StockMasterVo selectedStockMasterVo;
     MainViewModel mainViewModel;
     int widthOfEtBarcode = 500;
-    private boolean isInternetConnected;
     private SaveBillResponse saveBillResponseData;
     private SaveBill saveBill;
 
@@ -217,14 +172,6 @@ public class MainActivity extends CameraPermissionActivity implements PaymentRes
     public void setSaveBill(SaveBill saveBill) {
         this.saveBill = saveBill;
     }
-
-    /*public long getSelectedScannerId() {
-        return selectedScannerId;
-    }
-
-    public void setSelectedScannerId(long selectedScannerId) {
-        this.selectedScannerId = selectedScannerId;
-    }*/
 
     public ProductDto getProductDto() {
         return productDto;
@@ -258,22 +205,35 @@ public class MainActivity extends CameraPermissionActivity implements PaymentRes
         this.backupFinalPrice = backupFinalPrice;
     }
 
+    @SuppressLint("ResourceAsColor")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         activityMainBinding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(activityMainBinding.getRoot());
         setSupportActionBar(activityMainBinding.toolbarMain);
-        PreferenceManager.savePref(MainActivity.this, "205797", CommonUtil.USER_CONTACT_ID);
-        //todo change intent
-        Intent intent = getIntent();
-        storeName = intent.getStringExtra("storeName");
-        storeImg = intent.getStringExtra("storeImg");
+
         /*storeName = "vasyERP ";
         storeImg = "https://s3-us-west-2.amazonaws.com/vasyerpsolutions/Gmart/pv_logo/logo-small.png";*/
 
-        activityMainBinding.tvMainCompanyName.setText(storeName);
-        Picasso.get().load(storeImg).into(activityMainBinding.ivMainCompanyImg);
+        activityMainBinding.mainLlMain.setWeightSum(1.5f);
+        activityMainBinding.zxQrDecoratedBarcodeViewMain.setVisibility(View.GONE);
+
+        String strCompanyName = PreferenceManager.getCompanyBranchName(this);
+        String strCompanyLogoPrefix = PreferenceManager.getCompanyLogoPrefix(this);
+        String strCompanyLogoName = PreferenceManager.getCompanyLogo(this);
+        if (strCompanyName != null) {
+            activityMainBinding.tvMainCompanyName.setText(strCompanyName);
+        }
+
+        if (strCompanyLogoPrefix != null && strCompanyLogoName != null) {
+            if (!strCompanyLogoPrefix.isEmpty() && !strCompanyLogoName.isEmpty()) {
+                String logoPath = strCompanyLogoPrefix + strCompanyLogoName;
+                Picasso.get().load(logoPath).into(activityMainBinding.ivMainCompanyImg);
+            } else {
+                Picasso.get().load(R.drawable.logo_dark).into(activityMainBinding.ivMainCompanyImg);
+            }
+        }
 
         pattern = Pattern.compile(newPattern, Pattern.DOTALL);
         numberLengthReg = Pattern.compile(numberLengthRegex, Pattern.DOTALL);
@@ -283,47 +243,33 @@ public class MainActivity extends CameraPermissionActivity implements PaymentRes
         companyId = Integer.parseInt(PreferenceManager.getCompanyId(this));
         branchId = Integer.parseInt(PreferenceManager.getBranchId(this));
         userId = Integer.parseInt(PreferenceManager.getUserId(this));
-        domainName = PreferenceManager.getDomain(this);
-
+        //todo remove not used domainName = PreferenceManager.getDomain(this);
 
         ConnectivityStatus connectivityStatus = new ConnectivityStatus(MainActivity.this);
-        connectivityStatus.observe(this, new Observer<Boolean>() {
-            @Override
-            public void onChanged(Boolean aBoolean) {
-                isInternetConnected = aBoolean;
+        connectivityStatus.observe(this, aBoolean -> {
+            isInternetConnected = aBoolean;
+            if (aBoolean) {
+                if (activityMainBinding.tvMainCheckInternet.getText().toString().equals(getString(R.string.toast_no_internet))) {
+                    activityMainBinding.tvMainCheckInternet.setText(getString(R.string.toast_internet));
+                    activityMainBinding.tvMainCompanyName.setTextColor(R.color.green);
+                    new Handler().postDelayed(() -> activityMainBinding.tvMainCheckInternet.setVisibility(View.GONE), 1000);
+                }
+            } else {
+                activityMainBinding.tvMainCheckInternet.setText(getString(R.string.toast_no_internet));
+                activityMainBinding.tvMainCheckInternet.setTextColor(R.color.green);
+                activityMainBinding.tvMainCheckInternet.setVisibility(View.VISIBLE);
             }
         });
 
         getWidthOfEditText();
         initArrayLists();
         initKProgressHud();
-        initBindings();
         initViewModelAndRepository();
 
-        //todo set dynamic
         initBillDetailsBinding();
         initBottomSheetBillDetails();
-        initBarcodeBinding();
-        initBottomSheetBarcodeDetails();
 
-        //setSelectedScannerId(Long.parseLong(PreferenceManager.getScanditApiKey(MainActivity.this)));
-        //PreferenceManager.setBarcodeSelectionId(MainActivity.this, CommonUtil.SCANNER_SELECTION_ID, remoteConfig.getLong(CommonUtil.REMOTE_CONFIG_SCANNER_KEY));
         barcodeScannerViewSelection();
-        /*ConnectivityStatus status = new ConnectivityStatus(this);
-        status.observe(this, aBoolean -> {
-            if (aBoolean) {
-                kProgressHUD.show();
-                new Handler().postDelayed(() -> {
-                    if (getAllProducts.size() == 0) {
-
-                    }
-                    kProgressHUD.dismiss();
-                }, 1500);
-            }
-        });*/
-
-
-        initBatchSelectionDialog();
 
         setUpAdapterGetProductData();
 
@@ -332,7 +278,8 @@ public class MainActivity extends CameraPermissionActivity implements PaymentRes
         initCartAdapter();
 
         batchSelectionArrayAdapter = new BatchSelectionArrayAdapter(MainActivity.this, stockMasterVos);
-        dialogBatchSelectionBinding.spinnerBatchSelection.setAdapter(batchSelectionArrayAdapter);
+        //todo not use this code because of we don't show batch dialog for selecting batch
+        /*dialogBatchSelectionBinding.spinnerBatchSelection.setAdapter(batchSelectionArrayAdapter);
         dialogBatchSelectionBinding.spinnerBatchSelection.setSelection(0);
         dialogBatchSelectionBinding.spinnerBatchSelection.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
@@ -374,22 +321,18 @@ public class MainActivity extends CameraPermissionActivity implements PaymentRes
                 saveSelectedBatchCalculation();
                 resumeScannerCases();
             }
-        });
+        });*/
 
         enableSwipeToDeleteAndUndo();
 
         activityMainBinding.btnMainOnOff.setOnClickListener(v -> {
-            Log.v("Hide", "btn click start");
             if (isShowing.equals("Y")) {
-                //dataCaptureView.setEnabled(false);
-                Log.v("Hide", "btn click if gone : " + isShowing);
+                pauseScannerCases();
                 hideScannerCases();
                 isShowing = "N";
             } else {
-                Log.v("Hide", "btn click else visible : " + isShowing);
-                //dataCaptureView.setEnabled(true);
-                //resumeFrameSource();
                 showScannerCases();
+                resumeScannerCases();
                 isShowing = "Y";
             }
             Log.v("Hide", "btn click end");
@@ -398,6 +341,7 @@ public class MainActivity extends CameraPermissionActivity implements PaymentRes
         activityMainBinding.zxQrDecoratedBarcodeViewMain.decodeContinuous(new BarcodeCallback() {
             @Override
             public void barcodeResult(BarcodeResult result) {
+                pauseScannerCases();
                 ToneGenerator toneGen1 = new ToneGenerator(AudioManager.STREAM_MUSIC, 100);
                 toneGen1.startTone(ToneGenerator.TONE_PROP_BEEP2, 150);
                 Log.d("MainActivity", "Barcode Result from zxing: " + result.toString());
@@ -406,8 +350,14 @@ public class MainActivity extends CameraPermissionActivity implements PaymentRes
                 }
                 barcodeId = result.toString();
                 //String financialYear, String productId, boolean isSearchByBarcode) {
-                mainViewModel.getProductByBarcodeId(getCurrentFinancialYear(), barcodeId, true);
-                activityMainBinding.zxQrDecoratedBarcodeViewMain.pause();
+                if (isInternetConnected) {
+                    mainViewModel.getProductByBarcodeId(getCurrentFinancialYear(), barcodeId, true);
+                } else {
+                    kProgressHUD.dismiss();
+                    resumeScannerCases();
+                    CommonUtil.showSnackBar(activityMainBinding.llBtn, activityMainBinding.llBtn, getString(R.string.toast_no_internet));
+                }
+                //activityMainBinding.zxQrDecoratedBarcodeViewMain.pause();
             }
 
             @Override
@@ -417,29 +367,33 @@ public class MainActivity extends CameraPermissionActivity implements PaymentRes
         });
 
         activityMainBinding.btnMainCheckOut.setOnClickListener(v -> {
-            if (cartItemsList.size() > 0) {
-                //Toast.makeText(MainActivity.this, "Show bottom sheet", Toast.LENGTH_SHORT).show();
-                this.bottomSheetOrderSummaryBinding.tvOrderTotal.setText(activityMainBinding.tvTotalAmount.getText());
-                this.bottomSheetOrderSummaryBinding.tvOrderRoundOff.setText(activityMainBinding.etRound.getText());
-                String totalItems = String.valueOf(cartItemsList.size());
-                totalItems += ".0";
-                this.bottomSheetOrderSummaryBinding.tvOrderTotalItems.setText(totalItems);
-                double totalQty = 0.0;
-                double totalTax = 0.0;
-                for (int i = 0; i < cartItemsList.size(); i++) {
-                    totalQty += CommonUtil.getDoubleFromString(cartItemsList.get(i).getQuantity(), 2);
-                    totalTax += cartItemsList.get(i).getTotalTaxPrice();
-                }
+            if (isInternetConnected) {
+                if (cartItemsList.size() > 0) {
+                    //Toast.makeText(MainActivity.this, "Show bottom sheet", Toast.LENGTH_SHORT).show();
+                    this.bottomSheetOrderSummaryBinding.tvOrderTotal.setText(activityMainBinding.tvTotalAmount.getText());
+                    this.bottomSheetOrderSummaryBinding.tvOrderRoundOff.setText(activityMainBinding.etRound.getText());
+                    String totalItems = String.valueOf(cartItemsList.size());
+                    totalItems += ".0";
+                    this.bottomSheetOrderSummaryBinding.tvOrderTotalItems.setText(totalItems);
+                    double totalQty = 0.0;
+                    double totalTax = 0.0;
+                    for (int i = 0; i < cartItemsList.size(); i++) {
+                        totalQty += CommonUtil.getDoubleFromString(cartItemsList.get(i).getQuantity(), 2);
+                        totalTax += cartItemsList.get(i).getTotalTaxPrice();
+                    }
                 /*salesDTO.setTaxId(cartItemsList.get(i).getProductDto().getTax_id());
             salesDTO.setTaxRate(cartItemsList.get(i).getProductDto().getTax_rate());
             salesDTO.setTaxAmount(Double.parseDouble(String.format("%.3f", cartItemsList.get(i).getTotalTaxPrice())));
             salesDTO.setPrice(Double.parseDouble(String.format("%.3f", cartItemsList.get(i).getPrice())));
             salesDTO.setNetAmount(Double.parseDouble(String.format("%.3f", cartItemsList.get(i).getDisplayMrp())));*/
-                this.bottomSheetOrderSummaryBinding.tvOrderTotalQty.setText(String.valueOf(totalQty));
-                this.bottomSheetOrderSummaryBinding.tvOrderTotalTax.setText(String.valueOf(CommonUtil.getDoubleFromString(String.valueOf(totalTax), 2)));
-                this.bottomSheetBillDetails.show();
+                    this.bottomSheetOrderSummaryBinding.tvOrderTotalQty.setText(String.valueOf(totalQty));
+                    this.bottomSheetOrderSummaryBinding.tvOrderTotalTax.setText(String.valueOf(CommonUtil.getDoubleFromString(String.valueOf(totalTax), 2)));
+                    this.bottomSheetBillDetails.show();
+                } else {
+                    CommonUtil.showSnackBar(activityMainBinding.llTotal, activityMainBinding.llTotal, "Cart is empty.");
+                }
             } else {
-                CommonUtil.showSnackBar(activityMainBinding.llTotal, activityMainBinding.llTotal, "Cart is empty.");
+                CommonUtil.showSnackBar(activityMainBinding.llBtn, activityMainBinding.llBtn, getString(R.string.toast_no_internet));
             }
         });
 
@@ -529,6 +483,7 @@ public class MainActivity extends CameraPermissionActivity implements PaymentRes
             @Override
             public void onFocusChange(View v, boolean hasFocus) {
                 if (hasFocus) {
+                    pauseScannerCases();
                     hideScannerCases();
                     isShowing = "N";
                 }
@@ -561,7 +516,7 @@ public class MainActivity extends CameraPermissionActivity implements PaymentRes
     }
 
     private void initViewModelAndRepository() {
-        Api apiInterface = ApiGenerator.getApi(CommonUtil.tempBaseUrlTesting).create(Api.class);
+        Api apiInterface = ApiGenerator.getApi(CommonUtil.tempBaseUrl).create(Api.class);
         mainViewModel = new ViewModelProvider(this, new MainViewModelFactory(MainRepository.getInstance(apiInterface), companyId, branchId, userId)).get(MainViewModel.class);
     }
 
@@ -615,31 +570,27 @@ public class MainActivity extends CameraPermissionActivity implements PaymentRes
 
     private void initCartAdapter() {
         cartAdapter = new CartAdapter(this, cartItemsList);
-        cartAdapter.setCartQtyFocusCallback(new CartQtyFocusCallback() {
-            @Override
-            public void setHasFocus(boolean hasFocus) {
-                if (hasFocus) {
-                    hideScannerCases();
-                    isShowing = "N";
-                }
+        cartAdapter.setCartQtyFocusCallback(hasFocus -> {
+            if (hasFocus) {
+                pauseScannerCases();
+                hideScannerCases();
+                isShowing = "N";
             }
         });
         activityMainBinding.rvCart.setAdapter(cartAdapter);
-        cartAdapter.setItemQtyCallback(new ItemQtyCallback() {
-            @Override
-            public void setLatestCount(double payableAmount, double cartItems) {
-                String roundOffStr = (Math.round(payableAmount) > payableAmount) ? String.format(Locale.getDefault(), "%.2f", Math.round(payableAmount) - payableAmount) : String.format(Locale.getDefault(), "%.2f", Math.round(payableAmount) - payableAmount);
-                MainActivity.this.setFinalDisplayMrp(Math.round(payableAmount) - Double.parseDouble(roundOffStr));
-                setBackupFinalPrice(Math.round(payableAmount) - Double.parseDouble(roundOffStr));
-                activityMainBinding.etRound.setText(roundOffStr);
-                //activityMainBinding.tvTotalAmount.setText(String.valueOf(String.format(Locale.getDefault(), "%.0f", MainActivity.this.getFinalDisplayMrp())));
-                if (MainActivity.this.getFinalDisplayMrp() % 1 == 0) {
-                    activityMainBinding.tvTotalAmount.setText(String.format(Locale.getDefault(), "%.0f", getFinalDisplayMrp()));
-                } else {
-                    activityMainBinding.tvTotalAmount.setText(String.format(Locale.getDefault(), "%.2f", getFinalDisplayMrp()));
-                }
-                activityMainBinding.tvCount.setText(String.valueOf(cartItems));
+        cartAdapter.setItemQtyCallback((payableAmount, cartItems) -> {
+            String roundOffStr = (Math.round(payableAmount) > payableAmount) ? String.format(Locale.getDefault(), "%.2f", Math.round(payableAmount) - payableAmount) : String.format(Locale.getDefault(), "%.2f", Math.round(payableAmount) - payableAmount);
+            MainActivity.this.setFinalDisplayMrp(Math.round(payableAmount) - Double.parseDouble(roundOffStr));
+            setBackupFinalPrice(Math.round(payableAmount) - Double.parseDouble(roundOffStr));
+
+            activityMainBinding.etRound.setText(roundOffStr);
+            //activityMainBinding.tvTotalAmount.setText(String.valueOf(String.format(Locale.getDefault(), "%.0f", MainActivity.this.getFinalDisplayMrp())));
+            if (MainActivity.this.getFinalDisplayMrp() % 1 == 0) {
+                activityMainBinding.tvTotalAmount.setText(String.format(Locale.getDefault(), "%.0f", getFinalDisplayMrp()));
+            } else {
+                activityMainBinding.tvTotalAmount.setText(String.format(Locale.getDefault(), "%.2f", getFinalDisplayMrp()));
             }
+            activityMainBinding.tvCount.setText(String.valueOf(cartItems));
         });
     }
 
@@ -669,27 +620,27 @@ public class MainActivity extends CameraPermissionActivity implements PaymentRes
                 return true;
             }
         });
-        activityMainBinding.etBarcode.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                GetAllProducts getAllProducts = (GetAllProducts) parent.getItemAtPosition(position);
-                Log.d("ProductName", "onItemClick: " + getAllProducts.getId() + "name " + getAllProducts.getValue());
-                activityMainBinding.etBarcode.setText("");
-                if (!kProgressHUD.isShowing() && kProgressHUD != null) {
-                    kProgressHUD.show();
-                }
+        activityMainBinding.etBarcode.setOnItemClickListener((parent, view, position, id) -> {
+            GetAllProducts getAllProducts = (GetAllProducts) parent.getItemAtPosition(position);
+            Log.d("ProductName", "onItemClick: " + getAllProducts.getId() + "name " + getAllProducts.getValue());
+            activityMainBinding.etBarcode.setText("");
+            if (!kProgressHUD.isShowing() && kProgressHUD != null) {
+                kProgressHUD.show();
+            }
+            if (isInternetConnected) {
                 mainViewModel.getProductByBarcodeId(getCurrentFinancialYear(), String.valueOf(getAllProducts.getId()), false);
+            } else {
+                kProgressHUD.dismiss();
+                CommonUtil.showSnackBar(activityMainBinding.llBtn, activityMainBinding.llBtn, getString(R.string.toast_no_internet));
             }
         });
 
-        activityMainBinding.etBarcode.setOnFocusChangeListener(new View.OnFocusChangeListener() {
-            @Override
-            public void onFocusChange(View v, boolean hasFocus) {
-                if (hasFocus) {
-                    Log.d(TAG, "onFocusChange: " + hasFocus);
-                    hideScannerCases();
-                    isShowing = "N";
-                }
+        activityMainBinding.etBarcode.setOnFocusChangeListener((v, hasFocus) -> {
+            if (hasFocus) {
+                Log.d(TAG, "onFocusChange: " + hasFocus);
+                pauseScannerCases();
+                hideScannerCases();
+                isShowing = "N";
             }
         });
     }
@@ -707,9 +658,10 @@ public class MainActivity extends CameraPermissionActivity implements PaymentRes
         } else {
             cartItemCalculations();
         }
-        if (batchSelectionDialog.isShowing()) {
+        //todo remove not used code
+        /*if (batchSelectionDialog.isShowing()) {
             batchSelectionDialog.dismiss();
-        }
+        }*/
         batchSelectionArrayAdapter.clear();
     }
 
@@ -741,8 +693,9 @@ public class MainActivity extends CameraPermissionActivity implements PaymentRes
             if (!isItemFound) {
                 if (getSelectedStockMasterVo().getHasNegativeSelling() == 1) {
                     if (Double.valueOf(getSelectedStockMasterVo().getQuantity()).doubleValue() <= 0.0) {
+                        //if (Double.parseDouble(getSelectedStockMasterVo().getQuantity()) <= 0.0) {
                         setSelectedStockMasterVo(null);
-                        batchSelectionDialog.dismiss();
+                        //batchSelectionDialog.dismiss();
                         CommonUtil.showSnackBar(activityMainBinding.mainLlMain, activityMainBinding.llTotal, "Selected batch has zero quantity.");
                     } else {
                         getSelectedStockMasterVo().setQuantity("1.0");
@@ -954,7 +907,7 @@ public class MainActivity extends CameraPermissionActivity implements PaymentRes
             if (getSelectedStockMasterVo().getHasNegativeSelling() == 1) {
                 if (Double.valueOf(getSelectedStockMasterVo().getQuantity()).doubleValue() <= 0.0) {
                     setSelectedStockMasterVo(null);
-                    batchSelectionDialog.dismiss();
+                    //batchSelectionDialog.dismiss();
                     CommonUtil.showSnackBar(activityMainBinding.mainLlMain, activityMainBinding.llTotal, "Selected batch has zero quantity.");
                 } else {
                     double netMrp = 0.0, taxPrice = 0.0, displayPrice = 0.0, totalTaxPrice = 0.0, taxRate = 0.0, taxRateAdd = 0.0, netMrpHelp = 0.0, tempTotal = 0.0, batchDiscount = 0.0, taxableAmount = 0.0;
@@ -1194,9 +1147,10 @@ public class MainActivity extends CameraPermissionActivity implements PaymentRes
         itemTouchhelper.attachToRecyclerView(activityMainBinding.rvCart);
     }
 
-    private void initBindings() {
+    //todo remove not used code
+    /*private void initBindings() {
         dialogBatchSelectionBinding = DialogSelectProductBatchBinding.inflate(getLayoutInflater());
-    }
+    }*/
 
     private void initArrayLists() {
         cartItemsList = new ArrayList<>();
@@ -1205,12 +1159,13 @@ public class MainActivity extends CameraPermissionActivity implements PaymentRes
         productArrayList = new ArrayList<>();
     }
 
-    private void initBatchSelectionDialog() {
+    //todo remove not used code of batch dialog
+    /*private void initBatchSelectionDialog() {
         AlertDialog.Builder batchSelectionBuilder = new AlertDialog.Builder(this);
         batchSelectionBuilder.setView(dialogBatchSelectionBinding.getRoot());
         batchSelectionBuilder.setCancelable(true);
         batchSelectionDialog = batchSelectionBuilder.create();
-    }
+    }*/
 
     @SuppressLint("NonConstantResourceId")
     private void initBillDetailsBinding() {
@@ -1241,12 +1196,16 @@ public class MainActivity extends CameraPermissionActivity implements PaymentRes
                 SaveBill saveBillPost = prepareSaveBillModel("");
                 setSaveBill(saveBillPost);
                 //mainViewModel.getProductByBarcodeId(getCurrentFinancialYear(), barcodeId, true);
-                mainViewModel.postOrderData(
-                        Integer.parseInt(PreferenceManager.getCompanyId(MainActivity.this)),
-                        Integer.parseInt(PreferenceManager.getBranchId(MainActivity.this)),
-                        Integer.parseInt(PreferenceManager.getCompanyId(MainActivity.this)),
-                        saveBillPost
-                );
+                if (isInternetConnected) {
+                    mainViewModel.postOrderData(
+                            Integer.parseInt(PreferenceManager.getCompanyId(MainActivity.this)),
+                            Integer.parseInt(PreferenceManager.getBranchId(MainActivity.this)),
+                            Integer.parseInt(PreferenceManager.getCompanyId(MainActivity.this)),
+                            saveBillPost
+                    );
+                } else {
+                    CommonUtil.showSnackBar(activityMainBinding.llBtn, activityMainBinding.llBtn, getString(R.string.toast_no_internet));
+                }
             } else if (this.bottomSheetOrderSummaryBinding.radioOnline.isChecked()) {
                 Toast.makeText(MainActivity.this, "Make Payment Online", Toast.LENGTH_SHORT).show();
                 SaveBill saveBillPost = prepareSaveBillModel("");
@@ -1254,12 +1213,16 @@ public class MainActivity extends CameraPermissionActivity implements PaymentRes
 
                 /*Intent intent = new Intent(MainActivity.this, RazorpayPaymentActivity.class);
                 startActivity(intent);*/
-                mainViewModel.postOrderData(
-                        Integer.parseInt(PreferenceManager.getCompanyId(MainActivity.this)),
-                        Integer.parseInt(PreferenceManager.getBranchId(MainActivity.this)),
-                        Integer.parseInt(PreferenceManager.getCompanyId(MainActivity.this)),
-                        saveBillPost
-                );
+                if (isInternetConnected) {
+                    mainViewModel.postOrderData(
+                            Integer.parseInt(PreferenceManager.getCompanyId(MainActivity.this)),
+                            Integer.parseInt(PreferenceManager.getBranchId(MainActivity.this)),
+                            Integer.parseInt(PreferenceManager.getCompanyId(MainActivity.this)),
+                            saveBillPost
+                    );
+                } else {
+                    CommonUtil.showSnackBar(activityMainBinding.llBtn, activityMainBinding.llBtn, getString(R.string.toast_no_internet));
+                }
                 //todo place order but not paid
             } else {
                 Toast.makeText(MainActivity.this, "Please, select payment method", Toast.LENGTH_SHORT).show();
@@ -1340,33 +1303,12 @@ public class MainActivity extends CameraPermissionActivity implements PaymentRes
         return saveBill;
     }
 
-    private void initBarcodeBinding() {
-        this.bottomSheetBarcodeBinding = BottomSheetBarcodeBinding.inflate(getLayoutInflater());
-        BarcodeEncoder barcodeEncoder = new BarcodeEncoder();
-        try {
-            Bitmap bitmap = barcodeEncoder.encodeBitmap("INV4183", BarcodeFormat.CODE_128, 700, 150);
-            bottomSheetBarcodeBinding.ivBarcode.setImageBitmap(bitmap);
-            bottomSheetBarcodeBinding.tvOrderNo.setText("INV4183");
-        } catch (WriterException e) {
-            e.printStackTrace();
-            Log.e(TAG, "onCreate: some interrupt ");
-        }
-    }
-
     private void initBottomSheetBillDetails() {
         this.bottomSheetBillDetails = new BottomSheetDialog(MainActivity.this);
         this.bottomSheetBillDetails.setContentView(this.bottomSheetOrderSummaryBinding.getRoot());
         this.bottomSheetBillDetails.setCancelable(true);
         ScreenUtils screenUtils = new ScreenUtils(this);
         this.bottomSheetBillDetails.getBehavior().setPeekHeight(screenUtils.getHeight());
-    }
-
-    private void initBottomSheetBarcodeDetails() {
-        this.bottomSheetBarcode = new BottomSheetDialog(MainActivity.this);
-        this.bottomSheetBarcode.setContentView(this.bottomSheetBarcodeBinding.getRoot());
-        this.bottomSheetBarcode.setCancelable(true);
-        ScreenUtils screenUtils = new ScreenUtils(this);
-        this.bottomSheetBarcode.getBehavior().setPeekHeight(screenUtils.getHeight());
     }
 
     @Override
@@ -1402,86 +1344,23 @@ public class MainActivity extends CameraPermissionActivity implements PaymentRes
     }
 
     private void hideScannerCases() {
-        switch (String.valueOf(PreferenceManager.getBarcodeSelectionId(MainActivity.this))) {
-            case "1":
-                /*activityMainBinding.mainLl.setWeightSum(1.5f);
-                activityMainBinding.llscanner.setVisibility(View.GONE);
-                pauseFrameSource();*/
-                break;
-            case "2":
-                activityMainBinding.mainLlMain.setWeightSum(1.5f);
-                activityMainBinding.viewFinderMain.setVisibility(View.GONE);
-                unBindMLCamera();
-                atomicBoolean.set(false);
-                break;
-            case "3":
-                activityMainBinding.mainLlMain.setWeightSum(1.5f);
-                activityMainBinding.zxQrDecoratedBarcodeViewMain.setVisibility(View.GONE);
-                unBindZxingCamera();
-                break;
-        }
+        activityMainBinding.mainLlMain.setWeightSum(1.5f);
+        activityMainBinding.zxQrDecoratedBarcodeViewMain.setVisibility(View.GONE);
+        unBindZxingCamera();
     }
 
     private void showScannerCases() {
-        Log.d(TAG, "showScannerCases: " + String.valueOf(PreferenceManager.getBarcodeSelectionId(MainActivity.this)));
-        switch (String.valueOf(PreferenceManager.getBarcodeSelectionId(MainActivity.this))) {
-            case "1":
-                /*activityMainBinding.mainLl.setWeightSum(2f);
-                activityMainBinding.llscanner.setVisibility(View.VISIBLE);
-                resumeFrameSource();*/
-                break;
-            case "2":
-                activityMainBinding.mainLlMain.setWeightSum(2f);
-                activityMainBinding.viewFinderMain.setVisibility(View.VISIBLE);
-                bindMLCamera();
-                atomicBoolean.set(true);
-                break;
-            case "3":
-                activityMainBinding.mainLlMain.setWeightSum(2f);
-                activityMainBinding.zxQrDecoratedBarcodeViewMain.setVisibility(View.VISIBLE);
-                bindZxingCamera();
-                break;
-        }
+        activityMainBinding.mainLlMain.setWeightSum(2f);
+        activityMainBinding.zxQrDecoratedBarcodeViewMain.setVisibility(View.VISIBLE);
+        bindZxingCamera();
     }
 
     private void resumeScannerCases() {
-        Log.d(TAG, "ResumeScannerCase: " + String.valueOf(PreferenceManager.getBarcodeSelectionId(MainActivity.this)));
-        switch (String.valueOf(PreferenceManager.getBarcodeSelectionId(MainActivity.this))) {
-            case "1":
-                /*new Handler().postDelayed(new Runnable() {
-                    @Override
-                    public void run() {
-                        barcodeCapture.setEnabled(true);
-                    }
-                }, 1500);*/
-                break;
-            case "2":
-                new Handler().postDelayed(new Runnable() {
-                    @Override
-                    public void run() {
-                        atomicBoolean.set(true);
-                    }
-                }, 1500);
-                break;
-            case "3":
-                activityMainBinding.zxQrDecoratedBarcodeViewMain.resume();
-                break;
-        }
+        activityMainBinding.zxQrDecoratedBarcodeViewMain.resume();
     }
 
     private void pauseScannerCases() {
-        Log.d(TAG, "PauseScannerCases: " + String.valueOf(PreferenceManager.getBarcodeSelectionId(MainActivity.this)));
-        switch (String.valueOf(PreferenceManager.getBarcodeSelectionId(MainActivity.this))) {
-            case "1":
-                //barcodeCapture.setEnabled(false);
-                break;
-            case "2":
-                atomicBoolean.set(false);
-                break;
-            case "3":
-                activityMainBinding.zxQrDecoratedBarcodeViewMain.pause();
-                break;
-        }
+        activityMainBinding.zxQrDecoratedBarcodeViewMain.pause();
     }
 
     private void razorpayPayment(SaveBillResponse saveBillResponse) {
@@ -1727,149 +1606,15 @@ public class MainActivity extends CameraPermissionActivity implements PaymentRes
     }
 
     private void barcodeScannerViewSelection() {
-        switch (String.valueOf(PreferenceManager.getBarcodeSelectionId(MainActivity.this))) {
-            case "1":
-                Log.d(TAG, "Barcode engine: Scandit");
-                /*if (camera == null) {
-                    Log.d(TAG, "BarcodeScannerSelection: Scandit camera is initialized.");
-                    initializeAndStartBarcodeScanning();
-                } else {
-                    resumeFrameSource();
-                }*/
-                Log.d(TAG, "BarcodeScannerSelection: Scandit scanner is selected.");
-                break;
-            case "2":
-                if (cameraProviderFuture == null) {
-                    initMLKitBarcodeScanner();
-                } else {
-                    atomicBoolean.set(true);
-                }
-                Log.d(TAG, "Barcode engine: MLKit");
-                break;
-            case "3":
-                Log.d(TAG, "Barcode engine: ZXing");
-                if (cameraSettings == null) {
-                    Log.d(TAG, "BarcodeScannerSelection: zxing barcode initialized.");
-                    initZxingBarcodeScanner();
-                    Log.d(TAG, "BarcodeScannerSelection: zxing barcode is selected.");
-                } else {
-                    Log.d(TAG, "BarcodeScannerSelection: zxing barcode is already initialized.");
-                    bindZxingCamera();
-                }
-                break;
+        if (cameraSettings == null) {
+            Log.d(TAG, "BarcodeScannerSelection: zxing barcode initialized.");
+            initZxingBarcodeScanner();
+            Log.d(TAG, "BarcodeScannerSelection: zxing barcode is selected.");
+        } else {
+            Log.d(TAG, "BarcodeScannerSelection: zxing barcode is already initialized.");
+            bindZxingCamera();
         }
         activityMainBinding.mainLlMain.setWeightSum(1.5f);
-    }
-
-    private void initMLKitBarcodeScanner() {
-        cameraProviderFuture = ProcessCameraProvider.getInstance(MainActivity.this);
-        cameraProviderFuture.addListener(() -> {
-            try {
-                processCameraProvider = cameraProviderFuture.get();
-                bindCameraPreview(processCameraProvider);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }, ContextCompat.getMainExecutor(this));
-    }
-
-    @OptIn(markerClass = androidx.camera.core.ExperimentalUseCaseGroup.class)
-    private void bindCameraPreview(ProcessCameraProvider cameraProvider) {
-        preview = new Preview.Builder()
-                .setTargetAspectRatio(AspectRatio.RATIO_4_3)
-                .build();
-
-        preview.setSurfaceProvider(activityMainBinding.viewFinderMain.getSurfaceProvider());
-
-        imageAnalysis = new ImageAnalysis.Builder()
-                .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST)
-                .build();
-
-        ViewPort viewPort = ((PreviewView) findViewById(R.id.viewFinderMain)).getViewPort();
-
-        useCaseGroup = new UseCaseGroup.Builder();
-        useCaseGroup.setViewPort(viewPort);
-        useCaseGroup.addUseCase(preview);
-        useCaseGroup.addUseCase(imageAnalysis);
-
-        cameraSelector = new CameraSelector.Builder()
-                .requireLensFacing(CameraSelector.LENS_FACING_BACK)
-                .build();
-
-        BarcodeScannerOptions options = new BarcodeScannerOptions.Builder()
-                .setBarcodeFormats(com.google.mlkit.vision.barcode.common.Barcode.FORMAT_ALL_FORMATS)
-                .build();
-
-        BarcodeScanner scanner = BarcodeScanning.getClient(options);
-
-        imageAnalysis.setAnalyzer(Executors.newSingleThreadExecutor(), new ImageAnalysis.Analyzer() {
-            @Override
-            public void analyze(@NonNull ImageProxy imageProxy) {
-                @SuppressLint("UnsafeOptInUsageError") Image image = imageProxy.getImage();
-                if (image != null && atomicBoolean.get()) {
-                    InputImage inputImage = InputImage.
-                            fromMediaImage(image, imageProxy.getImageInfo().getRotationDegrees());
-                    Task<List<Barcode>> result = scanner.process(inputImage);
-                    result.addOnSuccessListener(new OnSuccessListener<List<Barcode>>() {
-                        @Override
-                        public void onSuccess(@NonNull List<com.google.mlkit.vision.barcode.common.Barcode> barcodes) {
-                            processBarcode(barcodes);
-                        }
-                    }).addOnFailureListener(new OnFailureListener() {
-                        @Override
-                        public void onFailure(@NonNull Exception e) {
-                            Toast.makeText(getApplicationContext(), "Could not detect barcode!", Toast.LENGTH_SHORT).show();
-                        }
-                    }).addOnCompleteListener(new OnCompleteListener<List<Barcode>>() {
-                        @Override
-                        public void onComplete(@NonNull Task<List<com.google.mlkit.vision.barcode.common.Barcode>> task) {
-                            image.close();
-                            imageProxy.close();
-                        }
-                    });
-                } else {
-                    if (image != null) {
-                        image.close();
-                        imageProxy.close();
-                    }
-                }
-            }
-        });
-        cameraProvider.unbindAll();
-        cameraProvider.bindToLifecycle(this, cameraSelector, imageAnalysis, preview);
-    }
-
-    private void processBarcode(List<com.google.mlkit.vision.barcode.common.Barcode> barcodes) {
-        if (barcodes.size() > 0) {
-            Log.d(TAG, "processBarcode: " + Arrays.toString(barcodes.toArray()));
-            for (com.google.mlkit.vision.barcode.common.Barcode barcode : barcodes) {
-                Rect rect = barcode.getBoundingBox();
-                barcodeId = barcode.getDisplayValue();
-                //todo call api after scanning at mlkit
-                new Handler().postDelayed(() -> {
-                    resumeScannerCases();
-                    kProgressHUD.dismiss();
-                }, 1000);
-                mainViewModel.getProductByBarcodeId(getCurrentFinancialYear(), barcodeId, true);
-            }
-            atomicBoolean.set(false);
-            new Handler().postDelayed(new Runnable() {
-                @Override
-                public void run() {
-                    atomicBoolean.set(true);
-                }
-            }, 3000);
-        }
-    }
-
-    @OptIn(markerClass = {androidx.camera.lifecycle.ExperimentalUseCaseGroupLifecycle.class,
-            androidx.camera.core.ExperimentalUseCaseGroup.class})
-    private void bindMLCamera() {
-        processCameraProvider.bindToLifecycle(MainActivity.this, cameraSelector, useCaseGroup.build());
-    }
-
-    private void unBindMLCamera() {
-        processCameraProvider.unbindAll();
     }
 
     private void initZxingBarcodeScanner() {
@@ -1897,6 +1642,7 @@ public class MainActivity extends CameraPermissionActivity implements PaymentRes
     protected void onPause() {
         super.onPause();
         if (isShowing.equals("Y")) {
+            pauseScannerCases();
             hideScannerCases();
             isShowing = "N";
         }
@@ -1908,6 +1654,7 @@ public class MainActivity extends CameraPermissionActivity implements PaymentRes
         activityMainBinding.mainLlMain.setWeightSum(1.5f);
         requestCameraPermission();
         if (isShowing.equals("Y")) {
+            pauseScannerCases();
             hideScannerCases();
             isShowing = "N";
         }
@@ -1971,12 +1718,16 @@ public class MainActivity extends CameraPermissionActivity implements PaymentRes
             saveBillStatusModel.setPaymentMode(CommonUtil.paymentGatewayRazorpay.trim());
             saveBillStatusModel.setSalesId(getSaveBillResponseData().getSalesId());
             Log.e(TAG, "onPaymentSuccess: call api update status");
-            mainViewModel.updateOrderStatus(
-                    Integer.parseInt(PreferenceManager.getCompanyId(MainActivity.this)),
-                    Integer.parseInt(PreferenceManager.getBranchId(MainActivity.this)),
-                    Integer.parseInt(PreferenceManager.getCompanyId(MainActivity.this)),
-                    saveBillStatusModel
-            );
+            if (isInternetConnected) {
+                mainViewModel.updateOrderStatus(
+                        Integer.parseInt(PreferenceManager.getCompanyId(MainActivity.this)),
+                        Integer.parseInt(PreferenceManager.getBranchId(MainActivity.this)),
+                        Integer.parseInt(PreferenceManager.getCompanyId(MainActivity.this)),
+                        saveBillStatusModel
+                );
+            } else {
+                CommonUtil.showSnackBar(activityMainBinding.llBtn, activityMainBinding.llBtn, getString(R.string.toast_no_internet));
+            }
             clearDataAfterOrderPlace();
         } catch (Exception e) {
             e.printStackTrace();
@@ -1992,7 +1743,7 @@ public class MainActivity extends CameraPermissionActivity implements PaymentRes
     public void onPaymentError(int i, String s) {
         bottomSheetOrderSummaryBinding.tvErrorPaymentData.setVisibility(View.VISIBLE);
         bottomSheetOrderSummaryBinding.tvErrorPaymentData.setText("Failed and cause is :" + s);
-        new Handler().postDelayed(() -> bottomSheetOrderSummaryBinding.tvErrorPaymentData.setVisibility(View.GONE), 60000);
+        new Handler().postDelayed(() -> bottomSheetOrderSummaryBinding.tvErrorPaymentData.setVisibility(View.GONE), 5000);
     }
 
     /*private void barcodeScannerViewSelection() {
@@ -2142,5 +1893,25 @@ public class MainActivity extends CameraPermissionActivity implements PaymentRes
             Toast.makeText(activity, "Error in payment: " + e.getMessage(), Toast.LENGTH_SHORT).show();
             e.printStackTrace();
         }
+    }*/
+
+    /*private void initBarcodeBinding() {
+        this.bottomSheetBarcodeBinding = BottomSheetBarcodeBinding.inflate(getLayoutInflater());
+        BarcodeEncoder barcodeEncoder = new BarcodeEncoder();
+        try {
+            Bitmap bitmap = barcodeEncoder.encodeBitmap("INV4183", BarcodeFormat.CODE_128, 700, 150);
+            bottomSheetBarcodeBinding.ivBarcode.setImageBitmap(bitmap);
+            bottomSheetBarcodeBinding.tvOrderNo.setText("INV4183");
+        } catch (WriterException e) {
+            e.printStackTrace();
+            Log.e(TAG, "onCreate: some interrupt ");
+        }
+    }
+    private void initBottomSheetBarcodeDetails() {
+        this.bottomSheetBarcode = new BottomSheetDialog(MainActivity.this);
+        this.bottomSheetBarcode.setContentView(this.bottomSheetBarcodeBinding.getRoot());
+        this.bottomSheetBarcode.setCancelable(true);
+        ScreenUtils screenUtils = new ScreenUtils(this);
+        this.bottomSheetBarcode.getBehavior().setPeekHeight(screenUtils.getHeight());
     }*/
 }
