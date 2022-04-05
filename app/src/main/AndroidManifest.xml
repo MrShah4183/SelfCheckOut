@@ -20,6 +20,9 @@
         tools:replace="android:allowBackup"
         tools:targetApi="r">
         <activity
+            android:name=".ui.order_list.FilterOrdersListActivity"
+            android:exported="false" />
+        <activity
             android:name=".ui.payment.RazorpayPaymentActivity"
             android:exported="false" />
         <activity
@@ -37,11 +40,14 @@
         <activity
             android:name=".ui.company.CompanyLoginActivity"
             android:exported="true">
-            <!--<intent-filter>
+
+            <!--
+            <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>-->
+            </intent-filter>
+            -->
         </activity>
         <activity
             android:name=".ui.login.UserLoginActivity"
@@ -58,17 +64,20 @@
         <activity
             android:name=".ui.main.MainActivity"
             android:exported="true">
-            <!--<intent-filter>
+
+            <!--
+            <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>-->
+            </intent-filter>
+            -->
         </activity>
-
-        <!--<meta-data
+        <!--
+<meta-data
             android:name="com.razorpay.ApiKey"
-            android:value="rzp_test_goYqawczzlm2Yp" />-->
-
+            android:value="rzp_test_goYqawczzlm2Yp" />
+        -->
         <meta-data
             android:name="preloaded_fonts"
             android:resource="@array/preloaded_fonts" />

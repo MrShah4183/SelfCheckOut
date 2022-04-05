@@ -12,6 +12,8 @@ import com.vasyerp.selfcheckout.db.SelfCheckOutDao;
 import com.vasyerp.selfcheckout.models.login.LogIn;
 import com.vasyerp.selfcheckout.models.login.CompanyCustomerBody;
 
+import java.util.List;
+
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -29,6 +31,28 @@ public class CompanyLoginRepository {
 
     public static CompanyLoginRepository getInstance(Api api, SelfCheckOutDao selfCheckOutDao) {
         return new CompanyLoginRepository(api, selfCheckOutDao);
+    }
+
+    public void getCompanyLoginDataLength(DataSource<Integer> dataSource) {
+        //SelfCheckOutDB.databaseWriteExecutor.execute(() -> totalRow = selfCheckOutDao.getTotalRow());
+        dataSource.loading(true);
+        SelfCheckOutDB.databaseWriteExecutor.execute(() -> {
+            dataSource.loading(false);
+            dataSource.error(null);
+            dataSource.data(selfCheckOutDao.getTotalRow());
+        });
+    }
+
+    public void getAllCompanyLoginList(DataSource<List<LogIn>> dataSource) {
+        dataSource.loading(true);
+        SelfCheckOutDB.databaseWriteExecutor.execute(new Runnable() {
+            @Override
+            public void run() {
+                dataSource.loading(false);
+                dataSource.error(null);
+                dataSource.data(selfCheckOutDao.getAllStoreData());
+            }
+        });
     }
 
     public void companyLoginFromRemote(DataSource<LogIn> dataSource, CompanyCustomerBody companyCustomerBody) {
@@ -84,15 +108,12 @@ public class CompanyLoginRepository {
             if (tempId != -1) {
                 Log.e("TAG", "companyLogin: call repo addLoginData method if condition");
                 login.setTempId(tempId);
-                SelfCheckOutDB.databaseWriteExecutor.execute(() -> selfCheckOutDao.addSingleStore(login));
+                SelfCheckOutDB.databaseWriteExecutor.execute(() -> selfCheckOutDao.insertSingleStore(login));
             } else {
                 Log.e("TAG", "companyLogin: call repo addLoginData method else condition");
-                SelfCheckOutDB.databaseWriteExecutor.execute(() -> selfCheckOutDao.addSingleStore(login));
+                SelfCheckOutDB.databaseWriteExecutor.execute(() -> selfCheckOutDao.insertSingleStore(login));
             }
         }, 1500);
-        /*GajanandDB.databaseWriteExecutor.execute(()->{
-            gajanandDao.addStates(states);
-        });*/
     }
 
 }

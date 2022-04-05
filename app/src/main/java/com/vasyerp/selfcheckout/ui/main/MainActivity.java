@@ -42,6 +42,7 @@ import com.razorpay.Checkout;
 import com.razorpay.PaymentResultListener;
 import com.squareup.picasso.Picasso;
 import com.vasyerp.selfcheckout.R;
+import com.vasyerp.selfcheckout.SelfCheckOutApp;
 import com.vasyerp.selfcheckout.adapters.batch.BatchSelectionArrayAdapter;
 import com.vasyerp.selfcheckout.adapters.cart_product.CartAdapter;
 import com.vasyerp.selfcheckout.adapters.cart_product.SwipeToRemove;
@@ -67,6 +68,7 @@ import com.vasyerp.selfcheckout.models.savebill.SaveBillStatusModel;
 import com.vasyerp.selfcheckout.models.savebill.UpdateBillResponse;
 import com.vasyerp.selfcheckout.repositories.MainRepository;
 import com.vasyerp.selfcheckout.ui.CameraPermissionActivity;
+import com.vasyerp.selfcheckout.ui.order_list.FilterOrdersListActivity;
 import com.vasyerp.selfcheckout.ui.orders_ui.OrderDetailsActivity;
 import com.vasyerp.selfcheckout.ui.orders_ui.OrdersListActivity;
 import com.vasyerp.selfcheckout.utils.CommonUtil;
@@ -157,6 +159,8 @@ public class MainActivity extends CameraPermissionActivity implements PaymentRes
     private SaveBillResponse saveBillResponseData;
     private SaveBill saveBill;
 
+    private SelfCheckOutApp selfCheckOutApp;
+
     public SaveBillResponse getSaveBillResponseData() {
         return saveBillResponseData;
     }
@@ -213,6 +217,8 @@ public class MainActivity extends CameraPermissionActivity implements PaymentRes
         setContentView(activityMainBinding.getRoot());
         setSupportActionBar(activityMainBinding.toolbarMain);
 
+
+        selfCheckOutApp = (SelfCheckOutApp) this.getApplication();
         /*storeName = "vasyERP ";
         storeImg = "https://s3-us-west-2.amazonaws.com/vasyerpsolutions/Gmart/pv_logo/logo-small.png";*/
 
@@ -517,7 +523,7 @@ public class MainActivity extends CameraPermissionActivity implements PaymentRes
 
     private void initViewModelAndRepository() {
         Api apiInterface = ApiGenerator.getApi(CommonUtil.tempBaseUrl).create(Api.class);
-        mainViewModel = new ViewModelProvider(this, new MainViewModelFactory(MainRepository.getInstance(apiInterface), companyId, branchId, userId)).get(MainViewModel.class);
+        mainViewModel = new ViewModelProvider(this, new MainViewModelFactory(MainRepository.getInstance(apiInterface, selfCheckOutApp.selfCheckOutDao), companyId, branchId, userId)).get(MainViewModel.class);
     }
 
     private void initKProgressHud() {
@@ -1193,7 +1199,7 @@ public class MainActivity extends CameraPermissionActivity implements PaymentRes
             Toast.makeText(MainActivity.this, "Order Placed with unpaid.", Toast.LENGTH_SHORT).show();
             if (this.bottomSheetOrderSummaryBinding.radioCounter.isChecked()) {
                 Toast.makeText(MainActivity.this, "Make Payment At Counter", Toast.LENGTH_SHORT).show();
-                SaveBill saveBillPost = prepareSaveBillModel("");
+                SaveBill saveBillPost = prepareSaveBillModel();
                 setSaveBill(saveBillPost);
                 //mainViewModel.getProductByBarcodeId(getCurrentFinancialYear(), barcodeId, true);
                 if (isInternetConnected) {
@@ -1208,7 +1214,7 @@ public class MainActivity extends CameraPermissionActivity implements PaymentRes
                 }
             } else if (this.bottomSheetOrderSummaryBinding.radioOnline.isChecked()) {
                 Toast.makeText(MainActivity.this, "Make Payment Online", Toast.LENGTH_SHORT).show();
-                SaveBill saveBillPost = prepareSaveBillModel("");
+                SaveBill saveBillPost = prepareSaveBillModel();
                 setSaveBill(saveBillPost);
 
                 /*Intent intent = new Intent(MainActivity.this, RazorpayPaymentActivity.class);
@@ -1223,7 +1229,6 @@ public class MainActivity extends CameraPermissionActivity implements PaymentRes
                 } else {
                     CommonUtil.showSnackBar(activityMainBinding.llBtn, activityMainBinding.llBtn, getString(R.string.toast_no_internet));
                 }
-                //todo place order but not paid
             } else {
                 Toast.makeText(MainActivity.this, "Please, select payment method", Toast.LENGTH_SHORT).show();
             }
@@ -1233,32 +1238,15 @@ public class MainActivity extends CameraPermissionActivity implements PaymentRes
         });
     }
 
-    private SaveBill prepareSaveBillModel(String paymentMode) {
-        //private SaveBill prepareSaveBillModel() {
+    private SaveBill prepareSaveBillModel() {
         SaveBill saveBill = new SaveBill();
         saveBill.setCustomerId(Long.parseLong(PreferenceManager.userContactId(MainActivity.this)));
-        /*if (paymentMode.trim().toLowerCase().equals("online")) {
-            saveBill.setBankId(151);
-        } else {
-            saveBill.setBankId(0);
-            //Double tenderedAmt = CommonUtil.getDoubleFromString(activityMainBinding.tvTotalAmount.getText().toString(), 2) + CommonUtil.getDoubleFromString(activityMainBinding.etRound.getText().toString(), 2);
-            //saveBill.setTendered(activityMainBinding.tvTotalAmount.getText().toString());//todo ask sir for this payment
-        }*/
         saveBill.setBankId(0);
         saveBill.setRoundOff(Double.parseDouble(activityMainBinding.etRound.getText().toString()));
         saveBill.setNetAmount(CommonUtil.getDoubleFromString(activityMainBinding.tvTotalAmount.getText().toString(), 2));
         saveBill.setTendered("0.0");
         Log.e(TAG, "prepareSaveBillModel:netAmt " + CommonUtil.getDoubleFromString(activityMainBinding.tvTotalAmount.getText().toString(), 2));
-        saveBill.setPaymentMode(paymentMode);
-        //paymentTypeForBill = paymentMode;
-        /*if (paymentMode.toLowerCase().equals("upi")) {
-            saveBill.setTendered("0.0");
-        } else if (paymentMode.toLowerCase().equals("card")) {
-            saveBill.setTendered("0.0");
-        } else {*/
-        //saveBill.setPaymentMode(paymentMode); //todo ask sir for payment
-
-        //}
+        saveBill.setPaymentMode("");
         saveBill.setFinancialYear(getCurrentFinancialYear());
         @SuppressLint("SimpleDateFormat")
         SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
@@ -1295,7 +1283,6 @@ public class MainActivity extends CameraPermissionActivity implements PaymentRes
             salesDTO.setTaxId(cartItemsList.get(i).getProductDto().getTax_id());
             salesDTO.setTaxRate(cartItemsList.get(i).getProductDto().getTax_rate());
             salesDTO.setItemCode(cartItemsList.get(i).getItemCode());
-            //todo set itemcode salesDTO.setItemCode(cartItemsList.get(i));
             salesDTOs.add(salesDTO);
         }
         saveBill.setMposItemSalesDTOs(salesDTOs);
@@ -1331,7 +1318,8 @@ public class MainActivity extends CameraPermissionActivity implements PaymentRes
                 return true;
             case R.id.myOrdersMenu:
                 Toast.makeText(MainActivity.this, "My Orders", Toast.LENGTH_SHORT).show();
-                Intent intentOrderList = new Intent(MainActivity.this, OrdersListActivity.class);
+                //Intent intentOrderList = new Intent(MainActivity.this, OrdersListActivity.class);
+                Intent intentOrderList = new Intent(MainActivity.this, FilterOrdersListActivity.class);
                 startActivity(intentOrderList);
                 return true;
             case R.id.logOutMenu:
@@ -1546,6 +1534,19 @@ public class MainActivity extends CameraPermissionActivity implements PaymentRes
                         startActivity(intentOrderSummary);
                     } else if (bottomSheetOrderSummaryBinding.radioOnline.isChecked()) {
                         Log.e(TAG, "onChanged: online");
+                        getSaveBill().setResponseSalesId(saveBillResponse.getSalesId());
+                        getSaveBill().setCompanyId(companyId);
+                        getSaveBill().setBranchId(branchId);
+                        getSaveBill().setUserFrontId(userId);
+
+                        for (int i = 0; i < getSaveBill().getMposItemSalesDTOs().size(); i++) {
+                            getSaveBill().getMposItemSalesDTOs().get(i).setSaveBillSalesId(saveBillResponse.getSalesId());
+                        }
+
+                        Log.e(TAG, "onChanged: " + getSaveBill().toString());
+                        Log.e(TAG, "onChanged: " + saveBillResponse);
+
+                        mainViewModel.saveDataOfOrder(saveBillResponse, getSaveBill());
                         razorpayPayment(saveBillResponse);
                         setSaveBillResponseData(saveBillResponse);
                     }
@@ -1709,6 +1710,13 @@ public class MainActivity extends CameraPermissionActivity implements PaymentRes
 
     @Override
     public void onPaymentSuccess(String s) {
+        //todo update order status in local db
+        getSaveBillResponseData().setPaymentId(s);
+        getSaveBillResponseData().setPaymentMode(CommonUtil.paymentGatewayRazorpay);
+        getSaveBillResponseData().setPaymentStatus("paid");
+        getSaveBillResponseData().setDeleted(true);
+
+        mainViewModel.updateSaveBillResponseStatus(getSaveBillResponseData());
         try {
             activityMainBinding.tvSample.setVisibility(View.VISIBLE);
             activityMainBinding.tvSample.setText("Successful payment ID :" + s);
@@ -1741,6 +1749,13 @@ public class MainActivity extends CameraPermissionActivity implements PaymentRes
 
     @Override
     public void onPaymentError(int i, String s) {
+        getSaveBillResponseData().setPaymentId("");
+        getSaveBillResponseData().setPaymentMode(CommonUtil.paymentGatewayRazorpay);
+        getSaveBillResponseData().setPaymentStatus("unpaid");
+        getSaveBillResponseData().setDeleted(false);
+        getSaveBillResponseData().setPaymentFailReason(s);
+
+        mainViewModel.updateSaveBillResponseStatus(getSaveBillResponseData());
         bottomSheetOrderSummaryBinding.tvErrorPaymentData.setVisibility(View.VISIBLE);
         bottomSheetOrderSummaryBinding.tvErrorPaymentData.setText("Failed and cause is :" + s);
         new Handler().postDelayed(() -> bottomSheetOrderSummaryBinding.tvErrorPaymentData.setVisibility(View.GONE), 5000);

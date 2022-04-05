@@ -1,8 +1,8 @@
 package com.vasyerp.selfcheckout.models.savebill;
 
 import androidx.annotation.Keep;
-import androidx.room.Embedded;
 import androidx.room.Entity;
+import androidx.room.ForeignKey;
 import androidx.room.Ignore;
 import androidx.room.PrimaryKey;
 
@@ -11,20 +11,21 @@ import com.google.gson.annotations.SerializedName;
 
 import java.util.List;
 
-import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 
-@Entity
+@Entity(foreignKeys = {@ForeignKey(entity = SaveBillResponse.class,
+        parentColumns = "salesId",
+        childColumns = "responseSalesId",
+        onDelete = ForeignKey.CASCADE)})
 @Keep
 @Data
 public class SaveBill {
 
     @PrimaryKey
-    private int salesId;
-
-    @Embedded(prefix = "saveBillResponse")
-    private SaveBillResponse saveBillResponse;
+    private long responseSalesId;
+    private int companyId;
+    private int branchId;
+    private int userFrontId;
 
     @Expose
     @SerializedName("customerId")
@@ -71,19 +72,21 @@ public class SaveBill {
     @SerializedName("mposItemSalesDTOs")
     private List<SalesDTO> mposItemSalesDTOs;
 
-    private int companyId;
-    private int brachId;
-    private int userId;
-    private int userContactId;
+    //private int userContactId;
 
     @Ignore
     public SaveBill() {
 
     }
 
-    public SaveBill(int salesId, SaveBillResponse saveBillResponse, long customerId, double roundOff, double netAmount, String paymentMode, long bankId, String date, String financialYear, String firstDateFinancialYear, String lastDateFinancialYear, String tendered, List<SalesDTO> mposItemSalesDTOs, int companyId, int brachId, int userId, int userContactId) {
-        this.salesId = salesId;
-        this.saveBillResponse = saveBillResponse;
+    //public SaveBill(int salesId, SaveBillResponse saveBillResponse, long customerId, double roundOff, double netAmount, String paymentMode, long bankId, String date, String financialYear, String firstDateFinancialYear, String lastDateFinancialYear, String tendered, List<SalesDTO> mposItemSalesDTOs, int companyId, int brachId, int userId, int userContactId) {
+
+
+    public SaveBill(long responseSalesId, int companyId, int branchId, int userFrontId, long customerId, double roundOff, double netAmount, String paymentMode, long bankId, String date, String financialYear, String firstDateFinancialYear, String lastDateFinancialYear, String tendered) {
+        this.responseSalesId = responseSalesId;
+        this.companyId = companyId;
+        this.branchId = branchId;
+        this.userFrontId = userFrontId;
         this.customerId = customerId;
         this.roundOff = roundOff;
         this.netAmount = netAmount;
@@ -94,12 +97,5 @@ public class SaveBill {
         this.firstDateFinancialYear = firstDateFinancialYear;
         this.lastDateFinancialYear = lastDateFinancialYear;
         this.tendered = tendered;
-        this.mposItemSalesDTOs = mposItemSalesDTOs;
-        this.companyId = companyId;
-        this.brachId = brachId;
-        this.userId = userId;
-        this.userContactId = userContactId;
     }
-
-
 }

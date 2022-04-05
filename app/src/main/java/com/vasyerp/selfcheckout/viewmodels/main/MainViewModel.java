@@ -138,6 +138,14 @@ public class MainViewModel extends ViewModel {
         }, companyId, branchId, userId, saveBillStatusModel);
     }
 
+    public void saveDataOfOrder(SaveBillResponse saveBillResponse, SaveBill saveBill) {
+        mainRepository.insertOrderData(saveBillResponse, saveBill);
+    }
+
+    public void updateSaveBillResponseStatus(SaveBillResponse saveBillResponse) {
+        mainRepository.updateSaveBillResponseStatusRepo(saveBillResponse);
+    }
+
     //public void getProductByBarcodeId(DataSource<ProductVarientsDTO> dataSource, String financialYear, String productId, boolean isSearchByBarcode,
     // String branchId, String companyId) {
     public void getProductByBarcodeId(String financialYear, String productId, boolean isSearchByBarcode) {

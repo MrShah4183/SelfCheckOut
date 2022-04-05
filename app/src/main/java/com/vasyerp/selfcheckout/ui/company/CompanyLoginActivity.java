@@ -26,8 +26,6 @@ import com.vasyerp.selfcheckout.adapters.company_list.CompanyListAdapter;
 import com.vasyerp.selfcheckout.api.Api;
 import com.vasyerp.selfcheckout.api.ApiGenerator;
 import com.vasyerp.selfcheckout.databinding.ActivityCompanyLoginBinding;
-import com.vasyerp.selfcheckout.db.SelfCheckOutDB;
-import com.vasyerp.selfcheckout.db.SelfCheckOutDao;
 import com.vasyerp.selfcheckout.models.customer.CreateCustomerBody;
 import com.vasyerp.selfcheckout.models.login.LogIn;
 import com.vasyerp.selfcheckout.models.login.CompanyCustomerBody;
@@ -50,9 +48,6 @@ public class CompanyLoginActivity extends CameraPermissionActivity {
     private final String TAG = CompanyLoginActivity.this.getClass().getSimpleName();
 
     private SelfCheckOutApp selfCheckOutApp;
-    private SelfCheckOutDao selfCheckOutDao;
-    int totalRow = -1;
-    private static ArrayList<LogIn> tempDBLoginList;
     private ArrayList<LogIn> storeList;
     CompanyCustomerBody companyCustomerBody;
     CreateCustomerBody createCustomerBody;
@@ -71,7 +66,7 @@ public class CompanyLoginActivity extends CameraPermissionActivity {
     CompanyListAdapter companyListAdapter;
     boolean isInternetConnected = false;
 
-    @SuppressLint("ResourceAsColor")
+    @SuppressLint({"ResourceAsColor", "NotifyDataSetChanged"})
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -79,15 +74,17 @@ public class CompanyLoginActivity extends CameraPermissionActivity {
         setContentView(companyLoginBinding.getRoot());
         setSupportActionBar(companyLoginBinding.toolbarCompanyLogin);
 
+        selfCheckOutApp = (SelfCheckOutApp) this.getApplication();
+
         companyLoginBinding.mainLlCom.setWeightSum(1.5f);
         companyLoginBinding.zxQrDecoratedBarcodeViewCom.setVisibility(View.GONE);
         barcodeScannerViewSelection();
 
-        tempDBLoginList = new ArrayList<>();
+        //tempDBLoginList = new ArrayList<>();
         storeList = new ArrayList<>();
         kProgressHUD = CommonUtil.getKProgressHud(this);
         companyListAdapter = new CompanyListAdapter(this, storeList);
-        initDB();
+        //initDB();
 
         ConnectivityStatus connectivityStatus = new ConnectivityStatus(CompanyLoginActivity.this);
         connectivityStatus.observe(this, aBoolean -> {
@@ -159,6 +156,19 @@ public class CompanyLoginActivity extends CameraPermissionActivity {
             }
         });
 
+        companyLoginViewModel.getCompanyLoginLength.observe(this, integer -> {
+            if (integer > 0) {
+                companyLoginViewModel.getCompanyList();
+            }
+        });
+
+        companyLoginViewModel.getCompanyLoginList.observe(this, logIns -> {
+            storeList.clear();
+            storeList.addAll(logIns);
+            companyListAdapter.notifyDataSetChanged();
+        });
+
+
         companyLoginBinding.btnComOnOff.setOnClickListener(v -> {
             Log.v("Hide", "btn click start");
             if (isShowing.equals("Y")) {
@@ -225,39 +235,6 @@ public class CompanyLoginActivity extends CameraPermissionActivity {
     private void initViewModelAndRepository() {
         Api apiInterface = ApiGenerator.getApi(CommonUtil.tempBaseUrl).create(Api.class);
         companyLoginViewModel = new ViewModelProvider(this, new CompanyLoginViewModelFactory(CompanyLoginRepository.getInstance(apiInterface, selfCheckOutApp.selfCheckOutDao))).get(CompanyLoginViewModel.class);
-    }
-
-    @SuppressLint("NotifyDataSetChanged")
-    private void initDB() {
-        kProgressHUD.show();
-        try {
-            Log.e(TAG, "initDB: start method");
-            selfCheckOutApp = (SelfCheckOutApp) this.getApplication();
-            selfCheckOutDao = selfCheckOutApp.selfCheckOutDao;
-
-            SelfCheckOutDB.databaseWriteExecutor.execute(() -> totalRow = selfCheckOutDao.getTotalRow());
-            new Handler().postDelayed(() -> {
-                if (totalRow > 0) {
-                    tempDBLoginList.clear();
-                    Log.e(TAG, "initDB: get row");
-                    SelfCheckOutDB.databaseWriteExecutor.execute(() -> tempDBLoginList.addAll(selfCheckOutDao.getAllStoreData()));
-                    new Handler().postDelayed(() -> {
-                        Log.e(TAG, "initDB: size" + tempDBLoginList.size());
-                        if (tempDBLoginList.size() > 0) {
-                            Log.e(TAG, "initDB: add data");
-                            storeList.clear();
-                            storeList.addAll(tempDBLoginList);
-                            companyListAdapter.notifyDataSetChanged();
-                        } else
-                            Log.e(TAG, "run: size is zero");
-                    }, 500);
-                }
-            }, 500);
-            kProgressHUD.dismiss();
-        } catch (Exception e) {
-            e.printStackTrace();
-            kProgressHUD.dismiss();
-        }
     }
 
     private void hideScannerCases() {
@@ -331,7 +308,7 @@ public class CompanyLoginActivity extends CameraPermissionActivity {
             hideScannerCases();
             isShowing = "N";
         }
-        initDB();
+        //initDB();
         Log.d(TAG, "onResume: Called.");
     }
 

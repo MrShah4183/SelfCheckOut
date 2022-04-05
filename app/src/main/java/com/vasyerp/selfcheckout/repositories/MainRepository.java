@@ -1,11 +1,14 @@
 package com.vasyerp.selfcheckout.repositories;
 
+import android.os.Handler;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
 
 import com.vasyerp.selfcheckout.api.Api;
 import com.vasyerp.selfcheckout.api.ApiResponse;
+import com.vasyerp.selfcheckout.db.SelfCheckOutDB;
+import com.vasyerp.selfcheckout.db.SelfCheckOutDao;
 import com.vasyerp.selfcheckout.models.product.CompanySettingVo;
 import com.vasyerp.selfcheckout.models.product.GetAllProducts;
 import com.vasyerp.selfcheckout.models.product.Product;
@@ -25,15 +28,17 @@ import retrofit2.Callback;
 import retrofit2.Response;
 
 public class MainRepository {
-    private Api api;
-    private String TAG = "MainRepository";
+    private final Api api;
+    private final SelfCheckOutDao selfCheckOutDao;
+    private final String TAG = "MainRepository";
 
-    public MainRepository(Api api) {
+    public MainRepository(Api api, SelfCheckOutDao selfCheckOutDao) {
         this.api = api;
+        this.selfCheckOutDao = selfCheckOutDao;
     }
 
-    public static MainRepository getInstance(Api api) {
-        return new MainRepository(api);
+    public static MainRepository getInstance(Api api, SelfCheckOutDao selfCheckOutDao) {
+        return new MainRepository(api, selfCheckOutDao);
     }
 
     public void getProductByBarcodeId(DataSource<ProductVarientsDTO> dataSource, String financialYear, String productId, boolean isSearchByBarcode, String branchId, String companyId) {
@@ -302,6 +307,17 @@ public class MainRepository {
                 }
             });
         }
+    }
+
+    public void insertOrderData(SaveBillResponse saveBillResponseData, SaveBill saveBillData) {
+        SelfCheckOutDB.databaseWriteExecutor.execute(() -> selfCheckOutDao.insertSaveBillResponse(saveBillResponseData));
+        new Handler().postDelayed(() -> SelfCheckOutDB.databaseWriteExecutor.execute(() -> selfCheckOutDao.insertSaveBillData(saveBillData)), 250);
+        new Handler().postDelayed(() -> SelfCheckOutDB.databaseWriteExecutor.execute(() -> selfCheckOutDao.insertSalesDto(saveBillData.getMposItemSalesDTOs())), 500);
+
+    }
+
+    public void updateSaveBillResponseStatusRepo(SaveBillResponse saveBillResponse) {
+        SelfCheckOutDB.databaseWriteExecutor.execute(() -> selfCheckOutDao.updateSaveBillResponse(saveBillResponse));
     }
 
     //public void editOrderData(DataSource<ApiResponse<>>){

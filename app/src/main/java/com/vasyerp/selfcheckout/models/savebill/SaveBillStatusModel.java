@@ -13,7 +13,7 @@ import lombok.NoArgsConstructor;
 public class SaveBillStatusModel {
     @SerializedName("salesId")
     @Expose
-    public int salesId;
+    public long salesId;
     @SerializedName("paymentId")
     @Expose
     public String paymentId;

@@ -110,4 +110,7 @@ public interface Api {
             @Query("companyId") int companyId,
             @Body SaveBill saveBill);
 
+    //http://192.168.175.38:8080/mpos/api/v2/allorders/?pageNo=0&limit=20&branchId=64&companyId=64&contactId=68856&ispaid=1
+    //http://192.168.175.38:8080/mpos/api/v2/allorders/?pageNo=0&limit=20&branchId=64&companyId=64&contactId=68856&isunpaid=1
+
 }
