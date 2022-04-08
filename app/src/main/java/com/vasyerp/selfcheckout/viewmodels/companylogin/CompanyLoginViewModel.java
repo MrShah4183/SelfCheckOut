@@ -31,7 +31,7 @@ public class CompanyLoginViewModel extends ViewModel {
     private MutableLiveData<Boolean> _isLoading = new MutableLiveData<>();
     public LiveData<Boolean> isLoading;
 
-    private DataSource<LogIn> dataSource;
+    //private DataSource<LogIn> dataSource;
 
     public CompanyLoginViewModel(CompanyLoginRepository companyLoginRepository) {
         this.companyLoginRepository = companyLoginRepository;
