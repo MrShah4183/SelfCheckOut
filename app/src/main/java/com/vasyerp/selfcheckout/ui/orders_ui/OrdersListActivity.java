@@ -95,7 +95,7 @@ public class OrdersListActivity extends AppCompatActivity {
         });
 
         //todo set adapter
-        ordersListAdapter = new OrdersListAdapter(this, ordersArrayList);
+        ordersListAdapter = new OrdersListAdapter(this, ordersArrayList,true);
         ordersListBinding.rvOrderList.setAdapter(ordersListAdapter);
 
         ordersListBinding.ivOrderListBack.setOnClickListener(v -> OrdersListActivity.this.finish());

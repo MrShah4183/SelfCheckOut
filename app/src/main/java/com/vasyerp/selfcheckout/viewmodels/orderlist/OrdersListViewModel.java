@@ -52,4 +52,45 @@ public class OrdersListViewModel extends ViewModel {
             }
         }, pageNo, limit, String.valueOf(this.branchId), String.valueOf(this.companyId), contactId);
     }
+
+
+    public void getAllCustomerUnPaidOrders(int pageNo, int limit, int contactId) {
+        ordersListRepository.getAllUnPaidOrdersList(new DataSource<OrdersListResponse>() {
+            @Override
+            public void loading(boolean isLoading) {
+                _isLoading.postValue(isLoading);
+            }
+
+            @Override
+            public void error(String errorMessage) {
+                _error.postValue(errorMessage);
+            }
+
+            @Override
+            public void data(OrdersListResponse data) {
+                _ordersList.postValue(data);
+            }
+        }, pageNo, limit, String.valueOf(this.branchId), String.valueOf(this.companyId), contactId);
+    }
+
+    public void getAllCustomerPaidOrders(int pageNo, int limit, int contactId) {
+        ordersListRepository.getAllPaidOrdersList(new DataSource<OrdersListResponse>() {
+            @Override
+            public void loading(boolean isLoading) {
+                _isLoading.postValue(isLoading);
+            }
+
+            @Override
+            public void error(String errorMessage) {
+                _error.postValue(errorMessage);
+            }
+
+            @Override
+            public void data(OrdersListResponse data) {
+                _ordersList.postValue(data);
+            }
+        }, pageNo, limit, String.valueOf(this.branchId), String.valueOf(this.companyId), contactId);
+    }
+
+
 }

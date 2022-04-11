@@ -22,6 +22,7 @@ import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.kaopiz.kprogresshud.KProgressHUD;
 import com.vasyerp.selfcheckout.adapters.orders_list.OrdersListAdapter;
@@ -57,22 +58,16 @@ public class PaidOrdersListFragment extends Fragment {
     private String domainName;
     private int contactId;
 
+    boolean isPaid = false;
+
     int pageNo = 0, limit = 20;
     int pageTotal = 0;
     boolean checkPage = false;
 
-    //MainViewModel mainViewModel;
     OrdersListViewModel ordersListViewModel;
 
-
-    /*private static final String ARG_PARAM1 = "param1";
-    private static final String ARG_PARAM2 = "param2";
-
-    private String mParam1;
-    private String mParam2;*/
-
-    public PaidOrdersListFragment() {
-        // Required empty public constructor
+    public PaidOrdersListFragment(boolean isPaid) {
+        this.isPaid = isPaid;
     }
 
     /*public static PaidOrdersListFragment newInstance(String param1, String param2) {
@@ -109,14 +104,19 @@ public class PaidOrdersListFragment extends Fragment {
             public void onChanged(Boolean aBoolean) {
                 isInternetConnected = aBoolean;
                 if (aBoolean) {
-                    ordersListViewModel.getAllCustomerOrders(pageNo, limit, contactId);
+                    //ordersListViewModel.getAllCustomerOrders(pageNo, limit, contactId);
+                    if (isPaid) {
+                        ordersListViewModel.getAllCustomerPaidOrders(pageNo, limit, contactId);
+                    } else {
+                        ordersListViewModel.getAllCustomerUnPaidOrders(pageNo, limit, contactId);
+                    }
                 } else {
                     CommonUtil.showSnackBar(fragmentPaidOrdersListBinding.llOrderListPaidBottom, fragmentPaidOrdersListBinding.llOrderListPaidBottom, "Check Internet Connection");
                 }
             }
         });
 
-        ordersListAdapter = new OrdersListAdapter(requireActivity(), ordersArrayList);
+        ordersListAdapter = new OrdersListAdapter(requireActivity(), ordersArrayList, isPaid);
         fragmentPaidOrdersListBinding.rvOrderListPaid.setAdapter(ordersListAdapter);
 
         fragmentPaidOrdersListBinding.tvBtnOrderPaidPrev.setOnClickListener(v -> {
@@ -213,14 +213,16 @@ public class PaidOrdersListFragment extends Fragment {
             @SuppressLint("NotifyDataSetChanged")
             @Override
             public void onChanged(OrdersListResponse ordersListResponse) {
-                ordersArrayList.clear();
-                pageTotal = ordersListResponse.getTotal() / ordersListResponse.getLimit();
-                pageTotal += 1;
-                String strOrderTotal = "To " + pageTotal;
-                fragmentPaidOrdersListBinding.tvOrderPaidTotalPgs.setText(strOrderTotal);
-                fragmentPaidOrdersListBinding.etOrderPaidCurrPg.setText(String.valueOf(ordersListResponse.getPageNo() + 1));
-                ordersArrayList.addAll(ordersListResponse.getData());
-                ordersListAdapter.notifyDataSetChanged();
+                if (ordersListResponse != null) {
+                    ordersArrayList.clear();
+                    pageTotal = ordersListResponse.getTotal() / ordersListResponse.getLimit();
+                    pageTotal += 1;
+                    String strOrderTotal = "To " + pageTotal;
+                    fragmentPaidOrdersListBinding.tvOrderPaidTotalPgs.setText(strOrderTotal);
+                    fragmentPaidOrdersListBinding.etOrderPaidCurrPg.setText(String.valueOf(ordersListResponse.getPageNo() + 1));
+                    ordersArrayList.addAll(ordersListResponse.getData());
+                    ordersListAdapter.notifyDataSetChanged();
+                }
             }
         });
     }

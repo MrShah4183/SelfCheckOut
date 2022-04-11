@@ -13,6 +13,7 @@ import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.Toast;
 
 import com.google.zxing.BarcodeFormat;
 import com.google.zxing.WriterException;
@@ -55,7 +56,7 @@ public class OrderDetailsActivity extends AppCompatActivity {
     OrderDetailsModel orderDetailsModel;
     OrderDetailsAdapter orderDetailsAdapter;*/
     boolean orderDetailsStatus;
-    int orderDetailsSalesNo;
+    long orderDetailsSalesNo;
     OrderProductsAdapter orderProductsAdapter;
     OrderSummaryViewModel orderSummaryViewModel;
 
@@ -67,8 +68,9 @@ public class OrderDetailsActivity extends AppCompatActivity {
         setContentView(orderDetailsBinding.getRoot());
         salesItems = new ArrayList<>();
         Intent intent = getIntent();
-        orderDetailsStatus = intent.getBooleanExtra(CommonUtil.ORDER_DETAIL_STATUS, false);
-        orderDetailsSalesNo = intent.getIntExtra(CommonUtil.ORDER_DETAIL_SALE_NO, 0);
+        orderDetailsStatus = intent.getBooleanExtra(CommonUtil.ORDER_DETAIL_STATUS, true);
+        orderDetailsSalesNo = intent.getLongExtra(CommonUtil.ORDER_DETAIL_SALE_NO, 0);
+        //todo true for paid false for unpaid
 
         Log.e(TAG, "onCreate: " + orderDetailsSalesNo);
 
@@ -86,7 +88,7 @@ public class OrderDetailsActivity extends AppCompatActivity {
 
         initViewModelAndRepository();
 
-        if (orderDetailsStatus) {
+        if (!orderDetailsStatus) {
             orderDetailsBinding.rlBarcodeView.setVisibility(View.VISIBLE);
             setQrCode();
         } else {
@@ -114,6 +116,16 @@ public class OrderDetailsActivity extends AppCompatActivity {
 
         orderDetailsBinding.ivBackOrderSummary.setOnClickListener(v -> OrderDetailsActivity.this.finish());
 
+        orderDetailsBinding.btnCancleOrder.setOnClickListener(v -> {
+            Toast.makeText(OrderDetailsActivity.this, "Cancle Order", Toast.LENGTH_SHORT).show();
+            //Toast.makeText(OrderDetailsActivity.this, "Cancle Order", Toast.LENGTH_SHORT).show();
+        });
+
+        orderDetailsBinding.btnRepaid.setOnClickListener(v -> {
+            Toast.makeText(OrderDetailsActivity.this, "Repayment Process", Toast.LENGTH_SHORT).show();
+            //Toast.makeText(OrderDetailsActivity.this, "Cancle Order", Toast.LENGTH_SHORT).show();
+        });
+
         orderSummaryViewModel.orderSummary.observe(this, new Observer<OrderSummary>() {
             @SneakyThrows
             @Override
@@ -123,18 +135,28 @@ public class OrderDetailsActivity extends AppCompatActivity {
                 salesItems.addAll(orderSummary.getSalesItems());
                 orderProductsAdapter.submitList(salesItems);
                 //_totalAmount.postValue(sales.getTotal() - Double.parseDouble(String.format(Locale.getDefault(), "%.2f", sales.getRoundOff())));
-                ordTotal = orderSummary.getSales().getTotal() - Double.parseDouble(String.format(Locale.getDefault(), "%.2f", orderSummary.getSales().getRoundOff()));
+                ordTotal = orderSummary.getSales().getTotal() -
+                        Double.parseDouble(String.format(Locale.getDefault(), "%.2f", orderSummary.getSales().getRoundOff()));
                 orderDetailsBinding.tvOrderTotalAmt.setText(String.format(Locale.getDefault(), "%.2f", ordTotal));
                 @SuppressLint("SimpleDateFormat") SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
                 @SuppressLint("SimpleDateFormat") SimpleDateFormat sdf2 = new SimpleDateFormat("yyyy-MM-dd");
-                if (orderSummary.getReceipt().size() > 0) {
-                    Date oldDate = sdf2.parse(orderSummary.getSales().getSalesDate());
+                /*if (orderSummary.getReceipt().size() > 0) {
+                    Date oldDate = sdf2.parse(orderSummary.getReceipt().get(0).getReceiptDate());
                     assert oldDate != null;
                     String oldFormattedDate = sdf.format(oldDate.getTime());
                     orderDetailsBinding.tvOrderDate.setText(oldFormattedDate);
                 } else {
-                    orderDetailsBinding.tvOrderDate.setText(" ");
-                }
+                    Date oldDate = sdf2.parse(orderSummary.getSales().getSalesDate());
+                    assert oldDate != null;
+                    String oldFormattedDate = sdf.format(oldDate.getTime());
+                    orderDetailsBinding.tvOrderDate.setText(oldFormattedDate);
+                }*/
+
+                Date oldDate = sdf2.parse(orderSummary.getSales().getSalesDate());
+                assert oldDate != null;
+                String oldFormattedDate = sdf.format(oldDate.getTime());
+                orderDetailsBinding.tvOrderDate.setText(oldFormattedDate);
+
                 orderDetailsBinding.tvOrderRoundOff.setText(String.valueOf(CommonUtil.getDoubleFromString(String.valueOf(orderSummary.getSales().getRoundOff()), 2)));
                 String strOrderNo = orderSummary.getSales().getPrefix() + String.valueOf(orderSummary.getSales().getSalesNo());
                 orderDetailsBinding.tvOrderNoCombination.setText(strOrderNo);

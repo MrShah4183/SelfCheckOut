@@ -64,6 +64,8 @@ public interface Api {
             @Query("companyId") String companyId,
             @Query("yearinterval") String yearinterval);
 
+    //http://192.168.175.38:8080/mpos/api/v2/allorders/?pageNo=0&limit=20&branchId=64&companyId=64&contactId=68856&ispaid=1
+    //http://192.168.175.38:8080/mpos/api/v2/allorders/?pageNo=0&limit=20&branchId=64&companyId=64&contactId=68856&isunpaid=1
     @GET("mpos/api/v2/allorders/")
     Call<ApiResponse<OrdersListResponse>> getAllOrderList(
             @Query("pageNo") int pageNo,
@@ -71,6 +73,24 @@ public interface Api {
             @Query("branchId") String branchId,
             @Query("companyId") String companyId,
             @Query("contactId") int contactId);
+
+    @GET("mpos/api/v2/allorders/")
+    Call<ApiResponse<OrdersListResponse>> getAllPaidOrderList(
+            @Query("pageNo") int pageNo,
+            @Query("limit") int limit,
+            @Query("branchId") String branchId,
+            @Query("companyId") String companyId,
+            @Query("contactId") int contactId,
+            @Query("ispaid") int isPaid);
+
+    @GET("mpos/api/v2/allorders/")
+    Call<ApiResponse<OrdersListResponse>> getAllUnPaidOrderList(
+            @Query("pageNo") int pageNo,
+            @Query("limit") int limit,
+            @Query("branchId") String branchId,
+            @Query("companyId") String companyId,
+            @Query("contactId") int contactId,
+            @Query("isunpaid") int isUnPaid);
 
     /**
      * GetOrderSummary
@@ -84,7 +104,7 @@ public interface Api {
     Call<ApiResponse<OrderSummary>> getOrderSummary(
             @Query("branchId") int branchId,
             @Query("companyId") int companyId,
-            @Query("salesId") int salesId);
+            @Query("salesId") long salesId);
 
     @POST("/mpos/api/v2/savepayment")
     Call<UpdateBillResponse> updateSaveBillStatus(

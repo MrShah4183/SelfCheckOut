@@ -27,10 +27,12 @@ public class OrdersListAdapter extends RecyclerView.Adapter<OrdersListAdapter.My
 
     Context context;
     ArrayList<OrderModel> orderModelArrayList;
+    boolean isPaid;
 
-    public OrdersListAdapter(Context context, ArrayList<OrderModel> orderModelArrayList) {
+    public OrdersListAdapter(Context context, ArrayList<OrderModel> orderModelArrayList, boolean isPaid) {
         this.context = context;
         this.orderModelArrayList = orderModelArrayList;
+        this.isPaid = isPaid;
     }
 
     @NonNull
@@ -57,7 +59,7 @@ public class OrdersListAdapter extends RecyclerView.Adapter<OrdersListAdapter.My
             Toast.makeText(context, "Click on " + holder.itemOrderListBinding.tvItemOrderInv.getText().toString(), Toast.LENGTH_SHORT).show();
             Intent intentOrderDetails = new Intent(context, OrderDetailsActivity.class);
             intentOrderDetails.putExtra(CommonUtil.ORDER_DETAIL_SALE_NO, orderModelArrayList.get(holder.getAbsoluteAdapterPosition()).getSalesId());
-            intentOrderDetails.putExtra(CommonUtil.ORDER_DETAIL_STATUS, false);
+            intentOrderDetails.putExtra(CommonUtil.ORDER_DETAIL_STATUS, isPaid);
             /*intentOrderDetails.putExtra("checkStatus", 0);
             intentOrderDetails.putExtra("salesId", orderModelArrayList.get(holder.getAbsoluteAdapterPosition()).getSalesId());*/
             //orderLists.get(position).getSalesId())

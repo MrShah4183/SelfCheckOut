@@ -1525,12 +1525,12 @@ public class MainActivity extends CameraPermissionActivity implements PaymentRes
                 if (saveBillResponse != null) {
                     if (bottomSheetOrderSummaryBinding.radioCounter.isChecked()) {
                         Log.e(TAG, "onChanged: at counter");
-                        Log.e(TAG, "onChanged: " + saveBillResponse.getSalesNo());
+                        Log.e(TAG, "onChanged: " + saveBillResponse.getSalesId());
                         Log.e(TAG, "onChanged: pass intent with salesNo to get data and show status");
-                        clearDataAfterOrderPlace();
                         Intent intentOrderSummary = new Intent(MainActivity.this, OrderDetailsActivity.class);
                         intentOrderSummary.putExtra(CommonUtil.ORDER_DETAIL_SALE_NO, saveBillResponse.getSalesId());
-                        intentOrderSummary.putExtra(CommonUtil.ORDER_DETAIL_STATUS, true);
+                        intentOrderSummary.putExtra(CommonUtil.ORDER_DETAIL_STATUS, false);
+                        clearDataAfterOrderPlace();
                         startActivity(intentOrderSummary);
                     } else if (bottomSheetOrderSummaryBinding.radioOnline.isChecked()) {
                         Log.e(TAG, "onChanged: online");

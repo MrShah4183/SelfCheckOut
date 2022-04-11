@@ -34,7 +34,7 @@ public class OrderSummaryViewModel extends ViewModel {
         this.orderSummary = _orderSummary;
     }
 
-    public void getOrderSummaryDetails(int salesId) {
+    public void getOrderSummaryDetails(long salesId) {
         orderSummaryRepository.getOrderSummary(new DataSource<OrderSummary>() {
             public void loading(boolean isLoading) {
                 _isLoading.postValue(isLoading);

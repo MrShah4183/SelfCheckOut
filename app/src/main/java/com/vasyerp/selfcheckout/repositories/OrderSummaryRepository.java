@@ -29,7 +29,7 @@ public class OrderSummaryRepository {
             @Query("companyId") int companyId,
             @Query("salesId") int salesId);*/
 
-    public void getOrderSummary(DataSource<OrderSummary> dataSource, int branchId, int companyId, int salesId) {
+    public void getOrderSummary(DataSource<OrderSummary> dataSource, int branchId, int companyId, long salesId) {
         Call<ApiResponse<OrderSummary>> callOrderSummary = api.getOrderSummary(branchId, companyId, salesId);
         dataSource.loading(true);
         callOrderSummary.enqueue(new Callback<ApiResponse<OrderSummary>>() {

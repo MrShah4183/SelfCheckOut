@@ -16,7 +16,7 @@ import lombok.NoArgsConstructor;
 public class OrderModel {
     @SerializedName("salesId")
     @Expose
-    private int salesId;
+    private long salesId;
     @SerializedName("total")
     @Expose
     private float total;
