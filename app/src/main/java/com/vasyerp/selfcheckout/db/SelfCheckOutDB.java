@@ -8,6 +8,7 @@ import androidx.room.Room;
 import androidx.room.RoomDatabase;
 
 import com.vasyerp.selfcheckout.models.login.LogIn;
+import com.vasyerp.selfcheckout.models.product.StockMasterVo;
 import com.vasyerp.selfcheckout.models.savebill.SalesDTO;
 import com.vasyerp.selfcheckout.models.savebill.SaveBill;
 import com.vasyerp.selfcheckout.models.savebill.SaveBillResponse;
@@ -24,6 +25,7 @@ import java.util.concurrent.Executors;
 @Database(entities = {LogIn.class,
         SaveBillResponse.class,
         SaveBill.class,
+        StockMasterVo.class,
         SalesDTO.class},
         version = 2,
         autoMigrations = {

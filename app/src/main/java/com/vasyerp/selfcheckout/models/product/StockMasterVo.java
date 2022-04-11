@@ -1,6 +1,9 @@
 package com.vasyerp.selfcheckout.models.product;
 
 import androidx.annotation.Keep;
+import androidx.room.Entity;
+import androidx.room.Ignore;
+import androidx.room.PrimaryKey;
 
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
@@ -9,12 +12,10 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+@Entity(primaryKeys = {"productVarientId", "branchId", "companyId"})
 @Keep
 @Data
-@NoArgsConstructor
-@AllArgsConstructor
 public class StockMasterVo {
-
     @Expose
     @SerializedName("productVarientId")
     private long productVarientId;
@@ -53,8 +54,10 @@ public class StockMasterVo {
 
     private double mrpToDiscount;
 
+    @Ignore
     private ProductStatus productStatus;
 
+    @Ignore
     private ProductDto productDto;
 
     private double displayMrp;
@@ -81,4 +84,39 @@ public class StockMasterVo {
 
     private String itemCode;
 
+    private int companyId;
+    private int branchId;
+    private int userFrontId;
+
+    @Ignore
+    public StockMasterVo() {
+    }
+
+    public StockMasterVo(long productVarientId, long stockId, String quantity, String batchNo, double purchaseprice, double mrp, double sellingPrice, double landingcost, int isDisable, double mrpToDiscount, double displayMrp, double totalTaxPrice, double netMrp, double taxPrice, double profit, double price, double taxableAmount, String oldQuantity, int hasNegativeSelling, String discountType, double discount, String itemCode, int companyId, int branchId, int userFrontId) {
+        this.productVarientId = productVarientId;
+        this.stockId = stockId;
+        this.quantity = quantity;
+        this.batchNo = batchNo;
+        this.purchaseprice = purchaseprice;
+        this.mrp = mrp;
+        this.sellingPrice = sellingPrice;
+        this.landingcost = landingcost;
+        this.isDisable = isDisable;
+        this.mrpToDiscount = mrpToDiscount;
+        this.displayMrp = displayMrp;
+        this.totalTaxPrice = totalTaxPrice;
+        this.netMrp = netMrp;
+        this.taxPrice = taxPrice;
+        this.profit = profit;
+        this.price = price;
+        this.taxableAmount = taxableAmount;
+        this.oldQuantity = oldQuantity;
+        this.hasNegativeSelling = hasNegativeSelling;
+        this.discountType = discountType;
+        this.discount = discount;
+        this.itemCode = itemCode;
+        this.companyId = companyId;
+        this.branchId = branchId;
+        this.userFrontId = userFrontId;
+    }
 }

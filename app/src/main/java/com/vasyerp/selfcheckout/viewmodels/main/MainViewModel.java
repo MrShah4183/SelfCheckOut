@@ -1,11 +1,14 @@
 package com.vasyerp.selfcheckout.viewmodels.main;
 
+import android.os.Handler;
+
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
 import com.vasyerp.selfcheckout.models.product.GetAllProducts;
 import com.vasyerp.selfcheckout.models.product.ProductVarientsDTO;
+import com.vasyerp.selfcheckout.models.product.StockMasterVo;
 import com.vasyerp.selfcheckout.models.savebill.SaveBill;
 import com.vasyerp.selfcheckout.models.savebill.SaveBillStatusModel;
 import com.vasyerp.selfcheckout.models.savebill.SaveBillResponse;
@@ -166,5 +169,35 @@ public class MainViewModel extends ViewModel {
             }
         }, financialYear, productId, isSearchByBarcode, String.valueOf(this.branchId), String.valueOf(this.companyId));
     }
+
+    public void insertCartDataInDB(StockMasterVo stockMasterVo) {
+        stockMasterVo.setCompanyId(companyId);
+        stockMasterVo.setBranchId(branchId);
+        stockMasterVo.setUserFrontId(userId);
+
+        new Handler().postDelayed(() -> mainRepository.insertCartData(stockMasterVo), 200);
+    }
+
+    public void insertAllListCartDataInDb(List<StockMasterVo> stockMasterVoList) {
+        for (int i = 0; i < stockMasterVoList.size(); i++) {
+            stockMasterVoList.get(i).setCompanyId(companyId);
+            stockMasterVoList.get(i).setBranchId(branchId);
+            stockMasterVoList.get(i).setUserFrontId(userId);
+        }
+        new Handler().postDelayed(() -> mainRepository.insertAllCartList(stockMasterVoList), 300);
+    }
+
+    public void deleteSingleCartDataFromDB(long productVarientId) {
+        mainRepository.deleteSingleCartData(productVarientId, branchId, companyId);
+    }
+
+    public void getAllCartProductListFromDB() {
+        mainRepository.getAllCartProductList(branchId, companyId);
+    }
+
+    public void deleteAllCartListFromDB() {
+        mainRepository.deleteAllCartList(branchId, companyId);
+    }
+
 
 }

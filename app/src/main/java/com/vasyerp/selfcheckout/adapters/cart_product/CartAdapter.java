@@ -79,7 +79,8 @@ public class CartAdapter extends RecyclerView.Adapter<CartAdapter.CartViewHolder
                 holder.binding.tvRawProMrp.setText(String.valueOf(String.format(Locale.getDefault(), "%.2f", productList.get(holder.getAbsoluteAdapterPosition()).getDisplayMrp())));
                 callback.setLatestCount(
                         productList.stream().mapToDouble(StockMasterVo::getDisplayMrp).sum(),
-                        productList.stream().mapToDouble(value -> Double.parseDouble(value.getQuantity())).sum());
+                        productList.stream().mapToDouble(value -> Double.parseDouble(value.getQuantity())).sum(),
+                        productList.get(position).getProductVarientId());
             }
         });
 
@@ -107,11 +108,13 @@ public class CartAdapter extends RecyclerView.Adapter<CartAdapter.CartViewHolder
     }
 
     public void removeItem(int position) {
+        long id = productList.get(position).getProductVarientId();
         productList.remove(position);
         notifyDataSetChanged();
         callback.setLatestCount(
                 productList.stream().mapToDouble(StockMasterVo::getDisplayMrp).sum(),
-                productList.stream().mapToDouble(value -> Double.parseDouble(value.getQuantity())).sum());
+                productList.stream().mapToDouble(value -> Double.parseDouble(value.getQuantity())).sum(),
+                id);
     }
 
     public void restoreItem(StockMasterVo item, int position) {
@@ -119,7 +122,8 @@ public class CartAdapter extends RecyclerView.Adapter<CartAdapter.CartViewHolder
         notifyItemInserted(position);
         callback.setLatestCount(
                 productList.stream().mapToDouble(StockMasterVo::getDisplayMrp).sum(),
-                productList.stream().mapToDouble(value -> Double.parseDouble(value.getQuantity())).sum());
+                productList.stream().mapToDouble(value -> Double.parseDouble(value.getQuantity())).sum(),
+                productList.get(position).getProductVarientId());
     }
 
     public void setItemQtyCallback(ItemQtyCallback itemQtyCallback) {

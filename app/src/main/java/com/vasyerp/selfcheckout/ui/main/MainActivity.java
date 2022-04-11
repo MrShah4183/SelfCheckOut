@@ -47,6 +47,7 @@ import com.vasyerp.selfcheckout.adapters.batch.BatchSelectionArrayAdapter;
 import com.vasyerp.selfcheckout.adapters.cart_product.CartAdapter;
 import com.vasyerp.selfcheckout.adapters.cart_product.SwipeToRemove;
 import com.vasyerp.selfcheckout.adapters.getproductdata.AdapterGetProductData;
+import com.vasyerp.selfcheckout.adapters.listeners.ItemQtyCallback;
 import com.vasyerp.selfcheckout.api.Api;
 import com.vasyerp.selfcheckout.api.ApiGenerator;
 import com.vasyerp.selfcheckout.api.razorpay.RazorpayApi;
@@ -88,6 +89,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 import java.util.function.Function;
+import java.util.function.Predicate;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -584,7 +586,7 @@ public class MainActivity extends CameraPermissionActivity implements PaymentRes
             }
         });
         activityMainBinding.rvCart.setAdapter(cartAdapter);
-        cartAdapter.setItemQtyCallback((payableAmount, cartItems) -> {
+        cartAdapter.setItemQtyCallback((payableAmount, cartItems, proVarientId) -> {
             String roundOffStr = (Math.round(payableAmount) > payableAmount) ? String.format(Locale.getDefault(), "%.2f", Math.round(payableAmount) - payableAmount) : String.format(Locale.getDefault(), "%.2f", Math.round(payableAmount) - payableAmount);
             MainActivity.this.setFinalDisplayMrp(Math.round(payableAmount) - Double.parseDouble(roundOffStr));
             setBackupFinalPrice(Math.round(payableAmount) - Double.parseDouble(roundOffStr));
@@ -597,6 +599,32 @@ public class MainActivity extends CameraPermissionActivity implements PaymentRes
                 activityMainBinding.tvTotalAmount.setText(String.format(Locale.getDefault(), "%.2f", getFinalDisplayMrp()));
             }
             activityMainBinding.tvCount.setText(String.valueOf(cartItems));
+            /*ArrayList<StockMasterVo> tempList = cartItemsList.stream().filter(new Predicate<StockMasterVo>() {
+                @Override
+                public boolean test(StockMasterVo stockMasterVo) {
+                    if (stockMasterVo.getProductVarientId() == proVarientId) {
+                        return true;
+                    }
+                    return false;
+                }
+            }).collect(Collectors.toCollection(ArrayList::new));*/
+
+            ArrayList<StockMasterVo> tempList = new ArrayList<>(cartItemsList.stream().filter(new Predicate<StockMasterVo>() {
+                @Override
+                public boolean test(StockMasterVo stockMasterVo) {
+                    if (stockMasterVo.getProductVarientId() == proVarientId) {
+                        return true;
+                    }
+                    return false;
+                }
+            }).collect(Collectors.toList()));
+
+            if (tempList.size() == 0) {
+                mainViewModel.deleteSingleCartDataFromDB(proVarientId);
+            } else {
+                mainViewModel.insertCartDataInDB(tempList.get(0));
+            }
+
         });
     }
 
@@ -671,6 +699,7 @@ public class MainActivity extends CameraPermissionActivity implements PaymentRes
         batchSelectionArrayAdapter.clear();
     }
 
+    //todo add db data in in this method
     private void cartItemCalculations() {
         if (cartItemsList.size() > 0) {
             double tempQty = 0.0;
@@ -690,6 +719,7 @@ public class MainActivity extends CameraPermissionActivity implements PaymentRes
                     cartItemsList.get(i).setDisplayMrp(displayPrice);
                     cartItemsList.get(i).setTotalTaxPrice(totalTaxPrice);
                     isItemFound = true;
+                    mainViewModel.insertCartDataInDB(cartItemsList.get(i));
                     if (cartAdapter != null) {
                         cartAdapter.notifyItemChanged(i);
                         activityMainBinding.rvCart.getLayoutManager().scrollToPosition(i);
@@ -800,6 +830,7 @@ public class MainActivity extends CameraPermissionActivity implements PaymentRes
                             getSelectedStockMasterVo().setProductDto(getProductDto());
                         }
                         cartItemsList.add(getSelectedStockMasterVo());
+                        mainViewModel.insertCartDataInDB(getSelectedStockMasterVo());
                         if (cartAdapter != null) {
                             cartAdapter.notifyItemChanged(cartItemsList.size() - 1);
                             activityMainBinding.rvCart.getLayoutManager().scrollToPosition(cartItemsList.size() - 1);
@@ -903,6 +934,7 @@ public class MainActivity extends CameraPermissionActivity implements PaymentRes
 
                     }
                     cartItemsList.add(getSelectedStockMasterVo());
+                    mainViewModel.insertCartDataInDB(getSelectedStockMasterVo());
                     if (cartAdapter != null) {
                         cartAdapter.notifyItemChanged(cartItemsList.size() - 1);
                         activityMainBinding.rvCart.getLayoutManager().scrollToPosition(cartItemsList.size() - 1);
@@ -1019,6 +1051,7 @@ public class MainActivity extends CameraPermissionActivity implements PaymentRes
 
                     }
                     cartItemsList.add(getSelectedStockMasterVo());
+                    mainViewModel.insertCartDataInDB(getSelectedStockMasterVo());
                     if (cartAdapter != null) {
                         cartAdapter.notifyItemChanged(cartItemsList.size() - 1);
                         activityMainBinding.rvCart.getLayoutManager().scrollToPosition(cartItemsList.size() - 1);
@@ -1124,6 +1157,7 @@ public class MainActivity extends CameraPermissionActivity implements PaymentRes
                     getSelectedStockMasterVo().setProductDto(getProductDto());
                 }
                 cartItemsList.add(getSelectedStockMasterVo());
+                mainViewModel.insertCartDataInDB(getSelectedStockMasterVo());
                 if (cartAdapter != null) {
                     cartAdapter.notifyItemChanged(cartItemsList.size() - 1);
                     activityMainBinding.rvCart.getLayoutManager().scrollToPosition(cartItemsList.size() - 1);
@@ -1132,6 +1166,7 @@ public class MainActivity extends CameraPermissionActivity implements PaymentRes
         }
     }
 
+    //todo delete form db is pending
     private void enableSwipeToDeleteAndUndo() {
         SwipeToRemove swipeToDeleteCallback = new SwipeToRemove(this) {
             @Override

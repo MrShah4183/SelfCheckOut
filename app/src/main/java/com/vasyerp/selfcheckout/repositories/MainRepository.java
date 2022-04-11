@@ -15,6 +15,7 @@ import com.vasyerp.selfcheckout.models.product.Product;
 import com.vasyerp.selfcheckout.models.product.ProductDto;
 import com.vasyerp.selfcheckout.models.product.ProductStatus;
 import com.vasyerp.selfcheckout.models.product.ProductVarientsDTO;
+import com.vasyerp.selfcheckout.models.product.StockMasterVo;
 import com.vasyerp.selfcheckout.models.savebill.SaveBill;
 import com.vasyerp.selfcheckout.models.savebill.SaveBillStatusModel;
 import com.vasyerp.selfcheckout.models.savebill.SaveBillResponse;
@@ -313,7 +314,26 @@ public class MainRepository {
         SelfCheckOutDB.databaseWriteExecutor.execute(() -> selfCheckOutDao.insertSaveBillResponse(saveBillResponseData));
         new Handler().postDelayed(() -> SelfCheckOutDB.databaseWriteExecutor.execute(() -> selfCheckOutDao.insertSaveBillData(saveBillData)), 250);
         new Handler().postDelayed(() -> SelfCheckOutDB.databaseWriteExecutor.execute(() -> selfCheckOutDao.insertSalesDto(saveBillData.getMposItemSalesDTOs())), 500);
+    }
 
+    public void insertCartData(StockMasterVo stockMasterVo) {
+        SelfCheckOutDB.databaseWriteExecutor.execute(() -> selfCheckOutDao.insertCartData(stockMasterVo));
+    }
+
+    public void insertAllCartList(List<StockMasterVo> stockMasterVoList) {
+        SelfCheckOutDB.databaseWriteExecutor.execute(() -> selfCheckOutDao.insertAllCartData(stockMasterVoList));
+    }
+
+    public void deleteSingleCartData(long productVarientId, int branchId, int companyId) {
+        SelfCheckOutDB.databaseWriteExecutor.execute(() -> selfCheckOutDao.deleteSingleCartProduct(productVarientId, branchId, companyId));
+    }
+
+    public void getAllCartProductList(int branchId, int companyId) {
+        SelfCheckOutDB.databaseWriteExecutor.execute(() -> selfCheckOutDao.getAllCartList(branchId, companyId));
+    }
+
+    public void deleteAllCartList(int branchId, int companyId) {
+        SelfCheckOutDB.databaseWriteExecutor.execute(() -> selfCheckOutDao.deleteAllCartProductList(branchId, companyId));
     }
 
     public void updateSaveBillResponseStatusRepo(SaveBillResponse saveBillResponse) {

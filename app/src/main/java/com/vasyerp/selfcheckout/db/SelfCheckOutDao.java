@@ -7,6 +7,7 @@ import androidx.room.Query;
 import androidx.room.Update;
 
 import com.vasyerp.selfcheckout.models.login.LogIn;
+import com.vasyerp.selfcheckout.models.product.StockMasterVo;
 import com.vasyerp.selfcheckout.models.savebill.SalesDTO;
 import com.vasyerp.selfcheckout.models.savebill.SaveBill;
 import com.vasyerp.selfcheckout.models.savebill.SaveBillResponse;
@@ -28,6 +29,12 @@ public interface SelfCheckOutDao {
     void insertSaveBillData(SaveBill saveBill);
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
+    void insertCartData(StockMasterVo stockMasterVo);
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    void insertAllCartData(List<StockMasterVo> stockMasterVoList);
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
     void insertSalesDto(List<SalesDTO> salesDTOList);
 
     /**
@@ -42,9 +49,17 @@ public interface SelfCheckOutDao {
     @Query("SELECT * FROM LOGIN")
     List<LogIn> getAllStoreData();
 
+    @Query("SELECT * FROM STOCKMASTERVO WHERE STOCKMASTERVO.branchId = :branchId AND STOCKMASTERVO.companyId = :companyId")
+    List<StockMasterVo> getAllCartList(int branchId, int companyId);
 
     @Update()
     void updateSaveBillResponse(SaveBillResponse saveBillResponse);
+
+    @Query("DELETE FROM STOCKMASTERVO WHERE STOCKMASTERVO.productVarientId = :proVarientId AND STOCKMASTERVO.branchId = :branchId AND STOCKMASTERVO.companyId = :companyId")
+    void deleteSingleCartProduct(long proVarientId, int branchId, int companyId);
+
+    @Query("DELETE FROM STOCKMASTERVO WHERE STOCKMASTERVO.branchId = :branchId AND STOCKMASTERVO.companyId = :companyId")
+    void deleteAllCartProductList(int branchId, int companyId);
 
     /*UPDATE table_name
 SET column1 = value1, column2 = value2, ...
