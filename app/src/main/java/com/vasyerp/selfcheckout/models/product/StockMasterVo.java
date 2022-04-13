@@ -87,6 +87,7 @@ public class StockMasterVo {
     private int companyId;
     private int branchId;
     private int userFrontId;
+    private String productName;
 
     @Ignore
     public StockMasterVo() {

@@ -70,7 +70,12 @@ public class CartAdapter extends RecyclerView.Adapter<CartAdapter.CartViewHolder
         holder.cartEditTextWatcher.updatePosition(holder.getAbsoluteAdapterPosition());
         holder.cartEditTextWatcher.getBindingInstance(holder.binding.tvRawProQty);
         holder.binding.tvRawProQty.setText(String.format(Locale.getDefault(), "%.2f", Double.valueOf(productList.get(holder.getAbsoluteAdapterPosition()).getQuantity())));
-        holder.binding.tvRawProName.setText(productList.get(holder.getAbsoluteAdapterPosition()).getProductDto().getDisplay_name());
+        /*if (productList.get(holder.getAbsoluteAdapterPosition()).getProductDto().getDisplay_name() != null) {
+            holder.binding.tvRawProName.setText(productList.get(holder.getAbsoluteAdapterPosition()).getProductDto().getDisplay_name());
+        } else {
+            holder.binding.tvRawProName.setText(productList.get(holder.getAbsoluteAdapterPosition()).getProductName());
+        }*/
+        holder.binding.tvRawProName.setText(productList.get(holder.getAbsoluteAdapterPosition()).getProductName());
         holder.binding.tvRawSrNo.setText(String.valueOf(holder.getAbsoluteAdapterPosition() + 1));
 
         holder.cartEditTextWatcher.setCartViewHolderCallbacks(new CartViewHolderCallbacks() {

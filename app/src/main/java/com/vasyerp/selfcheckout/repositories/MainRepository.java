@@ -328,8 +328,27 @@ public class MainRepository {
         SelfCheckOutDB.databaseWriteExecutor.execute(() -> selfCheckOutDao.deleteSingleCartProduct(productVarientId, branchId, companyId));
     }
 
-    public void getAllCartProductList(int branchId, int companyId) {
-        SelfCheckOutDB.databaseWriteExecutor.execute(() -> selfCheckOutDao.getAllCartList(branchId, companyId));
+    public void getAllCartProductList(DataSource<List<StockMasterVo>> dataSource, int branchId, int companyId) {
+        dataSource.loading(true);
+        dataSource.data(null);
+        dataSource.error("some error.");
+        SelfCheckOutDB.databaseWriteExecutor.execute(() -> {
+            dataSource.loading(false);
+            dataSource.data(selfCheckOutDao.getAllCartList(branchId, companyId));
+            dataSource.error(null);
+        });
+    }
+
+    public void getTotalProductsCount(DataSource<Integer> dataSource, int branchId, int companyId) {
+        dataSource.loading(true);
+        dataSource.data(null);
+        dataSource.error("some error.");
+        SelfCheckOutDB.databaseWriteExecutor.execute(() -> {
+            dataSource.loading(false);
+            dataSource.data(selfCheckOutDao.getTotalProductsRow(branchId, companyId));
+            dataSource.error(null);
+        });
+        SelfCheckOutDB.databaseWriteExecutor.execute(() -> selfCheckOutDao.getTotalProductsRow(branchId, companyId));
     }
 
     public void deleteAllCartList(int branchId, int companyId) {

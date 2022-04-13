@@ -43,6 +43,9 @@ public interface SelfCheckOutDao {
     @Query("SELECT COUNT(*) FROM LOGIN")
     int getTotalRow();
 
+    @Query("SELECT COUNT(*) FROM STOCKMASTERVO WHERE STOCKMASTERVO.branchId = :branchId AND STOCKMASTERVO.companyId = :companyId")
+    int getTotalProductsRow(int branchId, int companyId);
+
     @Query("SELECT LOGIN.tempId FROM LogIn WHERE LOGIN.branchId = :branchId AND LOGIN.companyId = :companyId")
     int checkDataIsExist(String branchId, String companyId);
 

@@ -33,6 +33,8 @@ import android.widget.Toast;
 
 import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 import com.google.zxing.ResultPoint;
 import com.journeyapps.barcodescanner.BarcodeCallback;
 import com.journeyapps.barcodescanner.BarcodeResult;
@@ -274,6 +276,8 @@ public class MainActivity extends CameraPermissionActivity implements PaymentRes
         initKProgressHud();
         initViewModelAndRepository();
 
+        mainViewModel.getTotalProductCountDB();
+
         initBillDetailsBinding();
         initBottomSheetBillDetails();
 
@@ -487,19 +491,13 @@ public class MainActivity extends CameraPermissionActivity implements PaymentRes
             }
         });
 
-        activityMainBinding.etRound.setOnFocusChangeListener(new View.OnFocusChangeListener() {
-            @Override
-            public void onFocusChange(View v, boolean hasFocus) {
-                if (hasFocus) {
-                    pauseScannerCases();
-                    hideScannerCases();
-                    isShowing = "N";
-                }
+        activityMainBinding.etRound.setOnFocusChangeListener((v, hasFocus) -> {
+            if (hasFocus) {
+                pauseScannerCases();
+                hideScannerCases();
+                isShowing = "N";
             }
         });
-
-        //activityMainBinding.btnOrderCancle.setOnClickListener(v -> Toast.makeText(MainActivity.this, "Remove All items", Toast.LENGTH_SHORT).show());
-
     }
 
     private void getWidthOfEditText() {
@@ -554,6 +552,7 @@ public class MainActivity extends CameraPermissionActivity implements PaymentRes
                             if (getSelectedStockMasterVo() != null) {
                                 setSelectedStockMasterVo(null);
                             }
+                            mainViewModel.deleteAllCartListFromDB();
                             dialog.dismiss();
                         }
                     })
@@ -609,15 +608,12 @@ public class MainActivity extends CameraPermissionActivity implements PaymentRes
                 }
             }).collect(Collectors.toCollection(ArrayList::new));*/
 
-            ArrayList<StockMasterVo> tempList = new ArrayList<>(cartItemsList.stream().filter(new Predicate<StockMasterVo>() {
-                @Override
-                public boolean test(StockMasterVo stockMasterVo) {
-                    if (stockMasterVo.getProductVarientId() == proVarientId) {
-                        return true;
-                    }
-                    return false;
+            ArrayList<StockMasterVo> tempList = cartItemsList.stream().filter(stockMasterVo -> {
+                if (stockMasterVo.getProductVarientId() == proVarientId) {
+                    return true;
                 }
-            }).collect(Collectors.toList()));
+                return false;
+            }).collect(Collectors.toCollection(ArrayList::new));
 
             if (tempList.size() == 0) {
                 mainViewModel.deleteSingleCartDataFromDB(proVarientId);
@@ -829,6 +825,7 @@ public class MainActivity extends CameraPermissionActivity implements PaymentRes
                             getSelectedStockMasterVo().setTotalTaxPrice(totalTaxPrice);
                             getSelectedStockMasterVo().setProductDto(getProductDto());
                         }
+                        getSelectedStockMasterVo().setProductName(getSelectedStockMasterVo().getProductDto().getDisplay_name());
                         cartItemsList.add(getSelectedStockMasterVo());
                         mainViewModel.insertCartDataInDB(getSelectedStockMasterVo());
                         if (cartAdapter != null) {
@@ -933,6 +930,7 @@ public class MainActivity extends CameraPermissionActivity implements PaymentRes
                         getSelectedStockMasterVo().setProductDto(getProductDto());
 
                     }
+                    getSelectedStockMasterVo().setProductName(getSelectedStockMasterVo().getProductDto().getDisplay_name());
                     cartItemsList.add(getSelectedStockMasterVo());
                     mainViewModel.insertCartDataInDB(getSelectedStockMasterVo());
                     if (cartAdapter != null) {
@@ -1050,6 +1048,7 @@ public class MainActivity extends CameraPermissionActivity implements PaymentRes
                         getSelectedStockMasterVo().setProductDto(getProductDto());
 
                     }
+                    getSelectedStockMasterVo().setProductName(getSelectedStockMasterVo().getProductDto().getDisplay_name());
                     cartItemsList.add(getSelectedStockMasterVo());
                     mainViewModel.insertCartDataInDB(getSelectedStockMasterVo());
                     if (cartAdapter != null) {
@@ -1156,6 +1155,7 @@ public class MainActivity extends CameraPermissionActivity implements PaymentRes
                     getSelectedStockMasterVo().setTotalTaxPrice(totalTaxPrice);
                     getSelectedStockMasterVo().setProductDto(getProductDto());
                 }
+                getSelectedStockMasterVo().setProductName(getSelectedStockMasterVo().getProductDto().getDisplay_name());
                 cartItemsList.add(getSelectedStockMasterVo());
                 mainViewModel.insertCartDataInDB(getSelectedStockMasterVo());
                 if (cartAdapter != null) {
@@ -1466,6 +1466,37 @@ public class MainActivity extends CameraPermissionActivity implements PaymentRes
     }
 
     private void viewObserversCollection() {
+
+        mainViewModel.cartListCountData.observe(this, new Observer<Integer>() {
+            @Override
+            public void onChanged(Integer integer) {
+                if (integer > 0) {
+                    new MaterialAlertDialogBuilder(MainActivity.this)
+                            .setCancelable(false)
+                            .setTitle("Title")
+                            .setMessage("Do you want cart list back?")
+                            .setPositiveButton("Yes", (dialog, which) -> {
+                                mainViewModel.getAllCartProductListFromDB();
+                                dialog.dismiss();
+                            })
+                            .setNegativeButton("No", (dialog, which) -> {
+                                mainViewModel.deleteAllCartListFromDB();
+                                dialog.dismiss();
+                            }).show();
+                }
+            }
+        });
+
+        mainViewModel.cartListData.observe(this, new Observer<List<StockMasterVo>>() {
+            @SuppressLint("NotifyDataSetChanged")
+            @Override
+            public void onChanged(List<StockMasterVo> stockMasterVoList) {
+                cartItemsList.clear();
+                cartItemsList.addAll(stockMasterVoList);
+                cartAdapter.notifyDataSetChanged();
+            }
+        });
+
         mainViewModel.error.observe(this, new Observer<String>() {
             @Override
             public void onChanged(String s) {
@@ -1565,6 +1596,11 @@ public class MainActivity extends CameraPermissionActivity implements PaymentRes
                         Intent intentOrderSummary = new Intent(MainActivity.this, OrderDetailsActivity.class);
                         intentOrderSummary.putExtra(CommonUtil.ORDER_DETAIL_SALE_NO, saveBillResponse.getSalesId());
                         intentOrderSummary.putExtra(CommonUtil.ORDER_DETAIL_STATUS, false);
+                        
+                        FirebaseDatabase database = FirebaseDatabase.getInstance();
+                        DatabaseReference myRef = database.getReference("message");
+                        myRef.setValue("Hello, World!");
+
                         clearDataAfterOrderPlace();
                         startActivity(intentOrderSummary);
                     } else if (bottomSheetOrderSummaryBinding.radioOnline.isChecked()) {

@@ -42,6 +42,12 @@ public class MainViewModel extends ViewModel {
     private MutableLiveData<SaveBillResponse> _saveBillResponse = new MutableLiveData<>();
     public LiveData<SaveBillResponse> saveBillResponse;
 
+    private MutableLiveData<Integer> _cartListCountData = new MutableLiveData<>();
+    public LiveData<Integer> cartListCountData;
+
+    private MutableLiveData<List<StockMasterVo>> _cartListData = new MutableLiveData<>();
+    public LiveData<List<StockMasterVo>> cartListData;
+
     private DataSource<List<GetAllProducts>> dataSourceGetAllProducts;
     private DataSource<List<ProductVarientsDTO>> dataSourceProductVarientDTO;
 
@@ -61,6 +67,8 @@ public class MainViewModel extends ViewModel {
         this.billStatusResponse = _billStatusResponse;
         this.error = _error;
         this.isLoading = _isLoading;
+        this.cartListCountData = _cartListCountData;
+        this.cartListData = _cartListData;
         initGetProductDataSource();
         getAllProductList(companyId);
     }
@@ -174,6 +182,7 @@ public class MainViewModel extends ViewModel {
         stockMasterVo.setCompanyId(companyId);
         stockMasterVo.setBranchId(branchId);
         stockMasterVo.setUserFrontId(userId);
+        //stockMasterVo.setProductName(stockMasterVo.getProductDto().getDisplay_name());
 
         new Handler().postDelayed(() -> mainRepository.insertCartData(stockMasterVo), 200);
     }
@@ -192,11 +201,45 @@ public class MainViewModel extends ViewModel {
     }
 
     public void getAllCartProductListFromDB() {
-        mainRepository.getAllCartProductList(branchId, companyId);
+        mainRepository.getAllCartProductList(new DataSource<List<StockMasterVo>>() {
+            @Override
+            public void loading(boolean isLoading) {
+                _isLoading.postValue(isLoading);
+            }
+
+            @Override
+            public void error(String errorMessage) {
+                _error.postValue(errorMessage);
+            }
+
+            @Override
+            public void data(List<StockMasterVo> data) {
+                _cartListData.postValue(data);
+            }
+        }, branchId, companyId);
     }
 
     public void deleteAllCartListFromDB() {
         mainRepository.deleteAllCartList(branchId, companyId);
+    }
+
+    public void getTotalProductCountDB() {
+        mainRepository.getTotalProductsCount(new DataSource<Integer>() {
+            @Override
+            public void loading(boolean isLoading) {
+                _isLoading.postValue(isLoading);
+            }
+
+            @Override
+            public void error(String errorMessage) {
+                _error.postValue(errorMessage);
+            }
+
+            @Override
+            public void data(Integer data) {
+                _cartListCountData.postValue(data);
+            }
+        }, branchId, companyId);
     }
 
 
