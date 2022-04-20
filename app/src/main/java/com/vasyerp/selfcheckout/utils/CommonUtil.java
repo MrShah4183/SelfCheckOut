@@ -26,9 +26,10 @@ import retrofit2.http.PUT;
 
 public class CommonUtil {
     public static final String baseUrlRazorpay = "https://api.razorpay.com/v1/";
+    //public static final String tempBaseUrlTesting = "http://192.168.175.38:8080";
     public static final String tempBaseUrlTesting = "http://192.168.175.207:8080";
     public static final String tempBaseUrlLive = "https://croods.vasyerp.com/";
-    public static final String tempBaseUrl = tempBaseUrlTesting;
+    public static final String tempBaseUrl = tempBaseUrlLive;
     //public static final String tempBaseUrl = tempBaseUrlLive;
     //public static final String tempBaseUrl = "https://croods.vasyerp.com/";
     public static final String paymentGatewayRazorpay = "razorpay";
@@ -57,6 +58,7 @@ public class CommonUtil {
     public static final String USER_ADDRESS = "userAddress";
     public static final String USER_CONTACT_ID = "userContactId";
     public static final String ORDER_DETAIL_SALE_NO = "orderSalesNo";//order no
+    public static final String ORDER_DETAIL_NO = "orderNo";//order no
     public static final String ORDER_DETAIL_STATUS = "orderStatus";//true for current order false for previous order
 
     /*public static final String PRINT_BILL = "printBill";

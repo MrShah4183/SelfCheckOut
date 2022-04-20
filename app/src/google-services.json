@@ -1,33 +1,34 @@
 {
   "project_info": {
-    "project_number": "239779492361",
-    "project_id": "self-checkout-a00fd",
-    "storage_bucket": "self-checkout-a00fd.appspot.com"
+    "project_number": "1055882465523",
+    "firebase_url": "https://vasyerp-self-checkout-default-rtdb.firebaseio.com",
+    "project_id": "vasyerp-self-checkout",
+    "storage_bucket": "vasyerp-self-checkout.appspot.com"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:239779492361:android:512c886440c7f9d4bdfed8",
+        "mobilesdk_app_id": "1:1055882465523:android:c2ac6d429b3270ffc0e786",
         "android_client_info": {
           "package_name": "com.vasyerp.selfcheckout"
         }
       },
       "oauth_client": [
         {
-          "client_id": "239779492361-4dtijj8jh4ruk16d0qkvtp0vbm5eusd3.apps.googleusercontent.com",
+          "client_id": "1055882465523-rgf4nhtnhgqfjsv9dbjj1isvoridu4vf.apps.googleusercontent.com",
           "client_type": 3
         }
       ],
       "api_key": [
         {
-          "current_key": "AIzaSyC8N89O1QIMoUsjcCiPNl4Z-Vg9GiTVJI4"
+          "current_key": "AIzaSyC06hT-Pa1qYlBryA-5Y_HgDP5pa-oG0eU"
         }
       ],
       "services": {
         "appinvite_service": {
           "other_platform_oauth_client": [
             {
-              "client_id": "239779492361-4dtijj8jh4ruk16d0qkvtp0vbm5eusd3.apps.googleusercontent.com",
+              "client_id": "1055882465523-rgf4nhtnhgqfjsv9dbjj1isvoridu4vf.apps.googleusercontent.com",
               "client_type": 3
             }
           ]

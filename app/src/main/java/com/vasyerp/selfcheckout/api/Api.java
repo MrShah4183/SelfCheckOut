@@ -123,7 +123,14 @@ public interface Api {
      * @param saveBill
      * @return
      */
-    @POST("mpos/api/v2/savebill")
+    /*@POST("mpos/api/v2/savebill")
+    Call<ApiResponse<SaveBillResponse>> saveBill(
+            @Query("userId") int userId,
+            @Query("branchId") int branchId,
+            @Query("companyId") int companyId,
+            @Body SaveBill saveBill);*/
+
+    @POST("mpos/api/v2/savebillforselfcheckout")
     Call<ApiResponse<SaveBillResponse>> saveBill(
             @Query("userId") int userId,
             @Query("branchId") int branchId,

@@ -226,9 +226,14 @@ public class CompanyLoginActivity extends CameraPermissionActivity {
 
     private void setCustomerData() {
         createCustomerBody = new CreateCustomerBody();
-        createCustomerBody.setFirstName(PreferenceManager.userFirstName(this));
+        /*createCustomerBody.setFirstName(PreferenceManager.userFirstName(this));
         createCustomerBody.setLastName(PreferenceManager.userLastName(this));
         createCustomerBody.setMobileNo(PreferenceManager.userMobile(this));
+        createCustomerBody.setAddressLine1(PreferenceManager.userAddress(this));*/
+        //todo change for dynamic user
+        createCustomerBody.setFirstName("deep");
+        createCustomerBody.setLastName("modi");
+        createCustomerBody.setMobileNo("7575061808");
         createCustomerBody.setAddressLine1(PreferenceManager.userAddress(this));
     }
 

@@ -1,5 +1,6 @@
 package com.vasyerp.selfcheckout.ui.orders_ui;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.drawable.DrawableCompat;
 import androidx.lifecycle.Observer;
@@ -15,6 +16,13 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
 
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 import com.google.zxing.BarcodeFormat;
 import com.google.zxing.WriterException;
 import com.journeyapps.barcodescanner.BarcodeEncoder;
@@ -23,6 +31,7 @@ import com.vasyerp.selfcheckout.adapters.OrderProductsAdapter;
 import com.vasyerp.selfcheckout.api.Api;
 import com.vasyerp.selfcheckout.api.ApiGenerator;
 import com.vasyerp.selfcheckout.databinding.ActivityOrderDetailsBinding;
+import com.vasyerp.selfcheckout.models.firebase.OrderStatusModel;
 import com.vasyerp.selfcheckout.models.ordersummary.OrderSummary;
 import com.vasyerp.selfcheckout.models.ordersummary.SalesItems;
 import com.vasyerp.selfcheckout.repositories.OrderSummaryRepository;
@@ -45,6 +54,10 @@ public class OrderDetailsActivity extends AppCompatActivity {
     ActivityOrderDetailsBinding orderDetailsBinding;
     private ArrayList<SalesItems> salesItems;
     Double ordTotal = 0.0;
+    //todo set qrcode of POS2455
+    //prefix+salesNo POS2455
+    //{"status":true,"message":"Success","response":{"salesId":715117,"prefix":"POS","token":371,"salesNo":2455,"upiData":"upi://pay?pa=9409434973@paytm&pn=VASYERP&tr=715117&tn=POS2455&am=99.0&cu=INR","customerAddress":null}}
+    //response":{"sales":{"type":"pos","contactId":209880,"salesNo":2455,"total":99.0,"billingCityCode":null,"billingStateCode":null,
     //private ArrayList<Receipt> receipt;
     KProgressHUD kProgressHUD;
     boolean isInternetConnected;
@@ -57,8 +70,11 @@ public class OrderDetailsActivity extends AppCompatActivity {
     OrderDetailsAdapter orderDetailsAdapter;*/
     boolean orderDetailsStatus;
     long orderDetailsSalesNo;
+    String tempOrderNo;
     OrderProductsAdapter orderProductsAdapter;
     OrderSummaryViewModel orderSummaryViewModel;
+
+    private DatabaseReference mDatabase;
 
     @SuppressLint("NotifyDataSetChanged")
     @Override
@@ -90,7 +106,44 @@ public class OrderDetailsActivity extends AppCompatActivity {
 
         if (!orderDetailsStatus) {
             orderDetailsBinding.rlBarcodeView.setVisibility(View.VISIBLE);
-            setQrCode();
+            tempOrderNo = intent.getStringExtra(CommonUtil.ORDER_DETAIL_NO);
+            setQrCode(tempOrderNo);
+            mDatabase = FirebaseDatabase.getInstance().getReference();
+            OrderStatusModel orderStatusModel = new OrderStatusModel();
+            orderStatusModel.setSalesid(orderDetailsSalesNo);
+            orderStatusModel.setStatus("unpaid");
+            mDatabase.child(String.valueOf(orderDetailsSalesNo)).setValue(orderStatusModel);
+
+            mDatabase.child(String.valueOf(orderDetailsSalesNo)).addValueEventListener(new ValueEventListener() {
+                @Override
+                public void onDataChange(@NonNull DataSnapshot snapshot) {
+                    Log.e(TAG, "onDataChange: " + snapshot.toString());
+                    OrderStatusModel tempOrderStatusModel = snapshot.getValue(OrderStatusModel.class);
+                    Log.e(TAG, "onDataChange: model value" + tempOrderStatusModel.toString());
+                    if (tempOrderStatusModel.getStatus().trim().toLowerCase().equals("paid")) {
+                        orderDetailsBinding.rlBarcodeView.setVisibility(View.GONE);
+                        orderDetailsBinding.tvStatus.setText("Paid");
+                        Drawable buttonDrawable = orderDetailsBinding.tvStatus.getBackground();
+                        buttonDrawable = DrawableCompat.wrap(buttonDrawable);
+                        //the color is a direct color int and not a color resource
+                        DrawableCompat.setTint(buttonDrawable, Color.rgb(3, 60, 6));
+                        orderDetailsBinding.tvStatus.setBackground(buttonDrawable);
+                    } else if (tempOrderStatusModel.getStatus().trim().toLowerCase().equals("unpaid")) {
+                        orderDetailsBinding.rlBarcodeView.setVisibility(View.VISIBLE);
+                        setQrCode(tempOrderNo);
+                        orderDetailsBinding.tvStatus.setText("Unpaid");
+                        Drawable buttonDrawable = orderDetailsBinding.tvStatus.getBackground();
+                        buttonDrawable = DrawableCompat.wrap(buttonDrawable);
+                        DrawableCompat.setTint(buttonDrawable, Color.rgb(255, 0, 0));
+                        orderDetailsBinding.tvStatus.setBackground(buttonDrawable);
+                    }
+                }
+
+                @Override
+                public void onCancelled(@NonNull DatabaseError error) {
+                    Log.e(TAG, "onCancelled: " + error.toString());
+                }
+            });
         } else {
             orderDetailsBinding.rlBarcodeView.setVisibility(View.GONE);
             orderDetailsBinding.tvStatus.setText("Paid");
@@ -197,10 +250,11 @@ public class OrderDetailsActivity extends AppCompatActivity {
     }
 
     @SuppressLint("ResourceAsColor")
-    private void setQrCode() {
+    private void setQrCode(String tempOrderNo) {
         BarcodeEncoder barcodeEncoder = new BarcodeEncoder();
         try {
-            Bitmap bitmap = barcodeEncoder.encodeBitmap(String.valueOf(orderDetailsSalesNo), BarcodeFormat.CODE_128, 700, 150);
+            //Bitmap bitmap = barcodeEncoder.encodeBitmap(String.valueOf(orderDetailsSalesNo), BarcodeFormat.CODE_128, 700, 150);
+            Bitmap bitmap = barcodeEncoder.encodeBitmap(tempOrderNo, BarcodeFormat.CODE_128, 700, 150);
             orderDetailsBinding.tvStatus.setText("Unpaid");
             Drawable buttonDrawable = orderDetailsBinding.tvStatus.getBackground();
             buttonDrawable = DrawableCompat.wrap(buttonDrawable);
@@ -213,7 +267,7 @@ public class OrderDetailsActivity extends AppCompatActivity {
             orderDetailsBinding.tvStatus.setBackgroundResource(R.drawable.et_bg);*/
             //orderDetailsBinding.tvStatus.setBackgroundTintList(ColorStateList.valueOf(R.color.red));
             orderDetailsBinding.ivBarcode.setImageBitmap(bitmap);
-            orderDetailsBinding.tvOrderNo.setText(String.valueOf(orderDetailsSalesNo));
+            orderDetailsBinding.tvOrderNo.setText(tempOrderNo);
         } catch (WriterException e) {
             e.printStackTrace();
             //orderDetailsBinding.tvStatus.setBackground(ContextCompat.getColor(OrderDetailsActivity.this, R.color.offwhite));

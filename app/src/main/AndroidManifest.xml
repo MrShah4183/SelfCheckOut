@@ -20,6 +20,12 @@
         tools:replace="android:allowBackup"
         tools:targetApi="r">
         <activity
+            android:name=".ui.login.RegistrationActivity"
+            android:exported="false" />
+        <activity
+            android:name=".ui.login.LoginActivity"
+            android:exported="false" />
+        <activity
             android:name=".ui.order_list.FilterOrdersListActivity"
             android:exported="false" />
         <activity

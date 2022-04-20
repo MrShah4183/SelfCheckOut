@@ -57,6 +57,7 @@ import com.vasyerp.selfcheckout.api.razorpay.RazorpayApiAuthentication;
 import com.vasyerp.selfcheckout.api.razorpay.RazorpayApiGenerator;
 import com.vasyerp.selfcheckout.databinding.ActivityMainBinding;
 import com.vasyerp.selfcheckout.databinding.BottomSheetOrderSummaryBinding;
+import com.vasyerp.selfcheckout.models.firebase.OrderStatusModel;
 import com.vasyerp.selfcheckout.models.product.GetAllProducts;
 import com.vasyerp.selfcheckout.models.product.Product;
 import com.vasyerp.selfcheckout.models.product.ProductDto;
@@ -138,6 +139,9 @@ public class MainActivity extends CameraPermissionActivity implements PaymentRes
     private AdapterGetProductData adapterGetProductData;
     private BatchSelectionArrayAdapter batchSelectionArrayAdapter;
     CartAdapter cartAdapter;
+
+    //firebase
+    //private DatabaseReference mDatabase;
 
     //DialogSelectProductBatchBinding dialogBatchSelectionBinding;
 
@@ -1595,13 +1599,12 @@ public class MainActivity extends CameraPermissionActivity implements PaymentRes
                         Log.e(TAG, "onChanged: pass intent with salesNo to get data and show status");
                         Intent intentOrderSummary = new Intent(MainActivity.this, OrderDetailsActivity.class);
                         intentOrderSummary.putExtra(CommonUtil.ORDER_DETAIL_SALE_NO, saveBillResponse.getSalesId());
+                        String tempOrderNo = saveBillResponse.getPrefix() + saveBillResponse.getSalesNo();
+                        intentOrderSummary.putExtra(CommonUtil.ORDER_DETAIL_NO, tempOrderNo);
                         intentOrderSummary.putExtra(CommonUtil.ORDER_DETAIL_STATUS, false);
-                        
-                        FirebaseDatabase database = FirebaseDatabase.getInstance();
-                        DatabaseReference myRef = database.getReference("message");
-                        myRef.setValue("Hello, World!");
 
                         clearDataAfterOrderPlace();
+                        mainViewModel.deleteAllCartListFromDB();
                         startActivity(intentOrderSummary);
                     } else if (bottomSheetOrderSummaryBinding.radioOnline.isChecked()) {
                         Log.e(TAG, "onChanged: online");
@@ -1999,5 +2002,20 @@ public class MainActivity extends CameraPermissionActivity implements PaymentRes
         this.bottomSheetBarcode.setCancelable(true);
         ScreenUtils screenUtils = new ScreenUtils(this);
         this.bottomSheetBarcode.getBehavior().setPeekHeight(screenUtils.getHeight());
+    }*/
+
+    /*private void saveDataInFirebaseRealtimeDB(long salesId) {
+        Log.e(TAG, "saveDataInFirebaseRealtimeDB: add data in firebase start");
+        mDatabase = FirebaseDatabase.getInstance().getReference();
+        OrderStatusModel orderStatusModel = new OrderStatusModel();
+        orderStatusModel.setSalesid(salesId);
+        orderStatusModel.setStatus("unpaid");
+        //mDatabase.child("users").child(userId).setValue(user);
+        //mDatabase.child("temp").child(String.valueOf(salesId)).setValue(orderStatusModel);
+        mDatabase.child(String.valueOf(salesId)).setValue(orderStatusModel);
+        *//*FirebaseDatabase database = FirebaseDatabase.getInstance();
+                        DatabaseReference myRef = database.getReference("message");
+                        myRef.setValue("Hello, World!");*//*
+        Log.e(TAG, "saveDataInFirebaseRealtimeDB: add data in firebase end");
     }*/
 }

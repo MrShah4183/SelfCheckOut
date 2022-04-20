@@ -1,5 +1,6 @@
 package com.vasyerp.selfcheckout.adapters.orders_list;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.util.Log;
@@ -48,9 +49,10 @@ public class OrdersListAdapter extends RecyclerView.Adapter<OrdersListAdapter.My
         holder.itemOrderListBinding.tvItemOrderSrNo.setText(String.valueOf(position + 1));
         String salesNo = orderModelArrayList.get(holder.getAbsoluteAdapterPosition()).getPrefix() + String.valueOf(orderModelArrayList.get(holder.getAbsoluteAdapterPosition()).getSalesNo());
         holder.itemOrderListBinding.tvItemOrderInv.setText(salesNo);
-        SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyyy");
-        SimpleDateFormat sdf2 = new SimpleDateFormat("yyyy-MM-dd");
+        @SuppressLint("SimpleDateFormat") SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyyy");
+        @SuppressLint("SimpleDateFormat") SimpleDateFormat sdf2 = new SimpleDateFormat("yyyy-MM-dd");
         Date oldDate = sdf2.parse(orderModelArrayList.get(holder.getAbsoluteAdapterPosition()).getSalesDate());
+        assert oldDate != null;
         String oldFormattedDate = sdf.format(oldDate.getTime());
         holder.itemOrderListBinding.tvItemOrderDate.setText(oldFormattedDate);
         holder.itemOrderListBinding.tvItemOrderTotal.setText(String.valueOf(orderModelArrayList.get(holder.getAbsoluteAdapterPosition()).getTotal()));
@@ -59,6 +61,8 @@ public class OrdersListAdapter extends RecyclerView.Adapter<OrdersListAdapter.My
             Toast.makeText(context, "Click on " + holder.itemOrderListBinding.tvItemOrderInv.getText().toString(), Toast.LENGTH_SHORT).show();
             Intent intentOrderDetails = new Intent(context, OrderDetailsActivity.class);
             intentOrderDetails.putExtra(CommonUtil.ORDER_DETAIL_SALE_NO, orderModelArrayList.get(holder.getAbsoluteAdapterPosition()).getSalesId());
+            String tempSalesNo = orderModelArrayList.get(holder.getAbsoluteAdapterPosition()).getPrefix() + String.valueOf(orderModelArrayList.get(holder.getAbsoluteAdapterPosition()).getSalesNo());
+            intentOrderDetails.putExtra(CommonUtil.ORDER_DETAIL_NO, tempSalesNo);
             intentOrderDetails.putExtra(CommonUtil.ORDER_DETAIL_STATUS, isPaid);
             /*intentOrderDetails.putExtra("checkStatus", 0);
             intentOrderDetails.putExtra("salesId", orderModelArrayList.get(holder.getAbsoluteAdapterPosition()).getSalesId());*/
