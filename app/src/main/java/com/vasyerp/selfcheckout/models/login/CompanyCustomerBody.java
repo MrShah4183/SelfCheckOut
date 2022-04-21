@@ -15,6 +15,6 @@ public class CompanyCustomerBody {
     private String companyId;
     @Expose
     private String branchId;
-    @Expose
-    private CreateCustomerBody contactDetails;
+    //@Expose
+    //private CreateCustomerBody contactDetails;
 }

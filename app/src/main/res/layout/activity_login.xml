@@ -5,16 +5,10 @@
 
     <data>
 
-        <import type="android.view.View" />
-
-        <variable
-            name="isInternetAvailable"
-            type="boolean" />
-
-        <variable
-            name="internetMessage"
-            type="String" />
     </data>
+
+    <!--sign in means login
+    signup means registration-->
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
@@ -22,121 +16,235 @@
         android:background="@color/white"
         tools:context=".ui.login.LoginActivity">
 
-        <RelativeLayout
-            android:layout_width="match_parent"
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/lineLoginH20"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            app:layout_constraintGuide_percent="0.20" />
+
+        <ImageView
+            android:id="@+id/ivLogin"
+            android:layout_width="0dp"
             android:layout_height="0dp"
-            app:layout_constraintBottom_toBottomOf="parent"
+            android:contentDescription="@string/app_name"
+            android:scaleType="center"
+            android:src="@drawable/logo_dark"
+            app:layout_constraintBottom_toTopOf="@+id/lineLoginH20"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent">
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/tvLoginTitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/madetommy_medium"
+            android:text="@string/app_name"
+            android:textColor="@color/font_primary"
+            android:textSize="25sp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/ivLogin" />
+
+        <TextView
+            android:id="@+id/tvLoginTitle2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="15dp"
+            android:layout_marginTop="10dp"
+            android:fontFamily="@font/exo2_regular"
+            android:text="@string/sign_in"
+            android:textAppearance="@style/Base.TextAppearance.AppCompat.Subhead"
+            android:textColor="@color/black"
+            android:textSize="22sp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/tvLoginTitle" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:orientation="vertical"
+            android:paddingHorizontal="15dp"
+            android:paddingTop="10dp"
+            app:layout_constraintBottom_toTopOf="@+id/viewLoginLine"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/tvLoginTitle2">
 
             <TextView
-                android:id="@+id/noInternetConnection"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:gravity="center"
-                android:padding="5dp"
-                android:text="@{ internetMessage }"
-                android:textSize="14sp"
-                android:textStyle="bold"
-                android:translationZ="10dp"
-                android:visibility="@{ isInternetAvailable ? View.GONE : View.VISIBLE }"
-                tools:text="No Internet!!!" />
-
-            <ImageView
-                android:id="@+id/ivLogo"
-                android:layout_width="150dp"
-                android:layout_height="100dp"
-                android:layout_marginHorizontal="25dp"
-                android:layout_marginTop="80dp"
-                android:layout_marginBottom="5dp"
-                android:contentDescription="@string/app_name"
-                android:src="@drawable/logo_dark" />
-
-            <TextView
-                android:id="@+id/tv_title"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_below="@+id/ivLogo"
-                android:layout_marginHorizontal="25dp"
-                android:layout_marginTop="5dp"
-                android:fontFamily="@font/madetommy_medium"
-                android:letterSpacing=".15"
-                android:text="@string/app_name"
-                android:textColor="@color/black"
-                android:textSize="24sp"
-                android:textStyle="bold" />
+                android:layout_marginStart="2dp"
+                android:layout_marginTop="10dp"
+                android:fontFamily="@font/exo2_regular"
+                android:text="@string/mobile_nostar"
+                android:textAppearance="@style/Base.TextAppearance.AppCompat.Subhead"
+                android:textColor="@color/font_primary"
+                android:textSize="16sp" />
 
-            <TextView
-                android:id="@+id/tv_subtitle"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_below="@+id/tv_title"
-                android:layout_marginStart="25dp"
-                android:layout_marginTop="5dp"
-                android:layout_marginBottom="40dp"
-                android:fontFamily="@font/mulish_regular"
-                android:letterSpacing="0.01"
-                android:text="@string/sign_in_to_continue"
-                android:textSize="18sp" />
 
-            <com.google.android.material.textfield.TextInputLayout
-                android:id="@+id/til_user_mobile"
-                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_centerInParent="true"
-                android:layout_marginHorizontal="20dp"
-                android:hint="@string/mobile_no"
-                app:boxBackgroundColor="@color/white"
-                app:boxCornerRadiusBottomEnd="5dp"
-                app:boxCornerRadiusBottomStart="5dp"
-                app:boxCornerRadiusTopEnd="5dp"
-                app:boxCornerRadiusTopStart="5dp"
-                app:boxStrokeColor="@color/dark_slate_blue"
-                app:endIconDrawable="@drawable/ic_outline_phone"
-                app:endIconMode="custom"
-                app:endIconTint="@color/dark_slate_blue">
+                android:layout_marginHorizontal="2dp"
+                android:layout_marginTop="5dp"
+                android:background="@drawable/bg_edit_text"
+                android:elevation="4dp"
+                android:orientation="vertical"
+                android:padding="3dp">
 
-
-                <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/et_user_mobile"
+                <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/tilMobile"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:fontFamily="sans-serif"
-                    android:inputType="number"
-                    android:padding="15dp"
-                    android:textColor="@color/black"
-                    android:textSize="16sp" />
+                    android:layout_height="match_parent"
+                    android:padding="0dp"
+                    app:boxBackgroundColor="@color/white"
+                    app:boxBackgroundMode="filled"
+                    app:boxStrokeColor="@color/black"
+                    app:boxStrokeWidth="0.1dp"
+                    app:boxStrokeWidthFocused="0.2dp"
+                    app:counterEnabled="true"
+                    app:counterMaxLength="10"
+                    app:counterTextColor="@color/black"
+                    app:errorEnabled="true"
+                    app:errorTextColor="@color/dark_red"
+                    app:hintEnabled="false"
+                    app:startIconDrawable="@drawable/ic_outline_phone"
+                    app:startIconTint="@color/font_primary">
 
-            </com.google.android.material.textfield.TextInputLayout>
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/etMobile"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:fontFamily="sans-serif"
+                        android:inputType="number"
+                        android:padding="0dp"
+                        android:textColor="@color/black"
+                        android:textSize="16sp" />
+
+                </com.google.android.material.textfield.TextInputLayout>
+
+            </LinearLayout>
 
             <com.google.android.material.button.MaterialButton
-                android:id="@+id/btnLoginUser"
+                android:id="@+id/btnLogin"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_alignParentBottom="true"
-                android:layout_marginLeft="20dp"
-                android:layout_marginTop="15dp"
-                android:layout_marginRight="20dp"
-                android:layout_marginBottom="20dp"
-                android:backgroundTint="@color/dark_slate_blue"
-                android:fontFamily="@font/abeezee"
-                android:paddingVertical="15dp"
+                android:layout_height="60dp"
+                android:layout_marginTop="10dp"
+                android:backgroundTint="@color/font_primary"
+                android:fontFamily="@font/exo2_regular"
                 android:shadowColor="@color/black"
                 android:shadowDx="@integer/material_motion_duration_short_1"
                 android:shadowDy="@integer/material_motion_duration_medium_1"
                 android:shadowRadius="@integer/material_motion_duration_short_1"
-                android:text="@string/submit"
+                android:text="@string/login"
                 android:textAllCaps="false"
-                android:textColor="@android:color/white"
-                android:textSize="17sp"
+                android:textColor="@color/white"
+                android:textSize="16sp"
+                android:textStyle="bold"
                 app:cornerRadius="5dp"
                 app:rippleColor="@color/blue"
                 app:strokeColor="@color/green" />
 
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginVertical="15dp"
+                android:gravity="center"
+                android:orientation="horizontal">
 
-        </RelativeLayout>
+                <View
+                    android:layout_width="0dp"
+                    android:layout_height="1dp"
+                    android:layout_weight="1"
+                    android:background="#9098B1" />
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="0.4"
+                    android:fontFamily="@font/exo2_regular"
+                    android:gravity="center"
+                    android:text="@string/or"
+                    android:textColor="#9098B1"
+                    android:textSize="16sp" />
+
+                <View
+                    android:layout_width="0dp"
+                    android:layout_height="1dp"
+                    android:layout_weight="1"
+                    android:background="#9098B1" />
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:gravity="center"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="@font/exo2_regular"
+                    android:paddingHorizontal="3dp"
+                    android:text="@string/new_user"
+                    android:textAppearance="@style/Base.TextAppearance.AppCompat.Subhead"
+                    android:textColor="@color/black"
+                    android:textSize="16sp" />
+
+                <TextView
+                    android:id="@+id/tvLoginToRegistration"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:fontFamily="@font/exo2_regular"
+                    android:paddingHorizontal="3dp"
+                    android:text="@string/create_new_account"
+                    android:textAppearance="@style/Base.TextAppearance.AppCompat.Subhead"
+                    android:textColor="@color/font_primary"
+                    android:textSize="18sp"
+                    android:textStyle="bold" />
+
+            </LinearLayout>
+
+        </LinearLayout>
+
+        <View
+            android:id="@+id/viewLoginLine"
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_weight="1"
+            android:background="#9098B1"
+            app:layout_constraintBottom_toTopOf="@+id/llLoginTerms"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent" />
+
+        <LinearLayout
+            android:id="@+id/llLoginTerms"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="#1A696969"
+            android:orientation="vertical"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/mulish_regular"
+                android:gravity="center"
+                android:padding="15dp"
+                android:text="@string/login_terms_of_use_and_privacy_policy"
+                android:textColorLink="@color/dark_slate_blue"
+                android:textSize="12sp"
+                android:textStyle="normal" />
+
+        </LinearLayout>
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

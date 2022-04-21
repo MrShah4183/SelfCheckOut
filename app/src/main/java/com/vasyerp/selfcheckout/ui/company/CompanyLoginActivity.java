@@ -112,7 +112,7 @@ public class CompanyLoginActivity extends CameraPermissionActivity {
             CompanyCustomerBody companyCustomerBody = new CompanyCustomerBody();
             companyCustomerBody.setCompanyId(strCompanyId);
             companyCustomerBody.setBranchId(strBranchId);
-            companyCustomerBody.setContactDetails(createCustomerBody);
+            //companyCustomerBody.setContactDetails(createCustomerBody);
 
             if (isInternetConnected) {
                 companyLoginViewModel.companyLogin(companyCustomerBody);
@@ -199,10 +199,10 @@ public class CompanyLoginActivity extends CameraPermissionActivity {
                 Gson gson = new Gson();
                 try {
                     companyCustomerBody = gson.fromJson(barcodeId, CompanyCustomerBody.class);
-                    companyCustomerBody.setContactDetails(createCustomerBody);
+                    //companyCustomerBody.setContactDetails(createCustomerBody);
                     Log.e(TAG, "barcodeResult: " + companyCustomerBody.getCompanyId());
                     Log.e(TAG, "barcodeResult: " + companyCustomerBody.getBranchId());
-                    Log.e(TAG, "barcodeResult: " + companyCustomerBody.getContactDetails().getFirstName());
+                    //Log.e(TAG, "barcodeResult: " + companyCustomerBody.getContactDetails().getFirstName());
                 } catch (Exception e) {
                     e.printStackTrace();
                     CommonUtil.showSnackBar(companyLoginBinding.llSnackBar, companyLoginBinding.llSnackBar, e.toString());

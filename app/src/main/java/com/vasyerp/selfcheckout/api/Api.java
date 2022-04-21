@@ -1,5 +1,10 @@
 package com.vasyerp.selfcheckout.api;
 
+import com.vasyerp.selfcheckout.models.customer.City;
+import com.vasyerp.selfcheckout.models.customer.Country;
+import com.vasyerp.selfcheckout.models.customer.CreateCustomerBody;
+import com.vasyerp.selfcheckout.models.customer.CustomerDetails;
+import com.vasyerp.selfcheckout.models.customer.State;
 import com.vasyerp.selfcheckout.models.login.LogIn;
 import com.vasyerp.selfcheckout.models.login.CompanyCustomerBody;
 import com.vasyerp.selfcheckout.models.orderlist.OrdersListResponse;
@@ -129,13 +134,29 @@ public interface Api {
             @Query("branchId") int branchId,
             @Query("companyId") int companyId,
             @Body SaveBill saveBill);*/
-
     @POST("mpos/api/v2/savebillforselfcheckout")
     Call<ApiResponse<SaveBillResponse>> saveBill(
             @Query("userId") int userId,
             @Query("branchId") int branchId,
             @Query("companyId") int companyId,
             @Body SaveBill saveBill);
+
+    @GET("/mpos/api/v2/country")
+    Call<ApiResponse<List<Country>>> getCountryResponse();
+
+    @GET("/mpos/api/v2/state")
+    Call<ApiResponse<List<State>>> getStateResponse(@Query("id") String id);
+
+    @GET("/mpos/api/v2/city")
+    Call<ApiResponse<List<City>>> getCityResponse(@Query("id") String id);
+
+    @POST("/mpos/api/v2/createcontact")
+    Call<ApiResponse<CustomerDetails>> addNewCustomer(
+            @Query("branchId") int branchId,
+            @Query("companyId") int companyId,
+            @Query("userId") int userId,
+            @Query("type") String type,
+            @Body CreateCustomerBody customerBody);
 
     //http://192.168.175.38:8080/mpos/api/v2/allorders/?pageNo=0&limit=20&branchId=64&companyId=64&contactId=68856&ispaid=1
     //http://192.168.175.38:8080/mpos/api/v2/allorders/?pageNo=0&limit=20&branchId=64&companyId=64&contactId=68856&isunpaid=1

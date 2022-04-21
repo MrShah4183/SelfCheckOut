@@ -5,23 +5,457 @@
 
     <data>
 
-        <import type="android.view.View" />
 
-        <variable
-            name="isInternetAvailable"
-            type="boolean" />
-
-        <variable
-            name="internetMessage"
-            type="String" />
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:background="@color/white"
         tools:context=".ui.login.RegistrationActivity">
 
-        <RelativeLayout
+
+        <LinearLayout
+            android:id="@+id/llRegistrationSnackBar"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:orientation="vertical"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent" />
+
+        <ScrollView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/border_bottom_black_light"
+                    android:orientation="vertical"
+                    android:paddingHorizontal="15dp"
+                    android:paddingVertical="10dp">
+
+                    <ImageView
+                        android:layout_width="match_parent"
+                        android:layout_height="150dp"
+                        android:layout_marginTop="20dp"
+                        android:contentDescription="@string/app_name"
+                        android:scaleType="center"
+                        android:src="@drawable/logo_dark" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:layout_marginTop="-30dp"
+                        android:fontFamily="@font/madetommy_medium"
+                        android:text="@string/app_name"
+                        android:textColor="@color/font_primary"
+                        android:textSize="25sp" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="10dp"
+                        android:fontFamily="@font/exo2_regular"
+                        android:text="@string/sign_up"
+                        android:textAppearance="@style/Base.TextAppearance.AppCompat.Subhead"
+                        android:textColor="@color/black"
+                        android:textSize="22sp" />
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:orientation="vertical"
+                    android:paddingHorizontal="15dp"
+                    android:paddingTop="10dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="10dp"
+                        android:fontFamily="@font/exo2_regular"
+                        android:text="@string/full_name"
+                        android:textAppearance="@style/Base.TextAppearance.AppCompat.Subhead"
+                        android:textColor="@color/font_primary"
+                        android:textSize="16sp" />
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="40dp"
+                        android:layout_marginHorizontal="2dp"
+                        android:layout_marginTop="5dp"
+                        android:background="@drawable/bg_edit_text"
+                        android:elevation="4dp"
+                        android:padding="2dp">
+
+                        <EditText
+                            android:id="@+id/etFullName"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:background="@color/white"
+                            android:fontFamily="@font/exo2_regular"
+                            android:inputType="text"
+                            android:paddingHorizontal="10dp"
+                            android:textColor="@color/black"
+                            android:textSize="14sp" />
+
+                    </LinearLayout>
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="10dp"
+                        android:fontFamily="@font/exo2_regular"
+                        android:text="@string/mobile_nostar"
+                        android:textAppearance="@style/Base.TextAppearance.AppCompat.Subhead"
+                        android:textColor="@color/font_primary"
+                        android:textSize="16sp" />
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="40dp"
+                        android:layout_marginHorizontal="2dp"
+                        android:layout_marginTop="5dp"
+                        android:background="@drawable/bg_edit_text"
+                        android:elevation="4dp"
+                        android:padding="2dp">
+
+                        <EditText
+                            android:id="@+id/etMobile"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:background="@color/white"
+                            android:fontFamily="@font/exo2_regular"
+                            android:inputType="number"
+                            android:paddingHorizontal="10dp"
+                            android:textColor="@color/black"
+                            android:textSize="14sp" />
+
+                    </LinearLayout>
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="10dp"
+                        android:fontFamily="@font/exo2_regular"
+                        android:text="@string/addressstar"
+                        android:textAppearance="@style/Base.TextAppearance.AppCompat.Subhead"
+                        android:textColor="@color/font_primary"
+                        android:textSize="16sp" />
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginHorizontal="2dp"
+                        android:layout_marginTop="5dp"
+                        android:background="@drawable/bg_edit_text"
+                        android:elevation="4dp"
+                        android:padding="2dp">
+
+                        <EditText
+                            android:id="@+id/etAddress"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:background="@color/white"
+                            android:fontFamily="@font/exo2_regular"
+                            android:inputType="textMultiLine"
+                            android:lines="3"
+                            android:maxLines="4"
+                            android:paddingHorizontal="10dp"
+                            android:textColor="@color/black"
+                            android:textSize="14sp" />
+
+                    </LinearLayout>
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="10dp"
+                        android:fontFamily="@font/exo2_regular"
+                        android:text="@string/countryStar"
+                        android:textAppearance="@style/Base.TextAppearance.AppCompat.Subhead"
+                        android:textColor="@color/font_primary"
+                        android:textSize="16sp" />
+
+
+                    <!--<LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="40dp"
+                        android:layout_marginHorizontal="2dp"
+                        android:layout_marginTop="5dp"
+                        android:background="@drawable/bg_edit_text"
+                        android:elevation="4dp"
+                        android:padding="2dp">
+
+                        <androidx.appcompat.widget.AppCompatSpinner
+                            android:id="@+id/spinnerCountry"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:dropDownWidth="wrap_content"
+                            android:padding="8dp"
+                            android:spinnerMode="dropdown"
+                            android:textAlignment="center"
+                            tools:listitem="@layout/item_for_spinner" />
+
+                        &lt;!&ndash;<EditText
+                            android:id="@+id/etMobile"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:background="@color/white"
+                            android:fontFamily="@font/exo2_regular"
+                            android:inputType="number"
+                            android:paddingHorizontal="10dp"
+                            android:textColor="@color/black"
+                            android:textSize="14sp" />&ndash;&gt;
+
+                    </LinearLayout>-->
+
+                    <com.google.android.material.card.MaterialCardView
+                        android:layout_width="match_parent"
+                        android:layout_height="40dp"
+                        android:layout_marginHorizontal="2dp"
+                        android:layout_marginTop="5dp"
+                        android:background="@drawable/bg_edit_text"
+                        android:elevation="4dp"
+                        android:padding="2dp"
+                        app:cardCornerRadius="8dp"
+                        app:cardElevation="4dp">
+
+                        <androidx.appcompat.widget.AppCompatSpinner
+                            android:id="@+id/spinnerCountry"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:layout_below="@+id/tv_category"
+                            android:dropDownWidth="wrap_content"
+                            android:padding="8dp"
+                            android:spinnerMode="dropdown"
+                            android:textAlignment="center"
+                            tools:listitem="@layout/item_for_spinner" />
+                    </com.google.android.material.card.MaterialCardView>
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="10dp"
+                        android:fontFamily="@font/exo2_regular"
+                        android:text="@string/stateStar"
+                        android:textAppearance="@style/Base.TextAppearance.AppCompat.Subhead"
+                        android:textColor="@color/font_primary"
+                        android:textSize="16sp" />
+
+                    <com.google.android.material.card.MaterialCardView
+                        android:layout_width="match_parent"
+                        android:layout_height="40dp"
+                        android:layout_marginHorizontal="2dp"
+                        android:layout_marginTop="5dp"
+                        android:background="@drawable/bg_edit_text"
+                        android:elevation="4dp"
+                        android:padding="2dp"
+                        app:cardCornerRadius="8dp"
+                        app:cardElevation="4dp">
+
+                        <androidx.appcompat.widget.AppCompatSpinner
+                            android:id="@+id/spinnerState"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:layout_below="@+id/tv_category"
+                            android:dropDownWidth="wrap_content"
+                            android:padding="8dp"
+                            android:spinnerMode="dropdown"
+                            android:textAlignment="center"
+                            tools:listitem="@layout/item_for_spinner" />
+                    </com.google.android.material.card.MaterialCardView>
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="10dp"
+                        android:fontFamily="@font/exo2_regular"
+                        android:text="@string/cityStar"
+                        android:textAppearance="@style/Base.TextAppearance.AppCompat.Subhead"
+                        android:textColor="@color/font_primary"
+                        android:textSize="16sp" />
+
+                    <com.google.android.material.card.MaterialCardView
+                        android:layout_width="match_parent"
+                        android:layout_height="40dp"
+                        android:layout_marginHorizontal="2dp"
+                        android:layout_marginTop="5dp"
+                        android:background="@drawable/bg_edit_text"
+                        android:elevation="4dp"
+                        android:padding="2dp"
+                        app:cardCornerRadius="8dp"
+                        app:cardElevation="4dp">
+
+                        <androidx.appcompat.widget.AppCompatSpinner
+                            android:id="@+id/spinnerCity"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:layout_below="@+id/tv_category"
+                            android:dropDownWidth="wrap_content"
+                            android:padding="8dp"
+                            android:spinnerMode="dropdown"
+                            android:textAlignment="center"
+                            tools:listitem="@layout/item_for_spinner" />
+                    </com.google.android.material.card.MaterialCardView>
+
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="15dp"
+                        android:fontFamily="@font/exo2_regular"
+                        android:text="By clicking Continue, you are agree to our "
+                        android:textAppearance="@style/Base.TextAppearance.AppCompat.Subhead"
+                        android:textColor="#9098B1"
+                        android:textSize="16dp" />
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="5dp"
+                        android:orientation="horizontal">
+
+                        <TextView
+                            android:id="@+id/goToTandC"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:clickable="true"
+                            android:focusable="true"
+                            android:fontFamily="@font/exo2_regular"
+                            android:text="Terms &amp; Conditions "
+                            android:textAppearance="@style/Base.TextAppearance.AppCompat.Subhead"
+                            android:textColor="@color/font_primary"
+                            android:textSize="18sp"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:fontFamily="@font/exo2_regular"
+                            android:text=" and "
+                            android:textAppearance="@style/Base.TextAppearance.AppCompat.Subhead"
+                            android:textColor="#9098B1"
+                            android:textSize="16dp" />
+
+                        <TextView
+                            android:id="@+id/goToPrivacyPolicy"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:clickable="true"
+                            android:fontFamily="@font/exo2_regular"
+
+                            android:text=" Privacy Policy"
+                            android:textAppearance="@style/Base.TextAppearance.AppCompat.Subhead"
+                            android:textColor="@color/font_primary"
+                            android:textSize="18sp"
+                            android:textStyle="bold" />
+
+
+                    </LinearLayout>
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btnRegistration"
+                        android:layout_width="match_parent"
+                        android:layout_height="60dp"
+                        android:layout_marginTop="10dp"
+                        android:backgroundTint="@color/font_primary"
+                        android:fontFamily="@font/exo2_regular"
+                        android:shadowColor="@color/black"
+                        android:shadowDx="@integer/material_motion_duration_short_1"
+                        android:shadowDy="@integer/material_motion_duration_medium_1"
+                        android:shadowRadius="@integer/material_motion_duration_short_1"
+                        android:text="@string/continues"
+                        android:textAllCaps="false"
+                        android:textColor="@color/white"
+                        android:textSize="16sp"
+                        android:textStyle="bold"
+                        app:cornerRadius="5dp"
+                        app:rippleColor="@color/blue"
+                        app:strokeColor="@color/green" />
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginVertical="15dp"
+                        android:gravity="center"
+                        android:orientation="horizontal">
+
+                        <View
+                            android:layout_width="0dp"
+                            android:layout_height="1dp"
+                            android:layout_weight="1"
+                            android:background="#9098B1" />
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="0.4"
+                            android:fontFamily="@font/exo2_regular"
+                            android:gravity="center"
+                            android:text="@string/or"
+                            android:textColor="#9098B1"
+                            android:textSize="16sp" />
+
+                        <View
+                            android:layout_width="0dp"
+                            android:layout_height="1dp"
+                            android:layout_weight="1"
+                            android:background="#9098B1" />
+
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="10dp"
+                        android:layout_marginBottom="15dp"
+                        android:gravity="center"
+                        android:orientation="horizontal">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:fontFamily="@font/exo2_regular"
+                            android:paddingHorizontal="3dp"
+                            android:text="@string/already_have_account"
+                            android:textAppearance="@style/Base.TextAppearance.AppCompat.Subhead"
+                            android:textColor="@color/black"
+                            android:textSize="16sp" />
+
+                        <TextView
+                            android:id="@+id/tvRegistrationToLogin"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:clickable="true"
+                            android:focusable="true"
+                            android:fontFamily="@font/exo2_regular"
+                            android:paddingHorizontal="3dp"
+                            android:text="@string/back_to_login"
+                            android:textAppearance="@style/Base.TextAppearance.AppCompat.Subhead"
+                            android:textColor="@color/font_primary"
+                            android:textSize="18sp"
+                            android:textStyle="bold" />
+
+                    </LinearLayout>
+
+                </LinearLayout>
+
+            </LinearLayout>
+
+
+        </ScrollView>
+
+        <!--<RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="0dp"
             app:layout_constraintBottom_toBottomOf="parent"
@@ -29,18 +463,7 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent">
 
-            <TextView
-                android:id="@+id/noInternetConnection"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:gravity="center"
-                android:padding="5dp"
-                android:text="@{ internetMessage }"
-                android:textSize="14sp"
-                android:textStyle="bold"
-                android:translationZ="10dp"
-                android:visibility="@{ isInternetAvailable ? View.GONE : View.VISIBLE }"
-                tools:text="No Internet!!!" />
+
 
             <ImageView
                 android:id="@+id/ivLogo"
@@ -164,6 +587,11 @@
                 app:endIconTint="@color/dark_slate_blue"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
+                app:helperTextEnabled="true"
+                app:helperText="@string/mobile_no"
+                app:helperTextTextColor="@color/green"
+                app:counterEnabled="true"
+                app:counterMaxLength="10"
                 app:layout_constraintTop_toBottomOf="@+id/til_user_first_name">
 
 
@@ -216,7 +644,7 @@
 
             </com.google.android.material.textfield.TextInputLayout>
 
-            <!--<EditText
+            &lt;!&ndash;<EditText
                 android:id="@+id/til_user_first_name"
                 android:layout_width="match_parent"
                 android:layout_height="50dp"
@@ -228,9 +656,9 @@
                 android:hint="@string/name"
                 android:inputType="textPersonName"
                 android:padding="15dp"
-                android:textSize="15sp" />-->
+                android:textSize="15sp" />&ndash;&gt;
 
-            <!--<EditText
+            &lt;!&ndash;<EditText
                 android:id="@+id/til_user_mobile"
                 android:layout_width="match_parent"
                 android:layout_height="50dp"
@@ -243,7 +671,7 @@
                 android:hint="@string/mobile_no"
                 android:inputType="number"
                 android:padding="15dp"
-                android:textSize="15sp" />-->
+                android:textSize="15sp" />&ndash;&gt;
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnLoginUser"
@@ -270,7 +698,7 @@
                 app:strokeColor="@color/green" />
 
 
-        </RelativeLayout>
+        </RelativeLayout>-->
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

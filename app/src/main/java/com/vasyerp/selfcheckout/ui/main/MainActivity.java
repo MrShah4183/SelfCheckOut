@@ -1,6 +1,7 @@
 package com.vasyerp.selfcheckout.ui.main;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.ItemTouchHelper;
@@ -102,7 +103,8 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-public class MainActivity extends CameraPermissionActivity implements PaymentResultListener {
+//public class MainActivity extends CameraPermissionActivity implements PaymentResultListener {
+public class MainActivity extends AppCompatActivity implements PaymentResultListener {
     private static final String TAG = "MainActivity";
 
     /**
@@ -1727,18 +1729,12 @@ public class MainActivity extends CameraPermissionActivity implements PaymentRes
     protected void onResume() {
         super.onResume();
         activityMainBinding.mainLlMain.setWeightSum(1.5f);
-        requestCameraPermission();
         if (isShowing.equals("Y")) {
             pauseScannerCases();
             hideScannerCases();
             isShowing = "N";
         }
         Log.d(TAG, "onResume: Called.");
-    }
-
-    @Override
-    public void onCameraPermissionGranted() {
-
     }
 
     @Override
