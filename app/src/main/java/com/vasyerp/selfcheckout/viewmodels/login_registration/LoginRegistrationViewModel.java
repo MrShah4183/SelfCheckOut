@@ -8,6 +8,7 @@ import com.vasyerp.selfcheckout.models.customer.City;
 import com.vasyerp.selfcheckout.models.customer.Country;
 import com.vasyerp.selfcheckout.models.customer.CreateCustomerBody;
 import com.vasyerp.selfcheckout.models.customer.CustomerDetails;
+import com.vasyerp.selfcheckout.models.customer.LoginCustomerDetails;
 import com.vasyerp.selfcheckout.models.customer.State;
 import com.vasyerp.selfcheckout.repositories.DataSource;
 import com.vasyerp.selfcheckout.repositories.LoginRegistrationRepository;
@@ -35,6 +36,10 @@ public class LoginRegistrationViewModel extends ViewModel {
     private MutableLiveData<CustomerDetails> _getCustomerResponse = new MutableLiveData<>();
     public LiveData<CustomerDetails> getCustomerResponse;
 
+    private MutableLiveData<LoginCustomerDetails> _loginGetCustomerResponse = new MutableLiveData<>();
+    public LiveData<LoginCustomerDetails> loginGetCustomerResponse;
+
+
     private int branchId;
     private int companyId;
     private int userId;
@@ -50,6 +55,7 @@ public class LoginRegistrationViewModel extends ViewModel {
         this.state = _state;
         this.city = _city;
         this.getCustomerResponse = _getCustomerResponse;
+        this.loginGetCustomerResponse = _loginGetCustomerResponse;
     }
 
     public void getCountryListApiCall() {
@@ -134,5 +140,24 @@ public class LoginRegistrationViewModel extends ViewModel {
                 _getCustomerResponse.postValue(data);
             }
         }, branchId, companyId, userId, type, customerBody);
+    }
+
+    public void userLoginCompanyApiCall(String mobileNo){
+        repository.userLoginInCompany(new DataSource<LoginCustomerDetails>() {
+            @Override
+            public void loading(boolean isLoading) {
+                _isLoading.postValue(isLoading);
+            }
+
+            @Override
+            public void error(String errorMessage) {
+                _error.postValue(errorMessage);
+            }
+
+            @Override
+            public void data(LoginCustomerDetails data) {
+                _loginGetCustomerResponse.postValue(data);
+            }
+        },branchId,companyId,mobileNo);
     }
 }

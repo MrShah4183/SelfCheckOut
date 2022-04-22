@@ -380,7 +380,7 @@ public class MainRepository {
                         } else {
                             dataSource.data(response.body());
                             dataSource.loading(false);
-                            dataSource.error(response.message());
+                            dataSource.error(response.body().getMessage());
                         }
                         //dataSource.data(response.body());
                     }
@@ -424,7 +424,7 @@ public class MainRepository {
                             } else {
                                 dataSource.data(response.body().getResponse());
                                 dataSource.loading(false);
-                                dataSource.error(response.message());
+                                dataSource.error(response.body().getMessage());
                             }
                         } else {
                             Log.d(TAG, "onResponse: response is null.");
@@ -467,7 +467,7 @@ public class MainRepository {
                             } else {
                                 dataSource.data(response.body().getResponse());
                                 dataSource.loading(false);
-                                dataSource.error(response.message());
+                                dataSource.error(response.body().getMessage());
                             }
                             Log.e(TAG, "onResponse: call set db data");
                         } else {

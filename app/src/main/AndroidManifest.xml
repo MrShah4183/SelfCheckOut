@@ -21,23 +21,21 @@
         tools:targetApi="r">
         <activity
             android:name=".ui.login.RegistrationActivity"
-            android:exported="true">
-            <intent-filter>
+            android:exported="false">
+            <!--<intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
+            </intent-filter>-->
         </activity>
         <activity
             android:name=".ui.login.LoginActivity"
-            android:exported="true">
-
-            <intent-filter>
+            android:exported="false">
+            <!--<intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-
+            </intent-filter>-->
         </activity>
         <activity
             android:name=".ui.order_list.FilterOrdersListActivity"
@@ -60,14 +58,11 @@
         <activity
             android:name=".ui.company.CompanyLoginActivity"
             android:exported="true">
-
-            <!--
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
-            -->
         </activity>
         <activity
             android:name=".ui.login.UserLoginActivity"
@@ -84,16 +79,7 @@
         </activity>
         <activity
             android:name=".ui.main.MainActivity"
-            android:exported="true">
-
-            <!--
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-            -->
-        </activity>
+            android:exported="false" />
         <!--
 <meta-data
             android:name="com.razorpay.ApiKey"

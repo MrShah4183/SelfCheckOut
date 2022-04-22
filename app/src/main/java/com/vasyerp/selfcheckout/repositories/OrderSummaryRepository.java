@@ -45,7 +45,7 @@ public class OrderSummaryRepository {
                             } else {
                                 dataSource.data(response.body().getResponse());
                                 dataSource.loading(false);
-                                dataSource.error(response.message());
+                                dataSource.error(response.body().getMessage());
                             }
                         } else {
                             Log.d(TAG, "onResponse: response is null.");

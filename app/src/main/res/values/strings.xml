@@ -49,7 +49,7 @@
     <string name="addressstar">Address *</string>
     <string name="countryStar">Country *</string>
     <string name="stateStar">State *</string>
-    <string name="cityStar">CIty *</string>
+    <string name="cityStar">City *</string>
     <string name="already_have_account">Already Have Account?</string>
     <string name="back_to_login">Back to Login</string>
 </resources>

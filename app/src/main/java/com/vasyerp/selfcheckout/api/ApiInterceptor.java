@@ -19,6 +19,8 @@ public class ApiInterceptor implements Interceptor {
         requestBuilder.addHeader("Transfer-Encoding", "chunked");
         requestBuilder.addHeader("X-APIKEY", BuildConfig.X_API_KEY);
         requestBuilder.addHeader("AgentName", BuildConfig.AGENT_NAME);
+        requestBuilder.addHeader("X-XSRF-TOKEN","");
+        //requestBuilder.addHeader("XSRF-TOKEN", "88803e53-1c3d-4356-9c62-afccf4a2e107");
         return chain.proceed(requestBuilder.build());
     }
 }

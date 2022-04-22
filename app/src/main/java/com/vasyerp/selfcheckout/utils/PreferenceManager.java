@@ -118,8 +118,8 @@ public class PreferenceManager {
 
     public static String userContactId(Context context) {
         mSharedPreferences = context.getSharedPreferences(SHAREDPREFERENCE, Context.MODE_PRIVATE);
-        //String strDomainId = mSharedPreferences.getString(CommonUtil.USER_CONTACT_ID, "205814");
         String strDomainId = mSharedPreferences.getString(CommonUtil.USER_CONTACT_ID, "");
+        //String strDomainId = mSharedPreferences.getString(CommonUtil.USER_CONTACT_ID, "205814");
         return strDomainId;
     }
 

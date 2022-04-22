@@ -4,6 +4,7 @@ import com.vasyerp.selfcheckout.models.customer.City;
 import com.vasyerp.selfcheckout.models.customer.Country;
 import com.vasyerp.selfcheckout.models.customer.CreateCustomerBody;
 import com.vasyerp.selfcheckout.models.customer.CustomerDetails;
+import com.vasyerp.selfcheckout.models.customer.LoginCustomerDetails;
 import com.vasyerp.selfcheckout.models.customer.State;
 import com.vasyerp.selfcheckout.models.login.LogIn;
 import com.vasyerp.selfcheckout.models.login.CompanyCustomerBody;
@@ -30,10 +31,23 @@ public interface Api {
     @POST("mpos/api/v2/get/companydetails")
     Call<ApiResponse<LogIn>> companyLogin(@Body CompanyCustomerBody companyCustomerBody);
 
+    //http://192.168.175.54:9090/mpos/api/v2/getcustomerbymobile?companyId=64&branchId=64&mobileNo=9726098261
+    @POST("mpos/api/v2/getcustomerbymobile")
+    Call<ApiResponse<LoginCustomerDetails>> userLoginInCompany(@Query("branchId") int branchId, @Query("companyId") int companyId, @Query("mobileNo") String mobileNo);
+
+    @POST("/mpos/api/v2/createcontact")
+    Call<ApiResponse<CustomerDetails>> addNewCustomer(
+            @Query("branchId") int branchId,
+            @Query("companyId") int companyId,
+            @Query("userId") int userId,
+            @Query("type") String type,
+            @Body CreateCustomerBody customerBody);
+
     //get all products for edittext autocomplete
     //http://192.168.2.20:8080/mpos/api/v2/getproductdata?companyId=64
     @GET("mpos/api/v2/getproductdata")
     Call<ApiResponse<List<GetAllProducts>>> getAllProductList(@Query("companyId") String companyId);
+
 
     /**
      * Get product by barcode.
@@ -150,13 +164,6 @@ public interface Api {
     @GET("/mpos/api/v2/city")
     Call<ApiResponse<List<City>>> getCityResponse(@Query("id") String id);
 
-    @POST("/mpos/api/v2/createcontact")
-    Call<ApiResponse<CustomerDetails>> addNewCustomer(
-            @Query("branchId") int branchId,
-            @Query("companyId") int companyId,
-            @Query("userId") int userId,
-            @Query("type") String type,
-            @Body CreateCustomerBody customerBody);
 
     //http://192.168.175.38:8080/mpos/api/v2/allorders/?pageNo=0&limit=20&branchId=64&companyId=64&contactId=68856&ispaid=1
     //http://192.168.175.38:8080/mpos/api/v2/allorders/?pageNo=0&limit=20&branchId=64&companyId=64&contactId=68856&isunpaid=1

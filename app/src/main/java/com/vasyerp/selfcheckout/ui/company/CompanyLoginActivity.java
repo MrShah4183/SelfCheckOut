@@ -26,12 +26,11 @@ import com.vasyerp.selfcheckout.adapters.company_list.CompanyListAdapter;
 import com.vasyerp.selfcheckout.api.Api;
 import com.vasyerp.selfcheckout.api.ApiGenerator;
 import com.vasyerp.selfcheckout.databinding.ActivityCompanyLoginBinding;
-import com.vasyerp.selfcheckout.models.customer.CreateCustomerBody;
 import com.vasyerp.selfcheckout.models.login.LogIn;
 import com.vasyerp.selfcheckout.models.login.CompanyCustomerBody;
 import com.vasyerp.selfcheckout.repositories.CompanyLoginRepository;
 import com.vasyerp.selfcheckout.ui.CameraPermissionActivity;
-import com.vasyerp.selfcheckout.ui.main.MainActivity;
+import com.vasyerp.selfcheckout.ui.login.LoginActivity;
 import com.vasyerp.selfcheckout.utils.CommonUtil;
 import com.vasyerp.selfcheckout.utils.ConnectivityStatus;
 import com.vasyerp.selfcheckout.utils.PreferenceManager;
@@ -50,7 +49,7 @@ public class CompanyLoginActivity extends CameraPermissionActivity {
     private SelfCheckOutApp selfCheckOutApp;
     private ArrayList<LogIn> storeList;
     CompanyCustomerBody companyCustomerBody;
-    CreateCustomerBody createCustomerBody;
+    //CreateCustomerBody createCustomerBody;
 
     /**
      * zxing barcode scanner
@@ -103,7 +102,7 @@ public class CompanyLoginActivity extends CameraPermissionActivity {
             }
         });
 
-        setCustomerData();
+        //setCustomerData();
 
         initViewModelAndRepository();
 
@@ -112,7 +111,6 @@ public class CompanyLoginActivity extends CameraPermissionActivity {
             CompanyCustomerBody companyCustomerBody = new CompanyCustomerBody();
             companyCustomerBody.setCompanyId(strCompanyId);
             companyCustomerBody.setBranchId(strBranchId);
-            //companyCustomerBody.setContactDetails(createCustomerBody);
 
             if (isInternetConnected) {
                 companyLoginViewModel.companyLogin(companyCustomerBody);
@@ -139,17 +137,17 @@ public class CompanyLoginActivity extends CameraPermissionActivity {
 
         companyLoginViewModel.getCompanyLoginData.observe(this, logIn -> {
             if (logIn != null) {
-                Log.e(TAG, "onCreate: " + logIn.getCustomerDetailsResponse().getContactId());
                 PreferenceManager.savePref(CompanyLoginActivity.this, logIn.getCompanyId(), CommonUtil.COMPANY_ID);
                 PreferenceManager.savePref(CompanyLoginActivity.this, logIn.getBranchId(), CommonUtil.BRANCH_ID);
                 PreferenceManager.savePref(CompanyLoginActivity.this, logIn.getUserFrontId(), CommonUtil.USER_ID);
-                PreferenceManager.savePref(CompanyLoginActivity.this, String.valueOf(logIn.getCustomerDetailsResponse().getContactId()), CommonUtil.USER_CONTACT_ID);
+                //PreferenceManager.savePref(CompanyLoginActivity.this, String.valueOf(logIn.getCustomerDetailsResponse().getContactId()), CommonUtil.USER_CONTACT_ID);
                 PreferenceManager.savePref(CompanyLoginActivity.this, logIn.getBranchName(), CommonUtil.COMPANY_BRANCH_NAME);
                 PreferenceManager.savePref(CompanyLoginActivity.this, logIn.getLogoPrefix(), CommonUtil.COMPANY_LOGO_PREFIX);
                 PreferenceManager.savePref(CompanyLoginActivity.this, logIn.getLogo(), CommonUtil.COMPANY_LOGO);
                 new Handler().postDelayed(() -> {
-                    Intent intent = new Intent(CompanyLoginActivity.this, MainActivity.class);
+                    Intent intent = new Intent(CompanyLoginActivity.this, LoginActivity.class);
                     startActivity(intent);
+                    CompanyLoginActivity.this.finish();
                 }, 500);
             } else {
                 CommonUtil.showSnackBar(companyLoginBinding.llSnackBar, companyLoginBinding.llSnackBar, "Store Not Found.");
@@ -170,6 +168,8 @@ public class CompanyLoginActivity extends CameraPermissionActivity {
 
 
         companyLoginBinding.btnComOnOff.setOnClickListener(v -> {
+            //CompanyCustomerBody tempCompanyCustomerBody = new CompanyCustomerBody("64", "64");
+            //companyLoginViewModel.companyLogin(tempCompanyCustomerBody);
             Log.v("Hide", "btn click start");
             if (isShowing.equals("Y")) {
                 Log.v("Hide", "btn click if gone : " + isShowing);
@@ -199,10 +199,8 @@ public class CompanyLoginActivity extends CameraPermissionActivity {
                 Gson gson = new Gson();
                 try {
                     companyCustomerBody = gson.fromJson(barcodeId, CompanyCustomerBody.class);
-                    //companyCustomerBody.setContactDetails(createCustomerBody);
                     Log.e(TAG, "barcodeResult: " + companyCustomerBody.getCompanyId());
                     Log.e(TAG, "barcodeResult: " + companyCustomerBody.getBranchId());
-                    //Log.e(TAG, "barcodeResult: " + companyCustomerBody.getContactDetails().getFirstName());
                 } catch (Exception e) {
                     e.printStackTrace();
                     CommonUtil.showSnackBar(companyLoginBinding.llSnackBar, companyLoginBinding.llSnackBar, e.toString());
@@ -213,8 +211,6 @@ public class CompanyLoginActivity extends CameraPermissionActivity {
                 } else {
                     CommonUtil.showSnackBar(companyLoginBinding.llSnackBar, companyLoginBinding.llSnackBar, getString(R.string.toast_no_internet));
                 }
-
-                //companyLoginBinding.zxQrDecoratedBarcodeViewCom.pause();
             }
 
             @Override
@@ -225,16 +221,16 @@ public class CompanyLoginActivity extends CameraPermissionActivity {
     }
 
     private void setCustomerData() {
-        createCustomerBody = new CreateCustomerBody();
+        //createCustomerBody = new CreateCustomerBody();
         /*createCustomerBody.setFirstName(PreferenceManager.userFirstName(this));
         createCustomerBody.setLastName(PreferenceManager.userLastName(this));
         createCustomerBody.setMobileNo(PreferenceManager.userMobile(this));
         createCustomerBody.setAddressLine1(PreferenceManager.userAddress(this));*/
         //todo change for dynamic user
-        createCustomerBody.setFirstName("deep");
+        /*createCustomerBody.setFirstName("deep");
         createCustomerBody.setLastName("modi");
         createCustomerBody.setMobileNo("7575061808");
-        createCustomerBody.setAddressLine1(PreferenceManager.userAddress(this));
+        createCustomerBody.setAddressLine1(PreferenceManager.userAddress(this));*/
     }
 
     private void initViewModelAndRepository() {
