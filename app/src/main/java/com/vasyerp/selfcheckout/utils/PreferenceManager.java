@@ -24,7 +24,7 @@ public class PreferenceManager {
         mEditor.commit();
     }
 
-    public static long getBarcodeSelectionId(Context context) {
+    /*public static long getBarcodeSelectionId(Context context) {
         mSharedPreferences = context.getSharedPreferences(SHAREDPREFERENCE, Context.MODE_PRIVATE);
         long barCodeType = mSharedPreferences.getLong(CommonUtil.SCANNER_SELECTION_ID, 3); // false means default is scandit.
         return barCodeType;
@@ -48,7 +48,7 @@ public class PreferenceManager {
         mEditor = mSharedPreferences.edit();
         mEditor.putString(key, value);
         mEditor.commit();
-    }
+    }*/
 
     public static String getBranchId(Context context) {
         mSharedPreferences = context.getSharedPreferences(SHAREDPREFERENCE, Context.MODE_PRIVATE);

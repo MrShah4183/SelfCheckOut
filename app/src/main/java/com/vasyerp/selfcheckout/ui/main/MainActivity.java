@@ -73,6 +73,7 @@ import com.vasyerp.selfcheckout.models.savebill.SaveBillStatusModel;
 import com.vasyerp.selfcheckout.models.savebill.UpdateBillResponse;
 import com.vasyerp.selfcheckout.repositories.MainRepository;
 import com.vasyerp.selfcheckout.ui.CameraPermissionActivity;
+import com.vasyerp.selfcheckout.ui.company.CompanyLoginActivity;
 import com.vasyerp.selfcheckout.ui.order_list.FilterOrdersListActivity;
 import com.vasyerp.selfcheckout.ui.orders_ui.OrderDetailsActivity;
 import com.vasyerp.selfcheckout.ui.orders_ui.OrdersListActivity;
@@ -1363,13 +1364,34 @@ public class MainActivity extends AppCompatActivity implements PaymentResultList
                 Intent intentOrderList = new Intent(MainActivity.this, FilterOrdersListActivity.class);
                 startActivity(intentOrderList);
                 return true;
+            //case R.id.storeLogOut:
+
             case R.id.logOutMenu:
-                Toast.makeText(MainActivity.this, "LogOut", Toast.LENGTH_SHORT).show();
+                removePrefData();
+                new Handler().postDelayed(() -> {
+                    Intent intentStoreLogin = new Intent(MainActivity.this, CompanyLoginActivity.class);
+                    startActivity(intentStoreLogin);
+                }, 1500);
+                //Toast.makeText(MainActivity.this, "LogOut", Toast.LENGTH_SHORT).show();
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
             //return true;
         }
+    }
+
+    private void removePrefData() {
+        PreferenceManager.removePref(MainActivity.this, CommonUtil.BRANCH_ID);
+        PreferenceManager.removePref(MainActivity.this, CommonUtil.COMPANY_ID);
+        PreferenceManager.removePref(MainActivity.this, CommonUtil.USER_ID);
+        PreferenceManager.removePref(MainActivity.this, CommonUtil.COMPANY_LOGO_PREFIX);
+        PreferenceManager.removePref(MainActivity.this, CommonUtil.COMPANY_LOGO);
+        PreferenceManager.removePref(MainActivity.this, CommonUtil.COMPANY_BRANCH_NAME);
+        PreferenceManager.removePref(MainActivity.this, CommonUtil.USER_F_NAME);
+        PreferenceManager.removePref(MainActivity.this, CommonUtil.USER_L_NAME);
+        PreferenceManager.removePref(MainActivity.this, CommonUtil.USER_MOBILE);
+        PreferenceManager.removePref(MainActivity.this, CommonUtil.USER_ADDRESS);
+        PreferenceManager.removePref(MainActivity.this, CommonUtil.USER_CONTACT_ID);
     }
 
     private void hideScannerCases() {
@@ -1519,12 +1541,7 @@ public class MainActivity extends AppCompatActivity implements PaymentResultList
                         }
                         resumeScannerCases();
                     }
-                    new Handler().postDelayed(new Runnable() {
-                        @Override
-                        public void run() {
-                            resumeScannerCases();
-                        }
-                    }, 1000);
+                    new Handler().postDelayed(() -> resumeScannerCases(), 1000);
                 }
             }
         });

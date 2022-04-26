@@ -52,4 +52,5 @@
     <string name="cityStar">City *</string>
     <string name="already_have_account">Already Have Account?</string>
     <string name="back_to_login">Back to Login</string>
+    <string name="store_logout">Store Logout</string>
 </resources>

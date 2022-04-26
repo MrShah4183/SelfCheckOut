@@ -7,6 +7,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Rect;
 import android.os.Bundle;
+import android.os.Handler;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
@@ -20,6 +21,7 @@ import com.vasyerp.selfcheckout.api.Api;
 import com.vasyerp.selfcheckout.api.ApiGenerator;
 import com.vasyerp.selfcheckout.databinding.ActivityLoginBinding;
 import com.vasyerp.selfcheckout.repositories.LoginRegistrationRepository;
+import com.vasyerp.selfcheckout.ui.main.MainActivity;
 import com.vasyerp.selfcheckout.utils.CommonUtil;
 import com.vasyerp.selfcheckout.utils.ConnectivityStatus;
 import com.vasyerp.selfcheckout.utils.PreferenceManager;
@@ -143,6 +145,11 @@ public class LoginActivity extends AppCompatActivity {
                     PreferenceManager.savePref(this, loginCustomerDetails.getAddressLine1(), CommonUtil.USER_ADDRESS);
                 }
                 PreferenceManager.savePref(this, String.valueOf(loginCustomerDetails.getContactId()), CommonUtil.USER_CONTACT_ID);
+                new Handler().postDelayed(() -> {
+                    Intent intentMain = new Intent(LoginActivity.this, MainActivity.class);
+                    startActivity(intentMain);
+                    LoginActivity.this.finish();
+                }, 1500);
 
             } else {
                 CommonUtil.showSnackBar(loginBinding.llLoginTerms, loginBinding.llLoginTerms, "User not found Create New Account.");
