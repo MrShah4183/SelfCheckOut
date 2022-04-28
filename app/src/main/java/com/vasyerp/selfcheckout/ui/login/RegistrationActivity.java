@@ -251,6 +251,7 @@ public class RegistrationActivity extends AppCompatActivity {
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                 String stateName = (String) parent.getItemAtPosition(position);
                 Log.d(TAG, "onItemSelected: " + stateName + " Position: " + position);
+
                 for (int i = 0; i < stateCode.size(); i++) {
                     if (stateCode.get(i).split("-")[0].equals(stateName)) {
                         Log.d(TAG, "onItemClick: Country code: " + stateCode.get(i));
@@ -261,7 +262,6 @@ public class RegistrationActivity extends AppCompatActivity {
                             cityNames.clear();
                             cityAdapter.notifyDataSetChanged();
                         }
-
                         if (isInternetConnected) {
                             viewModel.getCityListApiCall(stateCode.get(i).split("-")[1]);
                         } else {
@@ -269,6 +269,30 @@ public class RegistrationActivity extends AppCompatActivity {
                         }
                     }
                 }
+
+                /*String tempStateName = "Gujarat";
+                String tempCityName = "Anand";
+
+                for (int i = 0; i < stateNames.size(); i++) {
+                    if (stateNames.get(i).trim().equalsIgnoreCase(tempStateName)) {
+                        new Handler().postDelayed(new Runnable() {
+                            @Override
+                            public void run() {
+                                int tempPos = -1;
+                                if (cityNames.size() != 0) {
+                                    for (int j = 0; j < cityNames.size(); j++) {
+                                        if (cityNames.get(j).trim().equalsIgnoreCase(tempCityName)) {
+                                            tempPos = j;
+                                        }
+                                    }
+                                    if (tempPos != -1) {
+                                        registrationBinding.spinnerCity.setSelection(tempPos);
+                                    }
+                                }
+                            }
+                        }, 2000);
+                    }
+                }*/
 
             }
 
@@ -515,6 +539,10 @@ public class RegistrationActivity extends AppCompatActivity {
                     registrationBinding.ivStateError.setVisibility(View.GONE);
                     selectedStateCode = -1;
                     stateAdapter.notifyDataSetChanged();
+
+
+                    //countryAdapter.notifyDataSetChanged();
+
                 } else {
                     registrationBinding.tvStateError.setText("State list is not available.");
                     registrationBinding.ivStateError.setVisibility(View.VISIBLE);

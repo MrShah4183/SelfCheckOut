@@ -453,15 +453,15 @@
                             android:layout_height="wrap_content"
                             android:orientation="vertical">
 
-                            <androidx.appcompat.widget.AppCompatSpinner
+                            <Spinner
                                 android:id="@+id/spinnerCity"
                                 android:layout_width="match_parent"
                                 android:layout_height="40dp"
                                 android:dropDownWidth="wrap_content"
                                 android:padding="8dp"
-                                android:spinnerMode="dropdown"
                                 android:textAlignment="center"
                                 tools:listitem="@layout/item_for_spinner" />
+                            <!--android:spinnerMode="dropdown"-->
 
                             <View
                                 android:id="@+id/viewCitySpinner"
