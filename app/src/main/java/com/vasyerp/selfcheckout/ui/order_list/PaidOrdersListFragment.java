@@ -84,6 +84,8 @@ public class PaidOrdersListFragment extends Fragment {
         super.onCreate(savedInstanceState);
         fragmentPaidOrdersListBinding = FragmentPaidOrdersListBinding.inflate(getLayoutInflater());
 
+        Log.e(TAG, "onCreate: start");
+
         companyId = Integer.parseInt(PreferenceManager.getCompanyId(requireActivity()));
         branchId = Integer.parseInt(PreferenceManager.getBranchId(requireActivity()));
         userId = Integer.parseInt(PreferenceManager.getUserId(requireActivity()));
@@ -228,6 +230,7 @@ public class PaidOrdersListFragment extends Fragment {
     }
 
     private void initViewModelAndRepository() {
+        Log.e(TAG, "initViewModelAndRepository: call");
         //Api apiInterface = RazorpayApiGenerator.getApi(domainName).create(Api.class);
         String strBaseUrl = PreferenceManager.getDomain(requireActivity());
         Api apiInterface = ApiGenerator.getApi(CommonUtil.tempBaseUrl).create(Api.class);
@@ -238,6 +241,7 @@ public class PaidOrdersListFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         //observerMethod();
         //return inflater.inflate(R.layout.fragment_paid_orders_list, container, false);
+        Log.e(TAG, "onCreateView: Call");
         return fragmentPaidOrdersListBinding.getRoot();
     }
 
