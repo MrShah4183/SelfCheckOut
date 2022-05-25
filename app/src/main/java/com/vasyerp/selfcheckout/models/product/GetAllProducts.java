@@ -20,4 +20,7 @@ public class GetAllProducts {
     @SerializedName("value")
     @Expose
     private String value;
+    @SerializedName("itemCode")
+    @Expose
+    private String itemCode;
 }

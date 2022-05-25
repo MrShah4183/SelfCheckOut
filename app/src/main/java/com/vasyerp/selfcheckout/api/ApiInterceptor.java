@@ -16,7 +16,7 @@ public class ApiInterceptor implements Interceptor {
     public Response intercept(@NonNull Chain chain) throws IOException {
         Request.Builder requestBuilder = chain.request().newBuilder();
         requestBuilder.addHeader("Content-Type", "application/json;charset=UTF-8");
-        requestBuilder.addHeader("Transfer-Encoding", "chunked");
+        //requestBuilder.addHeader("Transfer-Encoding", "chunked");
         requestBuilder.addHeader("X-APIKEY", BuildConfig.X_API_KEY);
         requestBuilder.addHeader("AgentName", BuildConfig.AGENT_NAME);
         requestBuilder.addHeader("X-XSRF-TOKEN","");

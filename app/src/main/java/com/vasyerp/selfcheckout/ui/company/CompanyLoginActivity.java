@@ -45,7 +45,6 @@ import java.util.List;
 public class CompanyLoginActivity extends CameraPermissionActivity {
     ActivityCompanyLoginBinding companyLoginBinding;
     private final String TAG = CompanyLoginActivity.this.getClass().getSimpleName();
-
     private SelfCheckOutApp selfCheckOutApp;
     private ArrayList<LogIn> storeList;
     CompanyCustomerBody companyCustomerBody;

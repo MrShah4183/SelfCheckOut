@@ -30,7 +30,8 @@ public class SplashActivity extends AppCompatActivity {
 
         new Handler().postDelayed(() -> {
             //todo check user login or not according pass intent to activity
-            if (userFirstName.trim().isEmpty() && userLastName.trim().isEmpty() && userLastName.trim().isEmpty() && userAddress.trim().isEmpty()) {
+            startActivity(new Intent(SplashActivity.this, CompanyLoginActivity.class));
+            /*if (userFirstName.trim().isEmpty() && userLastName.trim().isEmpty() && userLastName.trim().isEmpty() && userAddress.trim().isEmpty()) {
                 Intent intent = new Intent(SplashActivity.this, UserLoginActivity.class);
                 startActivity(intent);
                 SplashActivity.this.finish();
@@ -39,7 +40,7 @@ public class SplashActivity extends AppCompatActivity {
                 PreferenceManager.savePref(SplashActivity.this, "", CommonUtil.USER_CONTACT_ID);
                 startActivity(intent);
                 SplashActivity.this.finish();
-            }
+            }*/
 
         }, 2000);
     }

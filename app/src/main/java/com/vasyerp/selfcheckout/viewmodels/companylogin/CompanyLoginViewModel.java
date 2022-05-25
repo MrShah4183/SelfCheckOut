@@ -65,7 +65,8 @@ public class CompanyLoginViewModel extends ViewModel {
             }
         };
     }*/
-
+    //https://croods.vasyerp.com/mpos/api/v2/get/companydetails
+    //https://croods.vasyerp.com/mpos/api/v2/get/companydetails
     public void companyLogin(CompanyCustomerBody companyCustomerBody) {
         companyLoginRepository.companyLoginFromRemote(new DataSource<LogIn>() {
             @Override

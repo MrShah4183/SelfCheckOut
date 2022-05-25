@@ -22,7 +22,7 @@ import java.util.concurrent.Executors;
         SalesDTO.class},
         version = 1, exportSchema = true)*/
 
-@Database(entities = {LogIn.class,
+/*@Database(entities = {LogIn.class,
         SaveBillResponse.class,
         SaveBill.class,
         StockMasterVo.class,
@@ -31,6 +31,14 @@ import java.util.concurrent.Executors;
         autoMigrations = {
                 @AutoMigration(from = 1, to = 2)
         },
+        exportSchema = true)*/
+
+@Database(entities = {LogIn.class,
+        SaveBillResponse.class,
+        SaveBill.class,
+        StockMasterVo.class,
+        SalesDTO.class},
+        version = 1,
         exportSchema = true)
 public abstract class SelfCheckOutDB extends RoomDatabase {
     public abstract SelfCheckOutDao getSelfCheckOutDao();

@@ -29,8 +29,8 @@ public class CommonUtil {
     //public static final String tempBaseUrlTesting = "http://192.168.175.38:8080";
     public static final String tempBaseUrlTesting = "http://192.168.175.207:8080";
     public static final String tempBaseUrlLive = "https://croods.vasyerp.com/";
-    public static final String tempBaseUrl = tempBaseUrlTesting;
-    //public static final String tempBaseUrl = tempBaseUrlLive;
+    //public static final String tempBaseUrl = tempBaseUrlTesting;
+    public static final String tempBaseUrl = tempBaseUrlLive;
     //public static final String tempBaseUrl = "https://croods.vasyerp.com/";
     public static final String paymentGatewayRazorpay = "razorpay";
     public static final String paymentGatewayInstaMojo = "instamojo";

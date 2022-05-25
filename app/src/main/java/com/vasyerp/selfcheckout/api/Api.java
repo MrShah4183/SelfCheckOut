@@ -45,6 +45,8 @@ public interface Api {
 
     //get all products for edittext autocomplete
     //http://192.168.2.20:8080/mpos/api/v2/getproductdata?companyId=64
+    //https://croods.vasyerp.com/mpos/api/v2/getproductdata?companyId=607
+    //https://croods.vasyerp.com/mpos/api/v2/getproductdata?companyId=607
     @GET("mpos/api/v2/getproductdata")
     Call<ApiResponse<List<GetAllProducts>>> getAllProductList(@Query("companyId") String companyId);
 
