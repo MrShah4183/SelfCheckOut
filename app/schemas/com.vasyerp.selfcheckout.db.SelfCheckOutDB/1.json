@@ -1,0 +1,178 @@
+{
+  "formatVersion": 1,
+  "database": {
+    "version": 1,
+    "identityHash": "169b7a3bd3676c0d012369e0976769f0",
+    "entities": [
+      {
+        "tableName": "LogIn",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`tempId` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `branchId` TEXT, `gstin` TEXT, `address` TEXT, `monthInterval` TEXT, `lastDateFinancialYear` TEXT, `cityCode` TEXT, `contactName` TEXT, `companyUpi` TEXT, `branchName` TEXT, `firstDateFinancialYear` TEXT, `fssaino` TEXT, `countriesCode` TEXT, `telephone` TEXT, `userFrontId` TEXT, `corporateId` TEXT, `financialYear` TEXT, `companyId` TEXT, `logoPrefix` TEXT, `domainName` TEXT, `logo` TEXT, `stateCode` TEXT, `userType` TEXT, `menuPermission` TEXT, `cashierName` TEXT)",
+        "fields": [
+          {
+            "fieldPath": "tempId",
+            "columnName": "tempId",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "branchId",
+            "columnName": "branchId",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "gstin",
+            "columnName": "gstin",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "address",
+            "columnName": "address",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "monthInterval",
+            "columnName": "monthInterval",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "lastDateFinancialYear",
+            "columnName": "lastDateFinancialYear",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "cityCode",
+            "columnName": "cityCode",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "contactName",
+            "columnName": "contactName",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "companyUpi",
+            "columnName": "companyUpi",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "branchName",
+            "columnName": "branchName",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "firstDateFinancialYear",
+            "columnName": "firstDateFinancialYear",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "fssaino",
+            "columnName": "fssaino",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "countriesCode",
+            "columnName": "countriesCode",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "telephone",
+            "columnName": "telephone",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "userFrontId",
+            "columnName": "userFrontId",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "corporateId",
+            "columnName": "corporateId",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "financialYear",
+            "columnName": "financialYear",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "companyId",
+            "columnName": "companyId",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "logoPrefix",
+            "columnName": "logoPrefix",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "domainName",
+            "columnName": "domainName",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "logo",
+            "columnName": "logo",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "stateCode",
+            "columnName": "stateCode",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "userType",
+            "columnName": "userType",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "menuPermission",
+            "columnName": "menuPermission",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "cashierName",
+            "columnName": "cashierName",
+            "affinity": "TEXT",
+            "notNull": false
+          }
+        ],
+        "primaryKey": {
+          "columnNames": [
+            "tempId"
+          ],
+          "autoGenerate": true
+        },
+        "indices": [],
+        "foreignKeys": []
+      }
+    ],
+    "views": [],
+    "setupQueries": [
+      "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '169b7a3bd3676c0d012369e0976769f0')"
+    ]
+  }
+}

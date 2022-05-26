@@ -1,0 +1,710 @@
+{
+  "formatVersion": 1,
+  "database": {
+    "version": 2,
+    "identityHash": "93512dfdd38aa465170db4b03c17349f",
+    "entities": [
+      {
+        "tableName": "LogIn",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`tempId` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `branchId` TEXT, `gstin` TEXT, `address` TEXT, `monthInterval` TEXT, `lastDateFinancialYear` TEXT, `cityCode` TEXT, `contactName` TEXT, `companyUpi` TEXT, `branchName` TEXT, `firstDateFinancialYear` TEXT, `fssaino` TEXT, `countriesCode` TEXT, `telephone` TEXT, `userFrontId` TEXT, `corporateId` TEXT, `financialYear` TEXT, `companyId` TEXT, `logoPrefix` TEXT, `domainName` TEXT, `logo` TEXT, `stateCode` TEXT, `userType` TEXT, `menuPermission` TEXT, `cashierName` TEXT)",
+        "fields": [
+          {
+            "fieldPath": "tempId",
+            "columnName": "tempId",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "branchId",
+            "columnName": "branchId",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "gstin",
+            "columnName": "gstin",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "address",
+            "columnName": "address",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "monthInterval",
+            "columnName": "monthInterval",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "lastDateFinancialYear",
+            "columnName": "lastDateFinancialYear",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "cityCode",
+            "columnName": "cityCode",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "contactName",
+            "columnName": "contactName",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "companyUpi",
+            "columnName": "companyUpi",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "branchName",
+            "columnName": "branchName",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "firstDateFinancialYear",
+            "columnName": "firstDateFinancialYear",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "fssaino",
+            "columnName": "fssaino",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "countriesCode",
+            "columnName": "countriesCode",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "telephone",
+            "columnName": "telephone",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "userFrontId",
+            "columnName": "userFrontId",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "corporateId",
+            "columnName": "corporateId",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "financialYear",
+            "columnName": "financialYear",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "companyId",
+            "columnName": "companyId",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "logoPrefix",
+            "columnName": "logoPrefix",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "domainName",
+            "columnName": "domainName",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "logo",
+            "columnName": "logo",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "stateCode",
+            "columnName": "stateCode",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "userType",
+            "columnName": "userType",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "menuPermission",
+            "columnName": "menuPermission",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "cashierName",
+            "columnName": "cashierName",
+            "affinity": "TEXT",
+            "notNull": false
+          }
+        ],
+        "primaryKey": {
+          "columnNames": [
+            "tempId"
+          ],
+          "autoGenerate": true
+        },
+        "indices": [],
+        "foreignKeys": []
+      },
+      {
+        "tableName": "SaveBillResponse",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`salesId` INTEGER NOT NULL, `prefix` TEXT, `token` INTEGER NOT NULL, `salesNo` INTEGER NOT NULL, `upiData` TEXT, `paymentId` TEXT, `paymentMode` TEXT, `paymentStatus` TEXT, `isDeleted` INTEGER NOT NULL, `paymentFailReason` TEXT, PRIMARY KEY(`salesId`))",
+        "fields": [
+          {
+            "fieldPath": "salesId",
+            "columnName": "salesId",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "prefix",
+            "columnName": "prefix",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "token",
+            "columnName": "token",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "salesNo",
+            "columnName": "salesNo",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "upiData",
+            "columnName": "upiData",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "paymentId",
+            "columnName": "paymentId",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "paymentMode",
+            "columnName": "paymentMode",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "paymentStatus",
+            "columnName": "paymentStatus",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "isDeleted",
+            "columnName": "isDeleted",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "paymentFailReason",
+            "columnName": "paymentFailReason",
+            "affinity": "TEXT",
+            "notNull": false
+          }
+        ],
+        "primaryKey": {
+          "columnNames": [
+            "salesId"
+          ],
+          "autoGenerate": false
+        },
+        "indices": [],
+        "foreignKeys": []
+      },
+      {
+        "tableName": "SaveBill",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`responseSalesId` INTEGER NOT NULL, `companyId` INTEGER NOT NULL, `branchId` INTEGER NOT NULL, `userFrontId` INTEGER NOT NULL, `customerId` INTEGER NOT NULL, `roundOff` REAL NOT NULL, `netAmount` REAL NOT NULL, `paymentMode` TEXT, `bankId` INTEGER NOT NULL, `date` TEXT, `financialYear` TEXT, `firstDateFinancialYear` TEXT, `lastDateFinancialYear` TEXT, `tendered` TEXT, PRIMARY KEY(`responseSalesId`), FOREIGN KEY(`responseSalesId`) REFERENCES `SaveBillResponse`(`salesId`) ON UPDATE NO ACTION ON DELETE CASCADE )",
+        "fields": [
+          {
+            "fieldPath": "responseSalesId",
+            "columnName": "responseSalesId",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "companyId",
+            "columnName": "companyId",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "branchId",
+            "columnName": "branchId",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "userFrontId",
+            "columnName": "userFrontId",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "customerId",
+            "columnName": "customerId",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "roundOff",
+            "columnName": "roundOff",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "netAmount",
+            "columnName": "netAmount",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "paymentMode",
+            "columnName": "paymentMode",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "bankId",
+            "columnName": "bankId",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "date",
+            "columnName": "date",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "financialYear",
+            "columnName": "financialYear",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "firstDateFinancialYear",
+            "columnName": "firstDateFinancialYear",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "lastDateFinancialYear",
+            "columnName": "lastDateFinancialYear",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "tendered",
+            "columnName": "tendered",
+            "affinity": "TEXT",
+            "notNull": false
+          }
+        ],
+        "primaryKey": {
+          "columnNames": [
+            "responseSalesId"
+          ],
+          "autoGenerate": false
+        },
+        "indices": [],
+        "foreignKeys": [
+          {
+            "table": "SaveBillResponse",
+            "onDelete": "CASCADE",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "responseSalesId"
+            ],
+            "referencedColumns": [
+              "salesId"
+            ]
+          }
+        ]
+      },
+      {
+        "tableName": "StockMasterVo",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`productVarientId` INTEGER NOT NULL, `stockId` INTEGER NOT NULL, `quantity` TEXT, `batchNo` TEXT, `purchaseprice` REAL NOT NULL, `mrp` REAL NOT NULL, `sellingPrice` REAL NOT NULL, `landingcost` REAL NOT NULL, `isDisable` INTEGER NOT NULL, `mrpToDiscount` REAL NOT NULL, `displayMrp` REAL NOT NULL, `totalTaxPrice` REAL NOT NULL, `netMrp` REAL NOT NULL, `taxPrice` REAL NOT NULL, `profit` REAL NOT NULL, `price` REAL NOT NULL, `taxableAmount` REAL NOT NULL, `oldQuantity` TEXT, `hasNegativeSelling` INTEGER NOT NULL, `discountType` TEXT, `discount` REAL NOT NULL, `itemCode` TEXT, `companyId` INTEGER NOT NULL, `branchId` INTEGER NOT NULL, `userFrontId` INTEGER NOT NULL, `productName` TEXT, PRIMARY KEY(`productVarientId`, `branchId`, `companyId`))",
+        "fields": [
+          {
+            "fieldPath": "productVarientId",
+            "columnName": "productVarientId",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "stockId",
+            "columnName": "stockId",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "quantity",
+            "columnName": "quantity",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "batchNo",
+            "columnName": "batchNo",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "purchaseprice",
+            "columnName": "purchaseprice",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "mrp",
+            "columnName": "mrp",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "sellingPrice",
+            "columnName": "sellingPrice",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "landingcost",
+            "columnName": "landingcost",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "isDisable",
+            "columnName": "isDisable",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "mrpToDiscount",
+            "columnName": "mrpToDiscount",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "displayMrp",
+            "columnName": "displayMrp",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "totalTaxPrice",
+            "columnName": "totalTaxPrice",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "netMrp",
+            "columnName": "netMrp",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "taxPrice",
+            "columnName": "taxPrice",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "profit",
+            "columnName": "profit",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "price",
+            "columnName": "price",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "taxableAmount",
+            "columnName": "taxableAmount",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "oldQuantity",
+            "columnName": "oldQuantity",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "hasNegativeSelling",
+            "columnName": "hasNegativeSelling",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "discountType",
+            "columnName": "discountType",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "discount",
+            "columnName": "discount",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "itemCode",
+            "columnName": "itemCode",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "companyId",
+            "columnName": "companyId",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "branchId",
+            "columnName": "branchId",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "userFrontId",
+            "columnName": "userFrontId",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "productName",
+            "columnName": "productName",
+            "affinity": "TEXT",
+            "notNull": false
+          }
+        ],
+        "primaryKey": {
+          "columnNames": [
+            "productVarientId",
+            "branchId",
+            "companyId"
+          ],
+          "autoGenerate": false
+        },
+        "indices": [],
+        "foreignKeys": []
+      },
+      {
+        "tableName": "SalesDTO",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`salesDtoId` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `saveBillSalesId` INTEGER NOT NULL, `productVarientId` INTEGER NOT NULL, `qty` REAL NOT NULL, `mrp` REAL NOT NULL, `taxId` INTEGER NOT NULL, `taxRate` REAL NOT NULL, `taxAmount` REAL NOT NULL, `price` REAL NOT NULL, `netAmount` REAL NOT NULL, `landingCost` REAL NOT NULL, `sellingPrice` REAL NOT NULL, `batchId` INTEGER NOT NULL, `batchNo` TEXT, `profit` REAL NOT NULL, `orderBy` INTEGER NOT NULL, `discountType` TEXT, `discount` REAL NOT NULL, `mrpToDiscount` REAL NOT NULL, `mrpToDiscountTypeAdditional` TEXT, `mrpToDiscountType` TEXT, `mrpTodiscountAdditional` REAL NOT NULL, `discountTypeAdditional` TEXT, `discountAdditional` REAL NOT NULL, `itemCode` TEXT, FOREIGN KEY(`saveBillSalesId`) REFERENCES `SaveBill`(`responseSalesId`) ON UPDATE NO ACTION ON DELETE CASCADE )",
+        "fields": [
+          {
+            "fieldPath": "salesDtoId",
+            "columnName": "salesDtoId",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "saveBillSalesId",
+            "columnName": "saveBillSalesId",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "productVarientId",
+            "columnName": "productVarientId",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "qty",
+            "columnName": "qty",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "mrp",
+            "columnName": "mrp",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "taxId",
+            "columnName": "taxId",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "taxRate",
+            "columnName": "taxRate",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "taxAmount",
+            "columnName": "taxAmount",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "price",
+            "columnName": "price",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "netAmount",
+            "columnName": "netAmount",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "landingCost",
+            "columnName": "landingCost",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "sellingPrice",
+            "columnName": "sellingPrice",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "batchId",
+            "columnName": "batchId",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "batchNo",
+            "columnName": "batchNo",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "profit",
+            "columnName": "profit",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "orderBy",
+            "columnName": "orderBy",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "discountType",
+            "columnName": "discountType",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "discount",
+            "columnName": "discount",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "mrpToDiscount",
+            "columnName": "mrpToDiscount",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "mrpToDiscountTypeAdditional",
+            "columnName": "mrpToDiscountTypeAdditional",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "mrpToDiscountType",
+            "columnName": "mrpToDiscountType",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "mrpTodiscountAdditional",
+            "columnName": "mrpTodiscountAdditional",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "discountTypeAdditional",
+            "columnName": "discountTypeAdditional",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "discountAdditional",
+            "columnName": "discountAdditional",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "itemCode",
+            "columnName": "itemCode",
+            "affinity": "TEXT",
+            "notNull": false
+          }
+        ],
+        "primaryKey": {
+          "columnNames": [
+            "salesDtoId"
+          ],
+          "autoGenerate": true
+        },
+        "indices": [],
+        "foreignKeys": [
+          {
+            "table": "SaveBill",
+            "onDelete": "CASCADE",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "saveBillSalesId"
+            ],
+            "referencedColumns": [
+              "responseSalesId"
+            ]
+          }
+        ]
+      }
+    ],
+    "views": [],
+    "setupQueries": [
+      "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '93512dfdd38aa465170db4b03c17349f')"
+    ]
+  }
+}
